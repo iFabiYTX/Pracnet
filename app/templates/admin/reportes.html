@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Generación de Reportes - PracNet{% endblock %}
+
+{% block admin_title %}
+<h1>Generación de reportes</h1>
+<p>Módulo: Generación de reportes</p>
+{% endblock %}
+
+{% block content %}
+<div class="table-card" style="padding: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+    <div>
+      <h3 style="color: var(--primary-navy); font-size: 1.25rem;">Dashboard e Indicadores</h3>
+      <p style="color: var(--text-muted); font-size: 0.88rem;">Métricas generales y exportación de datos para acreditación CNA y Consejo Asesor Empresarial (CAE).</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ url_for('admin.exportar_reporte', formato='pdf') }}" class="btn" style="background: #e2e8f0; color: #334155; padding: 6px 14px; font-size: 0.85rem;" onclick="window.print(); return false;">
+        🖨️ PDF
+      </a>
+      <a href="{{ url_for('admin.exportar_reporte', formato='excel') }}" class="btn btn-success" style="padding: 6px 14px; font-size: 0.85rem;">
+        📥 Excel
+      </a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-bottom: 30px;">
+    <!-- Gráfico 1: Prácticas por Área de Especialidad -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
+      <h4 style="color: var(--primary-navy); font-size: 0.95rem; margin-bottom: 15px;">Prácticas por Área de Especialidad</h4>
+      <div style="height: 240px;">
+        <canvas id="chartAreas"></canvas>
+      </div>
+    </div>
+
+    <!-- Gráfico 2: Estado de Postulaciones -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
+      <h4 style="color: var(--primary-navy); font-size: 0.95rem; margin-bottom: 15px;">Estado de Postulaciones</h4>
+      <div style="margin-top: 25px;">
+        <div style="margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+            <span>En Proceso</span>
+            <strong>65%</strong>
+          </div>
+          <div style="background: #e2e8f0; height: 10px; border-radius: 9999px; overflow: hidden;">
+            <div style="background: #1e3a8a; height: 100%; width: 65%;"></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+            <span>Aprobadas</span>
+            <strong>25%</strong>
+          </div>
+          <div style="background: #e2e8f0; height: 10px; border-radius: 9999px; overflow: hidden;">
+            <div style="background: #10b981; height: 100%; width: 25%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+            <span>Rechazadas</span>
+            <strong>10%</strong>
+          </div>
+          <div style="background: #e2e8f0; height: 10px; border-radius: 9999px; overflow: hidden;">
+            <div style="background: #ef4444; height: 100%; width: 10%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <!-- Top Empresas Contratantes -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
+      <h4 style="color: var(--primary-navy); font-size: 0.95rem; margin-bottom: 15px;">Top Empresas Contratantes</h4>
+      <ul style="list-style: none;">
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+          <span><strong>1. Tech Solutions</strong></span>
+          <span class="badge badge-success">12 Alumnos</span>
+        </li>
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+          <span><strong>2. Banco Estado</strong></span>
+          <span class="badge badge-success">8 Alumnos</span>
+        </li>
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+          <span><strong>3. CMPC Automotriz</strong></span>
+          <span class="badge badge-success">5 Alumnos</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tasa de Retención Post-Práctica -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+      <h4 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;">
+        Tasa de Retención Post-Práctica
+      </h4>
+      <div style="font-size: 3.5rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">
+        38%
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 10px;">
+        Alumnos que continuaron trabajando tras la práctica en el último semestre formativo.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('chartAreas').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Software', 'Datos', 'Industria', 'Diseño', 'Redes'],
+      datasets: [{
+        label: 'Prácticas por Área',
+        data: [45, 28, 52, 15, 32],
+        backgroundColor: [
+          '#1e3a8a',
+          '#e2951f',
+          '#10b981',
+          '#0284c7',
+          '#64748b'
+        ],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

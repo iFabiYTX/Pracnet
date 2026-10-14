@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Auditoría de Seguridad - PracNet Admin{% endblock %}
+
+{% block admin_title %}
+<h1>Auditoría y Trazabilidad de Seguridad</h1>
+<p>Registro histórico inmutable de eventos, inicios de sesión y cambios de estado (OWASP)</p>
+{% endblock %}
+
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <h3>Bitácora de Eventos de Seguridad</h3>
+    <span class="badge badge-success">Seguridad Activa</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>FECHA Y HORA</th>
+        <th>USUARIO RESPONSABLE</th>
+        <th>ACCIÓN REGISTRADA</th>
+        <th>DETALLE TÉCNICO</th>
+        <th>DIRECCIÓN IP</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in registros %}
+      <tr>
+        <td style="font-size: 0.8rem; font-family: monospace; white-space: nowrap;">
+          {{ r.fecha }}
+        </td>
+        <td>
+          {% if r.usuario_nombre %}
+            <strong style="color: var(--primary-navy); font-size: 0.85rem;">{{ r.usuario_nombre }}</strong><br>
+            <span style="font-size: 0.75rem; color: #64748b;">{{ r.usuario_email }} ({{ r.usuario_rol }})</span>
+          {% else %}
+            <span style="color: #64748b; font-size: 0.8rem;">Sistema / Enlace Token</span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge badge-info">{{ r.accion }}</span>
+        </td>
+        <td style="font-size: 0.85rem; color: #334155;">
+          {{ r.detalle }}
+        </td>
+        <td style="font-family: monospace; font-size: 0.8rem; color: #64748b;">
+          {{ r.ip_address or '127.0.0.1' }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

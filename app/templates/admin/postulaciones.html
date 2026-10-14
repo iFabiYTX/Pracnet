@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Seguimiento Postulaciones - PracNet{% endblock %}
+
+{% block admin_title %}
+<h1>Seguimiento postulaciones</h1>
+<p>Módulo: Seguimiento postulaciones</p>
+{% endblock %}
+
+{% block content %}
+<div class="table-card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ALUMNO</th>
+        <th>EMPRESA / PRÁCTICA</th>
+        <th>FASE ADMINISTRATIVA</th>
+        <th style="text-align: right;">GESTIÓN</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in postulaciones %}
+      <tr>
+        <td>
+          <strong style="color: var(--primary-navy); font-size: 0.95rem;">{{ p.est_nombre }} {{ p.est_apellido }}</strong><br>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">Avance: {{ p.avance_malla }}% | RUT: {{ p.est_rut }}</span>
+        </td>
+        <td>
+          <span style="font-weight: 600; color: #1e293b;">{{ p.empresa_nombre }}</span> - 
+          <span style="color: #64748b;">{{ p.oferta_titulo }}</span>
+        </td>
+        <td>
+          {% if p.fase_administrativa == 'Pendiente Seguro Escolar' %}
+            <span class="badge badge-warning">{{ p.fase_administrativa }}</span>
+          {% elif p.fase_administrativa == 'Carta Presentación Emitida' %}
+            <span class="badge badge-info">{{ p.fase_administrativa }}</span>
+          {% elif p.fase_administrativa == 'Entrevista Técnica Realizada' %}
+            <span class="badge badge-purple">{{ p.fase_administrativa }}</span>
+          {% elif p.fase_administrativa == 'Práctica Iniciada' %}
+            <span class="badge badge-success">{{ p.fase_administrativa }}</span>
+          {% else %}
+            <span class="badge badge-info">{{ p.fase_administrativa }}</span>
+          {% endif %}
+        </td>
+        <td style="text-align: right;">
+          <button onclick="abrirGestionPostulacion('{{ p.id }}', '{{ p.est_nombre }} {{ p.est_apellido }}', '{{ p.fase_administrativa }}', '{{ p.estado }}')" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.8rem; background-color: var(--primary-navy);">
+            Ver Docs
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal para Gestión de Postulación y Documentos -->
+<div id="modal-postulacion" class="modal-overlay">
+  <div class="modal-window">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 id="modal-alumno-nombre" style="color: var(--primary-navy);">Gestión de Expediente</h3>
+      <button onclick="closeModal('modal-postulacion')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin.actualizar_fase') }}">
+      <input type="hidden" id="modal-postulacion-id" name="postulacion_id">
+
+      <div class="form-group">
+        <label for="fase_administrativa">Fase Administrativa Actual</label>
+        <select id="fase_administrativa" name="fase_administrativa" class="form-control" required>
+          <option value="Postulado">Postulado</option>
+          <option value="Pendiente Seguro Escolar">Pendiente Seguro Escolar</option>
+          <option value="Carta Presentación Emitida">Carta Presentación Emitida</option>
+          <option value="Entrevista Técnica Realizada">Entrevista Técnica Realizada</option>
+          <option value="Práctica Iniciada">Práctica Iniciada</option>
+          <option value="Informe Final en Revisión">Informe Final en Revisión</option>
+          <option value="Práctica Aprobada">Práctica Aprobada</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="estado">Estado General</label>
+        <select id="estado" name="estado" class="form-control" required>
+          <option value="En Seleccion">En Selección</option>
+          <option value="Validacion Academica">Validación Académica</option>
+          <option value="Aprobado">Aprobado</option>
+          <option value="Rechazado">Rechazado</option>
+        </select>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin: 15px 0;">
+        <h4 style="font-size: 0.85rem; color: #475569; margin-bottom: 8px;">Documentos Verificados:</h4>
+        <div style="font-size: 0.8rem; color: #166534; margin-bottom: 4px;">✓ Curriculum Vitae (Formato USM)</div>
+        <div style="font-size: 0.8rem; color: #166534; margin-bottom: 4px;">✓ Certificado de Seguro Escolar (Ley N° 16.744)</div>
+        <div style="font-size: 0.8rem; color: #475569;">📋 Formulario 6000 B de convalidación académica</div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" onclick="closeModal('modal-postulacion')" class="btn" style="background: #e2e8f0; color: #475569;">Cerrar</button>
+        <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirGestionPostulacion(id, nombre, fase, estado) {
+  document.getElementById('modal-postulacion-id').value = id;
+  document.getElementById('modal-alumno-nombre').textContent = 'Expediente: ' + nombre;
+  document.getElementById('fase_administrativa').value = fase;
+  document.getElementById('estado').value = estado;
+  openModal('modal-postulacion');
+}
+</script>
+{% endblock %}

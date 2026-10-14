@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Estudiante - PracNet{% endblock %}
+
+{% block auth_content %}
+<div class="auth-card" style="max-width: 520px; text-align: left;">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <h1 class="logo-title">Registrarse</h1>
+    <p class="sub-title">CREA TU PERFIL DE PRÁCTICA PROFESIONAL</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('auth.register') }}">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Escribe tu nombre" value="{{ form.get('nombre', '') }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="apellido">Apellido</label>
+        <input type="text" id="apellido" name="apellido" class="form-control" placeholder="Escribe tu apellido" value="{{ form.get('apellido', '') }}" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Institucional</label>
+      <input type="email" id="email" name="email" class="form-control" placeholder="nombre.apellido@alumnos.usm.cl" value="{{ form.get('email', '') }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="form-group">
+        <label for="rut">RUT (con guión y DV)</label>
+        <input type="text" id="rut" name="rut" class="form-control" placeholder="Ej: 12.345.678-9" value="{{ form.get('rut', '') }}" required>
+      </div>
+
+      <div class="form-group">
+        <label for="ano_ingreso">Año Ingreso</label>
+        <input type="number" id="ano_ingreso" name="ano_ingreso" class="form-control" value="{{ form.get('ano_ingreso', '2022') }}" min="2015" max="2026" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="universidad">Universidad</label>
+      <input type="text" id="universidad" name="universidad" class="form-control" value="Universidad Técnica Federico Santa María" readonly style="background: #f3f4f6;">
+    </div>
+
+    <div class="form-group">
+      <label for="carrera">Carrera</label>
+      <select id="carrera" name="carrera" class="form-control">
+        <option value="Ingeniería Civil Informática">Ingeniería Civil Informática</option>
+        <option value="Ingeniería en Prevención de Riesgos">Ingeniería en Prevención de Riesgos</option>
+        <option value="Ingeniería en Manufactura Industrial">Ingeniería en Manufactura Industrial</option>
+        <option value="Ingeniería Civil Industrial">Ingeniería Civil Industrial</option>
+        <option value="Ingeniería Comercial">Ingeniería Comercial</option>
+        <option value="Técnico Universitario en Informática">Técnico Universitario en Informática</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="habilidades">Habilidades Clave (separadas por coma)</label>
+      <input type="text" id="habilidades" name="habilidades" class="form-control" placeholder="Ej: Python, SQL, Git, PowerBI" value="{{ form.get('habilidades', '') }}">
+    </div>
+
+    <div class="form-group">
+      <label for="ubicacion">Ubicación</label>
+      <input type="text" id="ubicacion" name="ubicacion" class="form-control" placeholder="Santiago / Valparaíso / Concepción" value="{{ form.get('ubicacion', 'Santiago, Chile') }}">
+    </div>
+
+    <div style="margin: 18px 0; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 8px;">
+      <input type="checkbox" id="terminos" name="terminos" style="margin-top: 3px;" required>
+      <label for="terminos" style="color: #4b5563; font-weight: normal;">
+        Acepto los <a href="#" style="color: #1e5bb0;">Términos y Condiciones</a> y autorizo el tratamiento de mis datos personales según la <strong>Ley N° 19.628</strong> exclusivamente para fines de postulación y validación de práctica.
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; background-color: #0e2a47;">
+      Registrarse
+    </button>
+  </form>
+
+  <div style="text-align: center; margin-top: 15px; font-size: 0.85rem;">
+    <span style="color: #6b7280;">¿Ya tienes cuenta?</span> 
+    <a href="{{ url_for('auth.login') }}" style="color: #1e5bb0; font-weight: 600; text-decoration: none;">Iniciar Sesión</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PRACNET - Gestión de Prácticas Universitarias{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pracnet.css') }}">
+  <script src="{{ url_for('static', filename='js/pracnet.js') }}" defer></script>
+  <!-- Chart.js para dashboards de reportes -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  {% if session.get('user_id') and session.get('rol') in ['admin', 'jefe_carrera'] %}
+  <!-- Layout Web con Sidebar para Jefaturas y Administradores -->
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <h2>PracNet</h2>
+        {% if session.get('rol') == 'admin' %}
+          <span style="color: #fca5a5;">ADMINISTRACIÓN GLOBAL</span>
+        {% else %}
+          <span style="color: #93c5fd;">COORDINACIÓN INSTITUCIONAL</span>
+        {% endif %}
+      </div>
+      <ul class="sidebar-menu">
+        <li class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+          <a href="{{ url_for('admin.dashboard') }}">
+            <span class="icon">📊</span> Panel de administración
+          </a>
+        </li>
+        <li class="{% if request.endpoint == 'admin.ofertas' %}active{% endif %}">
+          <a href="{{ url_for('admin.ofertas') }}">
+            <span class="icon">💼</span> Gestión ofertas de prácticas
+          </a>
+        </li>
+        <li class="{% if request.endpoint == 'admin.recomendacion' %}active{% endif %}">
+          <a href="{{ url_for('admin.recomendacion') }}">
+            <span class="icon">🎯</span> Sistema de recomendación
+          </a>
+        </li>
+        <li class="{% if request.endpoint == 'admin.postulaciones' %}active{% endif %}">
+          <a href="{{ url_for('admin.postulaciones') }}">
+            <span class="icon">📋</span> Seguimiento postulaciones
+          </a>
+        </li>
+        <li class="{% if request.endpoint == 'admin.reportes' %}active{% endif %}">
+          <a href="{{ url_for('admin.reportes') }}">
+            <span class="icon">📈</span> Generación de reportes
+          </a>
+        </li>
+        {% if session.get('rol') == 'admin' %}
+        <li class="{% if request.endpoint == 'admin.usuarios' %}active{% endif %}">
+          <a href="{{ url_for('admin.usuarios') }}">
+            <span class="icon">👥</span> Gestión de usuarios
+          </a>
+        </li>
+        <li class="{% if request.endpoint == 'admin.auditoria' %}active{% endif %}">
+          <a href="{{ url_for('admin.auditoria') }}">
+            <span class="icon">🔒</span> Auditoría del sistema
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+      
+      <div style="padding: 10px 20px;">
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger btn-block" style="font-size: 0.8rem; padding: 8px;">
+          🚪 Cerrar Sesión
+        </a>
+      </div>
+
+      <div style="padding: 15px 20px; font-size: 0.75rem; color: #64748b; border-top: 1px solid rgba(255,255,255,0.1);">
+        UTFSM - Depto. Informática<br>
+        Rol: <strong>{{ session.get('rol') }}</strong>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-header">
+        <div>
+          {% block admin_title %}{% endblock %}
+        </div>
+        <div class="user-badge">
+          {% if session.get('rol') == 'admin' %}
+            <span class="badge badge-danger">🛡️ Admin</span>
+          {% else %}
+            <span class="badge badge-purple">🏛️ Institucional</span>
+          {% endif %}
+          <span>{{ session.get('nombre') }}</span>
+          <span class="status-dot" title="En línea"></span>
+          <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; text-decoration: none; font-size: 0.85rem; margin-left: 8px;">Salir</a>
+        </div>
+      </div>
+
+      <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  {% elif session.get('user_id') and session.get('rol') == 'estudiante' %}
+  <!-- Layout Móvil / Responsive para Estudiantes (Idéntico a Mockup 9.1) -->
+  <div class="mobile-container">
+    <div class="mobile-topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--border-color);">
+      <span style="font-weight: 700; color: var(--primary-navy); font-size: 0.95rem;">PracNet Alumno</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="badge badge-info" style="font-size: 0.7rem;">🎓 Usuario</span>
+        <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; font-size: 0.8rem; text-decoration: none; font-weight: 600; background: #fee2e2; padding: 3px 8px; border-radius: 4px;">
+          Salir
+        </a>
+      </div>
+    </div>
+
+    <div class="mobile-content">
+      <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      {% block student_content %}{% endblock %}
+    </div>
+
+    <!-- Barra de Navegación Inferior (Mockup 9.1) -->
+    <nav class="mobile-nav">
+      <a href="{{ url_for('student.muro') }}" class="{% if request.endpoint == 'student.muro' %}active{% endif %}">
+        <span class="icon">📑</span>
+        <span>Muro</span>
+      </a>
+      <a href="{{ url_for('student.seguimiento') }}" class="{% if request.endpoint == 'student.seguimiento' %}active{% endif %}">
+        <span class="icon">🔍</span>
+        <span>Postulaciones</span>
+      </a>
+      <a href="{{ url_for('student.validacion') }}" class="{% if request.endpoint == 'student.validacion' %}active{% endif %}">
+        <span class="icon">📂</span>
+        <span>Documentación</span>
+      </a>
+      <a href="{{ url_for('student.perfil') }}" class="{% if request.endpoint == 'student.perfil' %}active{% endif %}">
+        <span class="icon">👤</span>
+        <span>Perfil</span>
+      </a>
+    </nav>
+  </div>
+
+  {% else %}
+  <!-- Layout Simple para Visitantes / Login / Registro -->
+  <div class="auth-wrapper">
+    <div class="flash-container" style="width: 100%; max-width: 440px; margin-bottom: 15px;">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+    {% block auth_content %}{% endblock %}
+  </div>
+  {% endif %}
+
+</body>
+</html>

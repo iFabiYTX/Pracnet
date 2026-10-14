@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Página no encontrada - PracNet{% endblock %}
+{% block auth_content %}
+<div class="auth-card">
+  <h2 style="color: #e2951f; font-size: 2.2rem;">404</h2>
+  <h3 style="margin: 15px 0; color: #1e293b;">Página No Encontrada</h3>
+  <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 25px;">
+    La ruta solicitada no existe en el sistema PRACNET.
+  </p>
+  <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-block">Ir a Inicio</a>
+</div>
+{% endblock %}

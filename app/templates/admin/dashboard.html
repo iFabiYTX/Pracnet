@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Administración - PracNet{% endblock %}
+
+{% block admin_title %}
+<h1>Panel de administración</h1>
+<p>Monitor de prácticas profesionales en curso.</p>
+{% endblock %}
+
+{% block content %}
+<!-- Grid de 4 KPIs (Mockup 9.2) -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">PRÁCTICAS ACTIVAS</div>
+    <div class="kpi-value">{{ practicas_activas }}</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">ALUMNOS HABILITADOS</div>
+    <div class="kpi-value">{{ alumnos_habilitados }}</div>
+    <div class="kpi-subtext">+70% de avance malla</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">POSTULACIONES HOY</div>
+    <div class="kpi-value">{{ postulaciones_hoy }}</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">CONVENIOS EMPRESAS</div>
+    <div class="kpi-value">{{ convenios_empresas }}</div>
+  </div>
+</div>
+
+<!-- Card de Actividad Reciente -->
+<div class="table-card" style="padding: 24px;">
+  <h3 style="color: var(--primary-navy); margin-bottom: 16px; font-size: 1.15rem;">Actividad Reciente</h3>
+  <ul style="list-style: none;">
+    {% if actividades %}
+      {% for act in actividades %}
+        <li style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <span style="font-weight: 600; color: #1e3a8a;">• {{ act.accion }}</span>: 
+            <span style="color: #475569;">{{ act.detalle }}</span>
+            {% if act.usuario_nombre %}
+              <small style="color: #94a3b8;">(por {{ act.usuario_nombre }})</small>
+            {% endif %}
+          </div>
+          <span style="font-size: 0.8rem; color: #94a3b8;">{{ act.fecha }}</span>
+        </li>
+      {% endfor %}
+    {% else %}
+      <li style="padding: 8px 0; color: #6b7280;">• Hace 10 min: Solicitud de validación de seguro escolar aprobada para Carlos Mendoza</li>
+      <li style="padding: 8px 0; color: #6b7280;">• Hace 45 min: Nueva postulación en Tech Solutions - Práctica Desarrollo Backend</li>
+      <li style="padding: 8px 0; color: #6b7280;">• Hace 2 horas: Carta de presentación institucional emitida para Juan Pérez G.</li>
+      <li style="padding: 8px 0; color: #6b7280;">• Ayer: Convenio de práctica renovado con Banco Estado</li>
+    {% endif %}
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Database
+app/uploads/*.tmp
+
+# Executables & Shortcuts
+*.lnk
+*.zip
+cloudflared.exe
+
+# IDE
+.vscode/
+.idea/

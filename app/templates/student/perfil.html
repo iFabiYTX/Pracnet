@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Perfil - PracNet Móvil{% endblock %}
+
+{% block student_content %}
+<!-- Tarjeta Superior de Identidad (Mockup 9.1) -->
+<div style="background: var(--primary-navy); border-radius: 12px; padding: 24px 20px; text-align: center; color: white; margin-bottom: 20px;">
+  <div style="width: 72px; height: 72px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 12px auto; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">
+    👤
+  </div>
+  <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 2px;">{{ estudiante.nombre }} {{ estudiante.apellido }}</h2>
+  <p style="font-size: 0.85rem; color: #93c5fd;">{{ estudiante.carrera }}</p>
+</div>
+
+<!-- Tarjeta de Datos Personales (Mockup 9.1) -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+  <h3 style="font-size: 0.95rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 12px;">Datos personales</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem;">
+    <div>
+      <span style="color: #64748b; font-size: 0.75rem; display: block; text-transform: uppercase;">RUT</span>
+      <strong style="color: #1e293b;">{{ estudiante.rut }}</strong>
+    </div>
+    <div>
+      <span style="color: #64748b; font-size: 0.75rem; display: block; text-transform: uppercase;">Avance académico</span>
+      <strong style="color: #1e293b;">{{ estudiante.semestre_actual }}° Semestre ({{ estudiante.avance_malla }}% Malla)</strong>
+    </div>
+  </div>
+
+  <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9; font-size: 0.85rem;">
+    <span style="color: #64748b; font-size: 0.75rem; display: block; text-transform: uppercase;">Habilidades registradas</span>
+    <span style="color: #334155;">{{ estudiante.habilidades }}</span>
+  </div>
+</div>
+
+<!-- Tarjeta de Configuración (Mockup 9.1) -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px;">
+  <h3 style="font-size: 0.95rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 14px;">Configuración</h3>
+
+  <div style="display: flex; flex-direction: column; gap: 10px;">
+    <button class="btn btn-primary" style="background: #1e293b; text-align: center; padding: 10px; font-size: 0.85rem;">
+      Cuenta
+    </button>
+    <button class="btn btn-primary" style="background: #1e293b; text-align: center; padding: 10px; font-size: 0.85rem;">
+      Notificaciones
+    </button>
+    <button onclick="openModal('modal-privacidad')" class="btn btn-primary" style="background: #1e293b; text-align: center; padding: 10px; font-size: 0.85rem;">
+      Seguridad y privacidad
+    </button>
+  </div>
+</div>
+
+<!-- Modal Seguridad y Privacidad (Ley N° 19.628) -->
+<div id="modal-privacidad" class="modal-overlay">
+  <div class="modal-window">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="color: var(--primary-navy); font-size: 1.1rem;">Seguridad y Privacidad</h3>
+      <button onclick="closeModal('modal-privacidad')" style="background: none; border: none; font-size: 1.4rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <div style="font-size: 0.85rem; color: #475569; line-height: 1.5; margin-bottom: 15px;">
+      <p style="margin-bottom: 10px;">
+        En cumplimiento con la <strong>Ley N° 19.628 sobre Protección de la Vida Privada</strong> y las directrices de ciberseguridad de la USM:
+      </p>
+      <ul style="padding-left: 20px; margin-bottom: 10px;">
+        <li>Tus datos personales y académicos son encriptados y utilizados exclusivamente para gestionar tus prácticas profesionales.</li>
+        <li>Tienes derecho a solicitar acceso, rectificación o eliminación de tus datos personales en cualquier momento.</li>
+        <li>Tu información sólo es compartida con empresas en convenio cuando postulas voluntariamente a una vacante.</li>
+      </ul>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end;">
+      <button onclick="closeModal('modal-privacidad')" class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem;">Entendido</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Muro de Prácticas - PracNet Móvil{% endblock %}
+
+{% block student_content %}
+<div style="margin-bottom: 16px;">
+  <h2 style="font-size: 1.3rem; color: var(--primary-navy); font-weight: 700;">Oportunidades Disponibles</h2>
+  <p style="font-size: 0.8rem; color: var(--text-muted);">Vacantes validadas por tu Jefatura de Carrera</p>
+</div>
+
+<!-- Filtros de Oportunidades (Mockup 9.1) -->
+<form method="GET" action="{{ url_for('student.muro') }}" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+    <select name="ubicacion" class="form-control" style="font-size: 0.8rem; padding: 6px 10px;" onchange="this.form.submit()">
+      <option value="">📍 Ubicación (Todas)</option>
+      <option value="Santiago" {% if ubicacion_filtro == 'Santiago' %}selected{% endif %}>Santiago</option>
+      <option value="Valparaíso" {% if ubicacion_filtro == 'Valparaíso' %}selected{% endif %}>Valparaíso</option>
+      <option value="Concepción" {% if ubicacion_filtro == 'Concepción' %}selected{% endif %}>Concepción</option>
+    </select>
+
+    <select name="area" class="form-control" style="font-size: 0.8rem; padding: 6px 10px;" onchange="this.form.submit()">
+      <option value="">💻 Área (Todas)</option>
+      {% for a in areas %}
+        <option value="{{ a }}" {% if area_filtro == a %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+    <select name="modalidad" class="form-control" style="font-size: 0.8rem; padding: 6px 10px;" onchange="this.form.submit()">
+      <option value="">💼 Modalidad</option>
+      <option value="Híbrido" {% if modalidad_filtro == 'Híbrido' %}selected{% endif %}>Híbrido</option>
+      <option value="Remoto" {% if modalidad_filtro == 'Remoto' %}selected{% endif %}>Remoto</option>
+      <option value="Presencial" {% if modalidad_filtro == 'Presencial' %}selected{% endif %}>Presencial</option>
+    </select>
+
+    <a href="{{ url_for('student.muro') }}" class="btn" style="background: #e2e8f0; color: #475569; font-size: 0.8rem; padding: 6px; text-align: center;">Limpiar</a>
+  </div>
+</form>
+
+<!-- Feed de Prácticas Profesionales -->
+<div style="display: flex; flex-direction: column; gap: 14px;">
+  {% for of in ofertas %}
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+      <h3 style="font-size: 1.05rem; color: var(--primary-navy); font-weight: 700;">{{ of.titulo }}</h3>
+      <span style="font-size: 0.95rem; font-weight: 700; color: #15803d;">
+        {% if of.remunerada and of.monto_remuneracion %}
+          {{ of.monto_remuneracion }}
+        {% else %}
+          Por definir
+        {% endif %}
+      </span>
+    </div>
+    
+    <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">
+      {{ of.empresa_nombre }}
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+      <span style="background: #f1f5f9; color: #475569; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;">{{ of.modalidad }}</span>
+      <span style="background: #f1f5f9; color: #475569; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;">{{ of.area }}</span>
+      <span style="background: #f1f5f9; color: #475569; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;">{{ of.duracion_horas }} hrs</span>
+      <span style="background: #eff6ff; color: #1e40af; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;">{{ of.requisito_academico }}</span>
+    </div>
+
+    <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 14px; line-height: 1.4;">
+      {{ of.descripcion }}
+    </p>
+
+    <div style="display: flex; justify-content: flex-end; align-items: center;">
+      {% if of.mi_postulacion_id %}
+        <span class="badge badge-success" style="padding: 6px 12px;">✓ Ya has postulado</span>
+      {% else %}
+        <form method="POST" action="{{ url_for('student.postular', oferta_id=of.id) }}" style="margin: 0;">
+          <button type="submit" class="btn btn-primary" style="padding: 6px 16px; font-size: 0.85rem; background-color: var(--primary-navy);">
+            Postular Ahora
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

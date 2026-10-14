@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Empresa - {{ oferta.empresa_nombre }} | PRACNET</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pracnet.css') }}">
+  <script src="{{ url_for('static', filename='js/pracnet.js') }}" defer></script>
+</head>
+<body style="background-color: #f1f5f9;">
+
+  <!-- Barra Superior Corporativa -->
+  <header style="background: var(--primary-navy); color: white; padding: 16px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <h2 style="font-size: 1.4rem; font-weight: 800; letter-spacing: 0.5px;">PracNet</h2>
+      <span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">
+        Acceso Seguro por Token
+      </span>
+    </div>
+    <div style="font-size: 0.9rem; color: #cbd5e1;">
+      Empresa: <strong style="color: white;">{{ oferta.empresa_nombre }}</strong>
+    </div>
+  </header>
+
+  <main style="max-width: 1100px; margin: 30px auto; padding: 0 20px;">
+    <!-- Mensajes Flash -->
+    <div class="flash-container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <!-- Ficha de la Oferta de Práctica -->
+    <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+        <div>
+          <span style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;">VACANTE DE PRÁCTICA PROFESIONAL</span>
+          <h1 style="color: var(--primary-navy); font-size: 1.7rem; font-weight: 700; margin-top: 4px;">{{ oferta.titulo }}</h1>
+        </div>
+        <span class="badge badge-success" style="font-size: 0.85rem; padding: 6px 12px;">
+          ● Estado: {{ oferta.estado }}
+        </span>
+      </div>
+
+      <p style="color: #475569; font-size: 0.95rem; line-height: 1.5; margin-bottom: 18px;">
+        {{ oferta.descripcion }}
+      </p>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; font-size: 0.85rem; border-top: 1px solid #f1f5f9; padding-top: 14px;">
+        <div><span style="color: #64748b;">Modalidad:</span> <strong>{{ oferta.modalidad }}</strong></div>
+        <div><span style="color: #64748b;">Duración:</span> <strong>{{ oferta.duracion_horas }} horas</strong></div>
+        <div><span style="color: #64748b;">Requisito Curricular:</span> <strong>{{ oferta.requisito_academico }}</strong></div>
+        <div><span style="color: #64748b;">Asignación:</span> <strong>{{ oferta.monto_remuneracion if oferta.remunerada else 'Sin remuneración' }}</strong></div>
+        <div><span style="color: #64748b;">Habilidades solicitadas:</span> <strong>{{ oferta.habilidades_requeridas }}</strong></div>
+      </div>
+    </div>
+
+    <!-- Lista de Postulantes -->
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <h3>Postulantes a esta Vacante ({{ postulantes|length }} estudiantes)</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Revise antecedentes y tome decisiones de aceptación o rechazo directamente.</p>
+        </div>
+      </div>
+
+      {% if postulantes %}
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ESTUDIANTE</th>
+            <th>CARRERA Y AVANCE</th>
+            <th>HABILIDADES / CV</th>
+            <th>ESTADO ACTUAL</th>
+            <th style="text-align: right;">DECISIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in postulantes %}
+          <tr>
+            <td>
+              <strong style="color: var(--primary-navy); font-size: 0.95rem;">{{ p.est_nombre }} {{ p.est_apellido }}</strong><br>
+              <span style="color: #64748b; font-size: 0.8rem;">✉ {{ p.correo_institucional }}</span><br>
+              <span style="color: #64748b; font-size: 0.8rem;">📞 {{ p.telefono }}</span>
+            </td>
+            <td>
+              <strong style="color: #334155;">{{ p.carrera }}</strong><br>
+              <span style="color: #0284c7; font-size: 0.85rem; font-weight: 600;">{{ p.avance_malla }}% Avance Curricular</span>
+              <span style="color: #94a3b8; font-size: 0.8rem;">({{ p.semestre_actual }}° Semestre)</span>
+            </td>
+            <td>
+              <div style="font-size: 0.85rem; color: #475569; margin-bottom: 4px;">{{ p.habilidades }}</div>
+              {% if p.cv_archivo %}
+                <span style="background: #e0f2fe; color: #0284c7; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px;">
+                  📄 {{ p.cv_archivo }}
+                </span>
+              {% else %}
+                <span style="color: #94a3b8; font-size: 0.75rem;">Sin CV adjunto</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if p.estado == 'Postulado' %}
+                <span class="badge badge-info">Postulado</span>
+              {% elif p.estado == 'En Seleccion' %}
+                <span class="badge badge-purple">En Selección</span>
+              {% elif p.estado == 'Aprobado' %}
+                <span class="badge badge-success">Aceptado</span>
+              {% elif p.estado == 'Rechazado' %}
+                <span class="badge badge-danger">Rechazado</span>
+              {% else %}
+                <span class="badge badge-info">{{ p.estado }}</span>
+              {% endif %}
+
+              {% if p.observaciones %}
+                <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px; max-width: 200px;">
+                  <em>"{{ p.observaciones }}"</em>
+                </div>
+              {% endif %}
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <button onclick="abrirModalDecision('{{ p.id }}', '{{ p.est_nombre }} {{ p.est_apellido }}', 'aceptar')" class="btn btn-success" style="padding: 6px 12px; font-size: 0.8rem;">
+                ✓ Aceptar
+              </button>
+              <button onclick="abrirModalDecision('{{ p.id }}', '{{ p.est_nombre }} {{ p.est_apellido }}', 'rechazar')" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">
+                ✗ Rechazar
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="padding: 40px; text-align: center; color: #64748b;">
+        <p style="font-size: 1rem; margin-bottom: 8px;">Aún no hay postulaciones registradas para esta oferta.</p>
+        <p style="font-size: 0.85rem; color: #94a3b8;">Los estudiantes de la USM verán tu vacante en su muro y postularán en los próximos días.</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <!-- Modal para Tomar Decisión (Aceptar o Rechazar con Feedback) -->
+  <div id="modal-empresa-decision" class="modal-overlay">
+    <div class="modal-window">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 id="modal-titulo-decision" style="color: var(--primary-navy);">Confirmar Decisión</h3>
+        <button onclick="closeModal('modal-empresa-decision')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+
+      <form id="form-decision" method="POST" action="">
+        <input type="hidden" id="input-decision" name="decision" value="aceptar">
+
+        <p id="modal-desc-decision" style="font-size: 0.9rem; color: #475569; margin-bottom: 15px; line-height: 1.4;">
+          Vas a seleccionar a este postulante para la siguiente etapa.
+        </p>
+
+        <div class="form-group">
+          <label for="observacion">Mensaje / Retroalimentación para el Alumno:</label>
+          <textarea id="observacion" name="observacion" class="form-control" rows="3" placeholder="Ej: Citado a entrevista online el día jueves a las 11:00 hrs / Perfil con alto potencial..." required></textarea>
+          <small style="color: #64748b; font-size: 0.75rem;">
+            * Este mensaje será enviado como notificación oficial y permitirá a la jefatura de carrera saber las razones de la decisión.
+          </small>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" onclick="closeModal('modal-empresa-decision')" class="btn" style="background: #e2e8f0; color: #475569;">Cancelar</button>
+          <button type="submit" id="btn-submit-decision" class="btn btn-success">Confirmar Aceptación</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  function abrirModalDecision(postulacionId, alumnoNombre, tipo) {
+    const form = document.getElementById('form-decision');
+    form.action = "{{ url_for('empresa.portal', token=token) }}/postulante/" + postulacionId + "/decision";
+    
+    document.getElementById('input-decision').value = tipo;
+    const titulo = document.getElementById('modal-titulo-decision');
+    const desc = document.getElementById('modal-desc-decision');
+    const btn = document.getElementById('btn-submit-decision');
+    const txt = document.getElementById('observacion');
+
+    if (tipo === 'aceptar') {
+      titulo.textContent = 'Aceptar / Citar a Entrevista: ' + alumnoNombre;
+      desc.textContent = 'El estudiante pasará al estado "En Selección / Entrevista Técnica" y recibirá tus instrucciones por notificación.';
+      btn.className = 'btn btn-success';
+      btn.textContent = 'Confirmar Aceptación';
+      txt.placeholder = 'Ej: Citado a entrevista por Google Meet el lunes a las 10:00 hrs. Enlace: meet.google.com/xyz...';
+    } else {
+      titulo.textContent = 'Rechazar Postulación: ' + alumnoNombre;
+      desc.textContent = 'El estudiante recibirá esta retroalimentación constructiva para ayudarlo a mejorar en futuras postulaciones.';
+      btn.className = 'btn btn-danger';
+      btn.textContent = 'Confirmar Rechazo';
+      txt.placeholder = 'Ej: En esta oportunidad buscamos candidatos con mayor dominio en arquitectura de microservicios...';
+    }
+
+    openModal('modal-empresa-decision');
+  }
+  </script>
+
+</body>
+</html>

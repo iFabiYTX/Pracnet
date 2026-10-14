@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión Ofertas de Prácticas - PracNet{% endblock %}
+
+{% block admin_title %}
+<h1>Gestión ofertas de prácticas</h1>
+<p>Módulo: Gestión ofertas de prácticas</p>
+{% endblock %}
+
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <h3>Catálogo de Ofertas</h3>
+    <button onclick="openModal('modal-oferta')" class="btn btn-primary" style="background-color: var(--primary-navy); font-size: 0.85rem;">
+      + Nueva Oferta
+    </button>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>EMPRESA / CARGO</th>
+        <th>REQUISITO ACADÉMICO</th>
+        <th>DURACIÓN</th>
+        <th>ESTADO</th>
+        <th>PORTAL EMPRESA (TOKEN)</th>
+        <th style="text-align: right;">ACCIONES</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for of in catalogo %}
+      <tr>
+        <td>
+          <strong style="color: var(--primary-navy); font-size: 0.95rem;">{{ of.empresa_nombre }}</strong><br>
+          <span style="color: var(--text-muted); font-size: 0.85rem;">{{ of.titulo }}</span>
+        </td>
+        <td>
+          <span class="badge badge-info">{{ of.requisito_academico }}</span>
+        </td>
+        <td>
+          {{ of.duracion_horas }} hrs
+        </td>
+        <td>
+          {% if of.estado == 'Activa' %}
+            <span class="badge badge-success">Activa</span>
+          {% elif of.estado == 'Borrador' %}
+            <span class="badge badge-warning">Borrador</span>
+          {% else %}
+            <span class="badge badge-danger">{{ of.estado }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if of.token_acceso %}
+            <a href="{{ url_for('empresa.portal', token=of.token_acceso) }}" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.78rem; background-color: #0369a1; color: white;">
+              🔑 Ver como Empresa
+            </a>
+          {% else %}
+            <span style="color: #94a3b8; font-size: 0.75rem;">Sin token</span>
+          {% endif %}
+        </td>
+        <td style="text-align: right;">
+          {% if of.estado == 'Activa' %}
+            <a href="{{ url_for('admin.cambiar_estado_oferta', oferta_id=of.id, nuevo_estado='Borrador') }}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem; background-color: #1e3a8a;">Pausar</a>
+          {% else %}
+            <a href="{{ url_for('admin.cambiar_estado_oferta', oferta_id=of.id, nuevo_estado='Activa') }}" class="btn btn-success" style="padding: 5px 10px; font-size: 0.8rem;">Activar</a>
+          {% endif %}
+          <form method="POST" action="{{ url_for('admin.eliminar_oferta', oferta_id=of.id) }}" style="display: inline;" onsubmit="return confirm('¿Seguro que deseas eliminar esta oferta?');">
+            <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem;">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal para Crear Nueva Oferta -->
+<div id="modal-oferta" class="modal-overlay">
+  <div class="modal-window">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="color: var(--primary-navy);">Publicar Nueva Oferta de Práctica</h3>
+      <button onclick="closeModal('modal-oferta')" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin.ofertas') }}">
+      <div class="form-group">
+        <label for="empresa_id">Empresa en Convenio</label>
+        <select id="empresa_id" name="empresa_id" class="form-control" required>
+          {% for emp in empresas %}
+            <option value="{{ emp.id }}">{{ emp.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="titulo">Título del Cargo</label>
+        <input type="text" id="titulo" name="titulo" class="form-control" placeholder="Ej: Práctica Desarrollo Backend" required>
+      </div>
+
+      <div class="form-group">
+        <label for="descripcion">Descripción de Tareas</label>
+        <textarea id="descripcion" name="descripcion" class="form-control" rows="3" placeholder="Detalle de actividades formativas..." required></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label for="requisito_academico">Requisito Académico</label>
+          <input type="text" id="requisito_academico" name="requisito_academico" class="form-control" value="Min. 70% Malla">
+        </div>
+
+        <div class="form-group">
+          <label for="duracion_horas">Duración (Horas)</label>
+          <input type="number" id="duracion_horas" name="duracion_horas" class="form-control" value="360" required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label for="modalidad">Modalidad</label>
+          <select id="modalidad" name="modalidad" class="form-control">
+            <option value="Híbrido">Híbrido</option>
+            <option value="Remoto">Remoto</option>
+            <option value="Presencial">Presencial</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="area">Área</label>
+          <select id="area" name="area" class="form-control">
+            <option value="Software">Software</option>
+            <option value="Datos">Datos</option>
+            <option value="Industria">Industria</option>
+            <option value="Diseño">Diseño</option>
+            <option value="Redes">Redes</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="habilidades_requeridas">Habilidades Requeridas (para el motor de matching)</label>
+        <input type="text" id="habilidades_requeridas" name="habilidades_requeridas" class="form-control" placeholder="Ej: Python, SQL, Git">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" onclick="closeModal('modal-oferta')" class="btn" style="background: #e2e8f0; color: #475569;">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Oferta</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

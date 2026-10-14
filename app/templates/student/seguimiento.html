@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Seguimiento de Postulación - PracNet Móvil{% endblock %}
+
+{% block student_content %}
+<div style="margin-bottom: 20px;">
+  <h2 style="font-size: 1.3rem; color: var(--primary-navy); font-weight: 700;">Seguimiento</h2>
+  <p style="font-size: 0.8rem; color: var(--text-muted);">Estado en tiempo real de tus postulaciones</p>
+</div>
+
+{% if postulaciones %}
+  {% for p in postulaciones %}
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px;">
+      POSTULACIÓN EN CURSO
+    </div>
+    <h3 style="font-size: 1.15rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 2px;">
+      {{ p.oferta_titulo }}
+    </h3>
+    <div style="font-size: 0.85rem; color: #475569; margin-bottom: 16px;">
+      {{ p.empresa_nombre }} • {{ p.empresa_area }}
+    </div>
+
+    <!-- Timeline Vertical (Mockup 9.1) -->
+    <div class="timeline">
+      <!-- Paso 1: Postulado -->
+      <div class="timeline-item">
+        <div class="timeline-dot completed"></div>
+        <div style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">Postulado</div>
+        <div style="font-size: 0.78rem; color: #64748b;">Antecedentes recibidos por la empresa</div>
+      </div>
+
+      <!-- Paso 2: En Selección -->
+      <div class="timeline-item">
+        <div class="timeline-dot {% if p.estado in ['En Seleccion', 'Validacion Academica', 'Aprobado'] %}completed{% else %}active{% endif %}"></div>
+        <div style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">En Selección</div>
+        <div style="font-size: 0.78rem; color: #64748b;">Revisión de perfil y entrevista técnica</div>
+      </div>
+
+      <!-- Paso 3: Validación Académica -->
+      <div class="timeline-item">
+        <div class="timeline-dot {% if p.estado in ['Validacion Academica'] %}active{% elif p.estado == 'Aprobado' %}completed{% endif %}"></div>
+        <div style="font-weight: 700; font-size: 0.95rem; color: {% if p.estado == 'Validacion Academica' %}#1e5bb0{% else %}#1e293b{% endif %};">
+          Validación académica
+        </div>
+        <div style="font-size: 0.78rem; color: #64748b;">Revisión de seguro escolar y perfil de egreso en SIGA</div>
+      </div>
+
+      <!-- Paso 4: Aprobado -->
+      <div class="timeline-item" style="margin-bottom: 0;">
+        <div class="timeline-dot {% if p.estado == 'Aprobado' %}completed{% endif %}"></div>
+        <div style="font-weight: 700; font-size: 0.95rem; color: #1e293b;">Aprobado</div>
+        <div style="font-size: 0.78rem; color: #64748b;">Carta de presentación emitida y práctica formalizada</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 0.8rem; color: #64748b;">Fase administrativa:</span>
+      <span class="badge badge-info">{{ p.fase_administrativa }}</span>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 30px; text-align: center;">
+    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">Aún no tienes postulaciones activas.</p>
+    <a href="{{ url_for('student.muro') }}" class="btn btn-primary" style="font-size: 0.85rem;">Explorar Vacantes</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestión de Usuarios - PracNet Admin{% endblock %}
+
+{% block admin_title %}
+<h1>Gestión de Usuarios y Roles</h1>
+<p>Módulo exclusivo de Administración Central (Control de Acceso y RBAC)</p>
+{% endblock %}
+
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <h3>Usuarios Registrados en el Sistema</h3>
+    <span class="badge badge-info">{{ usuarios|length }} Cuentas</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>NOMBRE / EMAIL</th>
+        <th>RUT</th>
+        <th>ROL ASIGNADO</th>
+        <th>ESTADO</th>
+        <th>FECHA REGISTRO</th>
+        <th style="text-align: right;">ACCIONES</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td>
+          <strong style="color: var(--primary-navy);">{{ u.nombre }}</strong><br>
+          <span style="color: #64748b; font-size: 0.8rem;">{{ u.email }}</span>
+        </td>
+        <td>
+          <span style="font-family: monospace; font-size: 0.85rem;">{{ u.rut or 'N/A' }}</span>
+        </td>
+        <td>
+          {% if u.rol == 'admin' %}
+            <span class="badge badge-danger">🛡️ Administrador</span>
+          {% elif u.rol == 'jefe_carrera' %}
+            <span class="badge badge-purple">🏛️ Institucional (Jefe de Carrera)</span>
+          {% elif u.rol == 'estudiante' %}
+            <span class="badge badge-info">🎓 Estudiante / Usuario</span>
+          {% else %}
+            <span class="badge badge-warning">{{ u.rol }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.activo %}
+            <span class="badge badge-success">Activo</span>
+          {% else %}
+            <span class="badge badge-danger">Desactivado</span>
+          {% endif %}
+        </td>
+        <td style="font-size: 0.8rem; color: #64748b;">
+          {{ u.creado_en }}
+        </td>
+        <td style="text-align: right;">
+          {% if u.id != session.get('user_id') %}
+            <form method="POST" action="{{ url_for('admin.toggle_usuario', user_id=u.id) }}" style="display: inline;">
+              <button type="submit" class="btn {% if u.activo %}btn-danger{% else %}btn-success{% endif %}" style="padding: 4px 10px; font-size: 0.75rem;">
+                {% if u.activo %}Desactivar{% else %}Activar{% endif %}
+              </button>
+            </form>
+          {% else %}
+            <span style="color: #94a3b8; font-size: 0.75rem;">Tu sesión actual</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

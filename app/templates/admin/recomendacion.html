@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Sistema de Recomendación - PracNet{% endblock %}
+
+{% block admin_title %}
+<h1>Sistema de recomendación</h1>
+<p>Módulo: Sistema de recomendación</p>
+{% endblock %}
+
+{% block content %}
+<div class="table-card" style="padding: 24px;">
+  <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+    <h3 style="color: var(--primary-navy); font-size: 1.2rem;">Motor de Recomendación</h3>
+    <p style="color: var(--text-muted); font-size: 0.88rem;">Matches generados para alumnos sin práctica asignada.</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 18px;">
+    {% if matches %}
+      {% for m in matches %}
+      <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+        <div>
+          <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px;">
+            <strong style="color: var(--primary-navy); font-size: 1.05rem;">{{ m.estudiante.nombre }} {{ m.estudiante.apellido }}</strong>
+            <span style="color: var(--text-muted); font-size: 0.9rem;">- {{ m.estudiante.carrera }}</span>
+          </div>
+          <div style="font-size: 0.85rem; color: #475569;">
+            <strong style="color: #0e2a47;">Avance Malla: {{ m.estudiante.avance_malla }}%</strong> | 
+            <span>Habilidades: {{ m.estudiante.habilidades }}</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+          <div style="font-weight: 800; font-size: 1rem; color: #15803d;">
+            {{ m.match_score }}% Match <span style="font-size: 0.85rem; font-weight: normal; color: #64748b;">con "{{ m.oferta.empresa_nombre }}"</span>
+          </div>
+          <form method="POST" action="{{ url_for('admin.notificar_alumno', estudiante_id=m.estudiante.id, oferta_id=m.oferta.id) }}">
+            <button type="submit" class="btn btn-warning" style="background-color: var(--accent-gold); color: white; padding: 7px 16px; font-size: 0.85rem; font-weight: 600;">
+              Notificar Alumno
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="color: #64748b;">No se encontraron postulantes pendientes de recomendación.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
