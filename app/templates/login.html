@@ -47,7 +47,7 @@
             id="email" 
             name="email" 
             class="form-control" 
-            placeholder="alumno@pracnet.cl o docente@pracnet.cl" 
+            placeholder="nombre.apellido@usm.cl" 
             value="{{ email or '' }}" 
             required 
             autofocus
@@ -98,7 +98,7 @@
           <span>¿Nuevo aquí? Esto es lo que debes saber</span>
         </div>
         <ul style="padding-left: 18px; margin: 0; font-size: 0.78rem; color: #475569; display: flex; flex-direction: column; gap: 4px;">
-          <li>Si eres alumno o docente debes iniciar sesión utilizando tu cuenta asignada.</li>
+          <li>Inicia sesión con tu cuenta de correo institucional y contraseña asignada.</li>
           <li>Las prácticas no constituyen relación laboral (Art. 8° Código del Trabajo).</li>
           <li>Es requisito obligatorio contar con Seguro Escolar Ley N° 16.744 validado.</li>
         </ul>
@@ -123,7 +123,7 @@
     </div>
 
     <p style="font-size: 0.85rem; color: #475569; margin-bottom: 16px;">
-      Ingresa tu correo institucional registrado (@pracnet.cl o @usm.cl). Te enviaremos una clave temporal para que puedas restablecer tu acceso de inmediato.
+      Ingresa tu correo institucional registrado. Te enviaremos una clave temporal para que puedas restablecer tu acceso de inmediato.
     </p>
 
     <form method="POST" action="{{ url_for('auth.recuperar_password') }}">
@@ -131,7 +131,7 @@
         <label for="recovery_email" style="font-size: 0.82rem; font-weight: 600; color: #1e293b; display: block; margin-bottom: 5px;">
           Correo Institucional
         </label>
-        <input type="email" id="recovery_email" name="email" class="form-control" placeholder="alumno@pracnet.cl" required>
+        <input type="email" id="recovery_email" name="email" class="form-control" placeholder="nombre.apellido@usm.cl" required>
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
