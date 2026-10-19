@@ -19,33 +19,33 @@
   
   <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.95rem;">
     <div style="display: flex; align-items: center; gap: 10px;">
-      <span style="color: #10b981; font-weight: bold; font-size: 1.1rem;">✔</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
       <span style="font-weight: 600; color: #1e293b;">Inscripción de Práctica</span>
     </div>
 
     <div style="display: flex; align-items: center; gap: 10px;">
       {% if 'seguro_escolar' in docs_map %}
-        <span style="color: #10b981; font-weight: bold; font-size: 1.1rem;">✔</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
       {% else %}
-        <span style="color: #cbd5e1; font-size: 1.1rem;">⚪</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
       {% endif %}
       <span style="font-weight: 600; color: #1e293b;">Seguro Escolar (Ley 16.744)</span>
     </div>
 
     <div style="display: flex; align-items: center; gap: 10px;">
       {% if postulacion and postulacion.fase_administrativa in ['Práctica Iniciada', 'Aprobado'] %}
-        <span style="color: #10b981; font-weight: bold; font-size: 1.1rem;">✔</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
       {% else %}
-        <span style="color: #cbd5e1; font-size: 1.1rem;">⚪</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
       {% endif %}
       <span style="font-weight: 600; color: #1e293b;">Validación de Horas</span>
     </div>
 
     <div style="display: flex; align-items: center; gap: 10px;">
       {% if 'informe_final' in docs_map %}
-        <span style="color: #10b981; font-weight: bold; font-size: 1.1rem;">✔</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
       {% else %}
-        <span style="color: #cbd5e1; font-size: 1.1rem;">⚪</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
       {% endif %}
       <span style="font-weight: 600; color: #1e293b;">Informe Final</span>
     </div>
@@ -56,8 +56,9 @@
 <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px;">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
     <h3 style="font-size: 1rem; color: var(--primary-navy); font-weight: 700;">Documentos</h3>
-    <button id="btn-open-ai" class="btn" style="background: #e0f2fe; color: #0284c7; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-      <span>Asistente IA</span> 🤖
+    <button id="btn-open-ai" class="btn" style="background: #e0f2fe; color: #0284c7; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+      <span>Consultar Asistente IA</span>
     </button>
   </div>
 
@@ -120,8 +121,9 @@
 <div id="ai-modal" class="modal-overlay">
   <div class="modal-window" style="height: 480px; display: flex; flex-direction: column;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-      <h3 style="color: var(--primary-navy); font-size: 1.1rem; display: flex; align-items: center; gap: 6px;">
-        Asistente AI <span>🤖</span>
+      <h3 style="color: var(--primary-navy); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+        <span>Asistente Jurídico y Académico IA</span>
       </h3>
       <button id="btn-close-ai" style="background: none; border: none; font-size: 1.4rem; cursor: pointer;">&times;</button>
     </div>

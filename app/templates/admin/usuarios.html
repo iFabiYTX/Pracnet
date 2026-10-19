@@ -37,11 +37,11 @@
         </td>
         <td>
           {% if u.rol == 'admin' %}
-            <span class="badge badge-danger">🛡️ Administrador</span>
+            <span class="badge badge-danger">Administrador Central</span>
           {% elif u.rol == 'jefe_carrera' %}
-            <span class="badge badge-purple">🏛️ Institucional (Jefe de Carrera)</span>
+            <span class="badge badge-purple">Institucional (Jefatura)</span>
           {% elif u.rol == 'estudiante' %}
-            <span class="badge badge-info">🎓 Estudiante / Usuario</span>
+            <span class="badge badge-info">Estudiante</span>
           {% else %}
             <span class="badge badge-warning">{{ u.rol }}</span>
           {% endif %}

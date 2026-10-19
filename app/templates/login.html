@@ -29,37 +29,118 @@
     <a href="{{ url_for('auth.register') }}" style="color: #1e5bb0; font-weight: 600; text-decoration: none;">Registrarse como Alumno</a>
   </div>
 
-  <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
-    <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase; display: block; margin-bottom: 10px;">
-      Cuentas de Acceso para Evaluación
-    </span>
+  <div style="margin-top: 25px; padding-top: 18px; border-top: 1px solid var(--border-subtle); text-align: left;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase;">
+        Credenciales Oficiales de Evaluación
+      </span>
+      <span style="font-size: 0.7rem; background: var(--slate-100); color: var(--slate-700); padding: 2px 6px; border-radius: 4px; font-family: monospace;">
+        @pracnet.cl
+      </span>
+    </div>
     
     <div style="display: flex; flex-direction: column; gap: 8px;">
-      <a href="{{ url_for('auth.quick_login', role='estudiante') }}" class="btn" style="background: #e0f2fe; color: #0369a1; font-size: 0.8rem; padding: 7px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
-        <span>🎓 <strong>Usuario / Estudiante</strong> (Carlos Mendoza)</span>
-        <span style="font-size: 0.7rem; background: #bae6fd; padding: 2px 6px; border-radius: 4px;">Portal Móvil</span>
-      </a>
+      <!-- Estudiante -->
+      <div style="background: var(--slate-50); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <strong style="font-size: 0.82rem; color: var(--slate-900);">Portal Estudiante</strong>
+            <span style="font-size: 0.68rem; background: #e0f2fe; color: #0369a1; padding: 1px 5px; border-radius: 3px; font-weight: 600;">Móvil / Web</span>
+          </div>
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+            <code>alumno@pracnet.cl</code> | Clave: <code>alumno2026</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" onclick="fillCredentials('alumno@pracnet.cl', 'alumno2026')" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.72rem;">Rellenar</button>
+          <a href="{{ url_for('auth.quick_login', role='estudiante') }}" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.72rem;">Entrar</a>
+        </div>
+      </div>
 
-      <a href="{{ url_for('auth.quick_login', role='jefe') }}" class="btn" style="background: #ede9fe; color: #5b21b6; font-size: 0.8rem; padding: 7px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
-        <span>🏛️ <strong>Institucional / Jefatura</strong> (Prof. José Carrasco)</span>
-        <span style="font-size: 0.7rem; background: #ddd6fe; padding: 2px 6px; border-radius: 4px;">Gestión Web</span>
-      </a>
+      <!-- Jefatura de Carrera -->
+      <div style="background: var(--slate-50); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+            <strong style="font-size: 0.82rem; color: var(--slate-900);">Jefatura de Carrera</strong>
+            <span style="font-size: 0.68rem; background: #ede9fe; color: #6d28d9; padding: 1px 5px; border-radius: 3px; font-weight: 600;">Gestión PC</span>
+          </div>
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+            <code>jefe@pracnet.cl</code> | Clave: <code>jefe2026</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" onclick="fillCredentials('jefe@pracnet.cl', 'jefe2026')" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.72rem;">Rellenar</button>
+          <a href="{{ url_for('auth.quick_login', role='jefe') }}" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.72rem; background: #6d28d9;">Entrar</a>
+        </div>
+      </div>
 
-      <a href="{{ url_for('auth.quick_login', role='admin') }}" class="btn" style="background: #fee2e2; color: #991b1b; font-size: 0.8rem; padding: 7px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
-        <span>🛡️ <strong>Administrador Central</strong> (Admin PRACNET)</span>
-        <span style="font-size: 0.7rem; background: #fecaca; padding: 2px 6px; border-radius: 4px;">Control Total</span>
-      </a>
+      <!-- Secretaría Docente -->
+      <div style="background: var(--slate-50); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <strong style="font-size: 0.82rem; color: var(--slate-900);">Secretaría Docente</strong>
+            <span style="font-size: 0.68rem; background: #dbeafe; color: #1d4ed8; padding: 1px 5px; border-radius: 3px; font-weight: 600;">Revisión</span>
+          </div>
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+            <code>secretaria@pracnet.cl</code> | Clave: <code>secre2026</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" onclick="fillCredentials('secretaria@pracnet.cl', 'secre2026')" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.72rem;">Rellenar</button>
+          <a href="{{ url_for('auth.quick_login', role='secretaria') }}" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.72rem; background: #1d4ed8;">Entrar</a>
+        </div>
+      </div>
 
-      <a href="/empresa/portal/tWPPZe1XNrbGswiCchORWA" target="_blank" class="btn" style="background: #dcfce7; color: #166534; font-size: 0.8rem; padding: 7px; text-align: left; display: flex; justify-content: space-between; align-items: center;">
-        <span>🏢 <strong>Empresa en Convenio</strong> (Token Copec-Style)</span>
-        <span style="font-size: 0.7rem; background: #bbf7d0; padding: 2px 6px; border-radius: 4px;">Enlace Mágico</span>
-      </a>
+      <!-- Administrador Central -->
+      <div style="background: var(--slate-50); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <strong style="font-size: 0.82rem; color: var(--slate-900);">Admin Central (Nosotros)</strong>
+            <span style="font-size: 0.68rem; background: #fee2e2; color: #b91c1c; padding: 1px 5px; border-radius: 3px; font-weight: 600;">Auditoría</span>
+          </div>
+          <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">
+            <code>admin@pracnet.cl</code> | Clave: <code>admin2026</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <button type="button" onclick="fillCredentials('admin@pracnet.cl', 'admin2026')" class="btn btn-outline" style="padding: 4px 8px; font-size: 0.72rem;">Rellenar</button>
+          <a href="{{ url_for('auth.quick_login', role='admin') }}" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.72rem; background: #b91c1c;">Entrar</a>
+        </div>
+      </div>
+
+      <!-- Empresa en Convenio -->
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <strong style="font-size: 0.82rem; color: #166534;">Empresa en Convenio</strong>
+            <span style="font-size: 0.68rem; background: #dcfce7; color: #15803d; padding: 1px 5px; border-radius: 3px; font-weight: 600;">Magic Token</span>
+          </div>
+          <div style="font-size: 0.74rem; color: #15803d; margin-top: 2px;">
+            Acceso directo sin contraseña (estilo Copec)
+          </div>
+        </div>
+        <div>
+          <a href="/empresa/portal/tWPPZe1XNrbGswiCchORWA" target="_blank" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.72rem; background: #16a34a;">Abrir Token</a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div style="margin-top: 20px; font-size: 0.72rem; color: #9ca3af;">
+  <script>
+    function fillCredentials(email, pass) {
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = pass;
+    }
+  </script>
+
+  <div style="margin-top: 20px; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
     Universidad Técnica Federico Santa María<br>
-    Gestión de la Innovación - 2026
+    Gestión de la Innovación • PRACNET v1.0.0 (Release Aprobado)
   </div>
 </div>
 {% endblock %}

@@ -12,14 +12,14 @@
 <form method="GET" action="{{ url_for('student.muro') }}" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
     <select name="ubicacion" class="form-control" style="font-size: 0.8rem; padding: 6px 10px;" onchange="this.form.submit()">
-      <option value="">📍 Ubicación (Todas)</option>
+      <option value="">Ubicación (Todas)</option>
       <option value="Santiago" {% if ubicacion_filtro == 'Santiago' %}selected{% endif %}>Santiago</option>
       <option value="Valparaíso" {% if ubicacion_filtro == 'Valparaíso' %}selected{% endif %}>Valparaíso</option>
       <option value="Concepción" {% if ubicacion_filtro == 'Concepción' %}selected{% endif %}>Concepción</option>
     </select>
 
     <select name="area" class="form-control" style="font-size: 0.8rem; padding: 6px 10px;" onchange="this.form.submit()">
-      <option value="">💻 Área (Todas)</option>
+      <option value="">Área Técnica (Todas)</option>
       {% for a in areas %}
         <option value="{{ a }}" {% if area_filtro == a %}selected{% endif %}>{{ a }}</option>
       {% endfor %}
@@ -28,7 +28,7 @@
 
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
     <select name="modalidad" class="form-control" style="font-size: 0.8rem; padding: 6px 10px;" onchange="this.form.submit()">
-      <option value="">💼 Modalidad</option>
+      <option value="">Modalidad (Todas)</option>
       <option value="Híbrido" {% if modalidad_filtro == 'Híbrido' %}selected{% endif %}>Híbrido</option>
       <option value="Remoto" {% if modalidad_filtro == 'Remoto' %}selected{% endif %}>Remoto</option>
       <option value="Presencial" {% if modalidad_filtro == 'Presencial' %}selected{% endif %}>Presencial</option>

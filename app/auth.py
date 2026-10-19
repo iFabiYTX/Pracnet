@@ -54,13 +54,15 @@ def login():
 
 @auth_bp.route('/quick-login/<role>')
 def quick_login(role):
-    """Acceso rápido para demostraciones de la defensa y pruebas de evaluación."""
+    """Acceso rápido para demostraciones de la defensa y pruebas de evaluación con cuentas @pracnet.cl."""
     email_map = {
-        'jefe': 'jefe.informatica@usm.cl',
-        'estudiante': 'carlos.mendoza@alumnos.usm.cl',
-        'admin': 'admin@pracnet.cl'
+        'jefe': 'jefe@pracnet.cl',
+        'secretaria': 'secretaria@pracnet.cl',
+        'estudiante': 'alumno@pracnet.cl',
+        'admin': 'admin@pracnet.cl',
+        'empresa': 'empresa@pracnet.cl'
     }
-    target_email = email_map.get(role, 'jefe.informatica@usm.cl')
+    target_email = email_map.get(role, 'jefe@pracnet.cl')
     
     with get_db() as conn:
         cursor = conn.cursor()
@@ -79,14 +81,33 @@ def quick_login(role):
                 if est:
                     session['estudiante_id'] = est['id']
             
-            flash(f'Sesión iniciada en modo demostración como: {user["nombre"]}', 'info')
+            # Registrar en bitácora
+            ip = request.remote_addr or '127.0.0.1'
+            cursor.execute(
+                "INSERT INTO bitacora_auditoria (usuario_id, accion, detalle, ip_address) VALUES (?, 'LOGIN_RAPIDO', ?, ?)",
+                (user['id'], f"Ingreso demostración como: {user['rol']} ({user['email']})", ip)
+            )
+            
+            flash(f'Sesión iniciada correctamente como: {user["nombre"]}', 'info')
             if user['rol'] in ('admin', 'jefe_carrera'):
                 return redirect(url_for('admin.dashboard'))
+            elif user['rol'] == 'empresa':
+                return redirect('/empresa/portal/tWPPZe1XNrbGswiCchORWA')
             else:
                 return redirect(url_for('student.muro'))
                 
-    flash('Usuario no encontrado.', 'danger')
+    flash('Usuario no encontrado en la base de datos.', 'danger')
     return redirect(url_for('auth.login'))
+
+@auth_bp.route('/terminos')
+def terminos():
+    """Términos y Condiciones de Uso y Política de Privacidad de Datos Personales (Ley N° 19.628)."""
+    return render_template('terminos.html')
+
+@auth_bp.route('/contacto')
+def contacto():
+    """Directorio de Contacto Institucional y Soporte Técnico."""
+    return render_template('contacto.html')
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():

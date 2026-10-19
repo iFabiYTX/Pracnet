@@ -18,8 +18,8 @@ class TestPracnetApp(unittest.TestCase):
 
     def test_login_jefe_carrera(self):
         res = self.client.post('/login', data={
-            'email': 'jefe.informatica@usm.cl',
-            'password': 'usm2026'
+            'email': 'jefe@pracnet.cl',
+            'password': 'jefe2026'
         }, follow_redirects=True)
         self.assertEqual(res.status_code, 200)
         self.assertIn(b'Panel de administraci', res.data)
@@ -27,7 +27,7 @@ class TestPracnetApp(unittest.TestCase):
 
     def test_login_student(self):
         res = self.client.post('/login', data={
-            'email': 'carlos.mendoza@alumnos.usm.cl',
+            'email': 'alumno@pracnet.cl',
             'password': 'alumno2026'
         }, follow_redirects=True)
         self.assertEqual(res.status_code, 200)
@@ -36,7 +36,7 @@ class TestPracnetApp(unittest.TestCase):
     def test_rbac_student_blocked_from_admin(self):
         # Iniciar sesión como alumno
         self.client.post('/login', data={
-            'email': 'carlos.mendoza@alumnos.usm.cl',
+            'email': 'alumno@pracnet.cl',
             'password': 'alumno2026'
         })
         # Intentar acceder a panel de administración
@@ -46,7 +46,7 @@ class TestPracnetApp(unittest.TestCase):
     def test_ai_assistant_endpoint(self):
         # Iniciar sesión como alumno
         self.client.post('/login', data={
-            'email': 'carlos.mendoza@alumnos.usm.cl',
+            'email': 'alumno@pracnet.cl',
             'password': 'alumno2026'
         })
         res = self.client.post('/estudiante/asistente-ai', json={'pregunta': '¿Cómo funciona el seguro escolar?'})
@@ -56,8 +56,8 @@ class TestPracnetApp(unittest.TestCase):
 
     def test_admin_matching_recommendation(self):
         self.client.post('/login', data={
-            'email': 'jefe.informatica@usm.cl',
-            'password': 'usm2026'
+            'email': 'jefe@pracnet.cl',
+            'password': 'jefe2026'
         })
         res = self.client.get('/admin/recomendacion')
         self.assertEqual(res.status_code, 200)
@@ -67,8 +67,8 @@ class TestPracnetApp(unittest.TestCase):
 
     def test_admin_reports_export_excel(self):
         self.client.post('/login', data={
-            'email': 'jefe.informatica@usm.cl',
-            'password': 'usm2026'
+            'email': 'jefe@pracnet.cl',
+            'password': 'jefe2026'
         })
         res = self.client.get('/admin/reportes/exportar/excel')
         self.assertEqual(res.status_code, 200)

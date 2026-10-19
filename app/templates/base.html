@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}PRACNET - Gestión de Prácticas Universitarias{% endblock %}</title>
+  <title>{% block title %}PRACNET - Sistema de Gestión de Prácticas Profesionales{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pracnet.css') }}">
   <script src="{{ url_for('static', filename='js/pracnet.js') }}" defer></script>
-  <!-- Chart.js para dashboards de reportes -->
+  <!-- Chart.js para dashboards ejecutivos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
   {% if session.get('user_id') and session.get('rol') in ['admin', 'jefe_carrera'] %}
-  <!-- Layout Web con Sidebar para Jefaturas y Administradores -->
+  <!-- ====================================================================
+       LAYOUT ESCRITORIO (WEB PC PARA JEFATURAS Y ADMINISTRADORES)
+       ==================================================================== -->
   <div class="app-container">
     <aside class="sidebar">
       <div class="sidebar-brand">
@@ -23,55 +25,72 @@
           <span style="color: #93c5fd;">COORDINACIÓN INSTITUCIONAL</span>
         {% endif %}
       </div>
+
       <ul class="sidebar-menu">
         <li class="{% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
           <a href="{{ url_for('admin.dashboard') }}">
-            <span class="icon">📊</span> Panel de administración
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            <span>Panel de administración</span>
           </a>
         </li>
         <li class="{% if request.endpoint == 'admin.ofertas' %}active{% endif %}">
           <a href="{{ url_for('admin.ofertas') }}">
-            <span class="icon">💼</span> Gestión ofertas de prácticas
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            <span>Gestión ofertas de prácticas</span>
           </a>
         </li>
         <li class="{% if request.endpoint == 'admin.recomendacion' %}active{% endif %}">
           <a href="{{ url_for('admin.recomendacion') }}">
-            <span class="icon">🎯</span> Sistema de recomendación
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            <span>Sistema de recomendación</span>
           </a>
         </li>
         <li class="{% if request.endpoint == 'admin.postulaciones' %}active{% endif %}">
           <a href="{{ url_for('admin.postulaciones') }}">
-            <span class="icon">📋</span> Seguimiento postulaciones
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Seguimiento postulaciones</span>
           </a>
         </li>
         <li class="{% if request.endpoint == 'admin.reportes' %}active{% endif %}">
           <a href="{{ url_for('admin.reportes') }}">
-            <span class="icon">📈</span> Generación de reportes
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Generación de reportes</span>
           </a>
         </li>
+
         {% if session.get('rol') == 'admin' %}
         <li class="{% if request.endpoint == 'admin.usuarios' %}active{% endif %}">
           <a href="{{ url_for('admin.usuarios') }}">
-            <span class="icon">👥</span> Gestión de usuarios
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Gestión de usuarios</span>
           </a>
         </li>
         <li class="{% if request.endpoint == 'admin.auditoria' %}active{% endif %}">
           <a href="{{ url_for('admin.auditoria') }}">
-            <span class="icon">🔒</span> Auditoría del sistema
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Auditoría del sistema</span>
           </a>
         </li>
         {% endif %}
+
+        <li>
+          <a href="{{ url_for('auth.contacto') }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <span>Directorio institucional</span>
+          </a>
+        </li>
       </ul>
       
-      <div style="padding: 10px 20px;">
+      <div style="padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.08);">
         <a href="{{ url_for('auth.logout') }}" class="btn btn-danger btn-block" style="font-size: 0.8rem; padding: 8px;">
-          🚪 Cerrar Sesión
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar Sesión
         </a>
       </div>
 
-      <div style="padding: 15px 20px; font-size: 0.75rem; color: #64748b; border-top: 1px solid rgba(255,255,255,0.1);">
-        UTFSM - Depto. Informática<br>
-        Rol: <strong>{{ session.get('rol') }}</strong>
+      <div style="padding: 12px 18px; font-size: 0.72rem; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08);">
+        Universidad Técnica Federico Santa María<br>
+        Usuario: <strong>{{ session.get('email') }}</strong>
       </div>
     </aside>
 
@@ -82,13 +101,13 @@
         </div>
         <div class="user-badge">
           {% if session.get('rol') == 'admin' %}
-            <span class="badge badge-danger">🛡️ Admin</span>
+            <span class="badge badge-danger">Administrador Global</span>
           {% else %}
-            <span class="badge badge-purple">🏛️ Institucional</span>
+            <span class="badge badge-purple">Jefatura Institucional</span>
           {% endif %}
-          <span>{{ session.get('nombre') }}</span>
-          <span class="status-dot" title="En línea"></span>
-          <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; text-decoration: none; font-size: 0.85rem; margin-left: 8px;">Salir</a>
+          <span style="font-weight: 600;">{{ session.get('nombre') }}</span>
+          <span class="status-dot" title="Sesión activa"></span>
+          <a href="{{ url_for('auth.logout') }}" style="color: var(--danger-red); text-decoration: none; font-size: 0.82rem; font-weight: 600; margin-left: 8px;">Salir</a>
         </div>
       </div>
 
@@ -109,20 +128,116 @@
   </div>
 
   {% elif session.get('user_id') and session.get('rol') == 'estudiante' %}
-  <!-- Layout Móvil / Responsive para Estudiantes (Idéntico a Mockup 9.1) -->
-  <div class="mobile-container">
-    <div class="mobile-topbar" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--border-color);">
-      <span style="font-weight: 700; color: var(--primary-navy); font-size: 0.95rem;">PracNet Alumno</span>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span class="badge badge-info" style="font-size: 0.7rem;">🎓 Usuario</span>
-        <a href="{{ url_for('auth.logout') }}" style="color: #ef4444; font-size: 0.8rem; text-decoration: none; font-weight: 600; background: #fee2e2; padding: 3px 8px; border-radius: 4px;">
-          Salir
-        </a>
-      </div>
+  <!-- ====================================================================
+       PLATAFORMA ESTUDIANTE: DUAL ESCRITORIO / SMARTPHONE
+       ==================================================================== -->
+  <div class="student-viewport-wrapper" id="studentViewport">
+    <!-- Selector de Visualización para Presentación y Evaluación -->
+    <div class="viewport-mode-switcher">
+      <button id="btn-mode-phone" class="mode-btn active" onclick="setStudentView('phone')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        Vista Smartphone
+      </button>
+      <button id="btn-mode-wide" class="mode-btn" onclick="setStudentView('wide')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Vista Escritorio
+      </button>
     </div>
 
-    <div class="mobile-content">
-      <div class="flash-container">
+    <!-- Contenedor del Estudiante (Smartphone / Pantalla Amplia) -->
+    <div class="mobile-container">
+      <div class="mobile-topbar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <strong style="color: var(--primary-navy); font-size: 0.95rem;">PracNet</strong>
+          <span style="font-size: 0.72rem; color: var(--text-muted); border-left: 1px solid var(--border-subtle); padding-left: 8px;">Portal Alumno</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-info" style="font-size: 0.7rem;">Estudiante</span>
+          <a href="{{ url_for('auth.logout') }}" style="color: var(--danger-red); font-size: 0.78rem; text-decoration: none; font-weight: 600; background: var(--danger-light); padding: 3px 8px; border-radius: 4px;">
+            Salir
+          </a>
+        </div>
+      </div>
+
+      <div class="mobile-content">
+        <div class="flash-container">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </div>
+
+        {% block student_content %}{% endblock %}
+      </div>
+
+      <!-- Barra de Navegación Inferior (Mockup 9.1) con SVG limpios -->
+      <nav class="mobile-nav">
+        <a href="{{ url_for('student.muro') }}" class="{% if request.endpoint == 'student.muro' %}active{% endif %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span>Muro</span>
+        </a>
+        <a href="{{ url_for('student.seguimiento') }}" class="{% if request.endpoint == 'student.seguimiento' %}active{% endif %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Postulaciones</span>
+        </a>
+        <a href="{{ url_for('student.validacion') }}" class="{% if request.endpoint == 'student.validacion' %}active{% endif %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Documentos</span>
+        </a>
+        <a href="{{ url_for('student.contacto') }}" class="{% if request.endpoint == 'student.contacto' %}active{% endif %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span>Contacto</span>
+        </a>
+        <a href="{{ url_for('student.perfil') }}" class="{% if request.endpoint == 'student.perfil' %}active{% endif %}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Perfil</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+  function setStudentView(mode) {
+    const wrapper = document.getElementById('studentViewport');
+    const btnPhone = document.getElementById('btn-mode-phone');
+    const btnWide = document.getElementById('btn-mode-wide');
+    if (mode === 'wide') {
+      wrapper.classList.add('wide-mode');
+      btnWide.classList.add('active');
+      btnPhone.classList.remove('active');
+    } else {
+      wrapper.classList.remove('wide-mode');
+      btnPhone.classList.add('active');
+      btnWide.classList.remove('active');
+    }
+  }
+  </script>
+
+  {% else %}
+  <!-- ====================================================================
+       LAYOUT PÚBLICO (LOGIN / REGISTRO / TÉRMINOS Y CONDICIONES)
+       ==================================================================== -->
+  <div style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
+    <header style="background: #ffffff; border-bottom: 1px solid var(--border-subtle); padding: 14px 28px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <h2 style="color: var(--primary-navy); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; margin: 0;">PracNet</h2>
+        <span style="font-size: 0.75rem; color: var(--text-muted); border-left: 1px solid var(--border-subtle); padding-left: 10px;">
+          Universidad Técnica Federico Santa María
+        </span>
+      </div>
+      <div style="display: flex; gap: 15px; font-size: 0.85rem;">
+        <a href="{{ url_for('auth.contacto') }}" style="color: var(--text-secondary); text-decoration: none; font-weight: 500;">Contacto</a>
+        <a href="{{ url_for('auth.terminos') }}" style="color: var(--text-secondary); text-decoration: none; font-weight: 500;">Términos</a>
+      </div>
+    </header>
+
+    <div class="auth-wrapper" style="flex: 1; padding: 30px 15px;">
+      <div class="flash-container" style="width: 100%; max-width: 460px; margin-bottom: 15px;">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -133,46 +248,19 @@
           {% endif %}
         {% endwith %}
       </div>
-
-      {% block student_content %}{% endblock %}
+      {% block auth_content %}{% endblock %}
     </div>
 
-    <!-- Barra de Navegación Inferior (Mockup 9.1) -->
-    <nav class="mobile-nav">
-      <a href="{{ url_for('student.muro') }}" class="{% if request.endpoint == 'student.muro' %}active{% endif %}">
-        <span class="icon">📑</span>
-        <span>Muro</span>
-      </a>
-      <a href="{{ url_for('student.seguimiento') }}" class="{% if request.endpoint == 'student.seguimiento' %}active{% endif %}">
-        <span class="icon">🔍</span>
-        <span>Postulaciones</span>
-      </a>
-      <a href="{{ url_for('student.validacion') }}" class="{% if request.endpoint == 'student.validacion' %}active{% endif %}">
-        <span class="icon">📂</span>
-        <span>Documentación</span>
-      </a>
-      <a href="{{ url_for('student.perfil') }}" class="{% if request.endpoint == 'student.perfil' %}active{% endif %}">
-        <span class="icon">👤</span>
-        <span>Perfil</span>
-      </a>
-    </nav>
-  </div>
-
-  {% else %}
-  <!-- Layout Simple para Visitantes / Login / Registro -->
-  <div class="auth-wrapper">
-    <div class="flash-container" style="width: 100%; max-width: 440px; margin-bottom: 15px;">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-    </div>
-    {% block auth_content %}{% endblock %}
+    <footer style="background: #ffffff; border-top: 1px solid var(--border-subtle); padding: 18px 24px; text-align: center; font-size: 0.78rem; color: var(--text-muted);">
+      <div>
+        <strong>PRACNET</strong> • Plataforma Institucional de Prácticas Profesionales Universitarias
+      </div>
+      <div style="margin-top: 4px;">
+        <a href="{{ url_for('auth.terminos') }}" style="color: var(--accent-blue); text-decoration: none;">Términos y Condiciones</a> | 
+        <a href="{{ url_for('auth.terminos') }}" style="color: var(--accent-blue); text-decoration: none;">Política de Privacidad (Ley N° 19.628)</a> | 
+        <a href="{{ url_for('auth.contacto') }}" style="color: var(--accent-blue); text-decoration: none;">Directorio Institucional</a>
+      </div>
+    </footer>
   </div>
   {% endif %}
 

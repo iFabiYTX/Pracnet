@@ -15,11 +15,13 @@
       <p style="color: var(--text-muted); font-size: 0.88rem;">Métricas generales y exportación de datos para acreditación CNA y Consejo Asesor Empresarial (CAE).</p>
     </div>
     <div style="display: flex; gap: 10px;">
-      <a href="{{ url_for('admin.exportar_reporte', formato='pdf') }}" class="btn" style="background: #e2e8f0; color: #334155; padding: 6px 14px; font-size: 0.85rem;" onclick="window.print(); return false;">
-        🖨️ PDF
+      <a href="{{ url_for('admin.exportar_reporte', formato='pdf') }}" class="btn" style="background: #e2e8f0; color: #334155; padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;" onclick="window.print(); return false;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+        <span>Exportar PDF</span>
       </a>
-      <a href="{{ url_for('admin.exportar_reporte', formato='excel') }}" class="btn btn-success" style="padding: 6px 14px; font-size: 0.85rem;">
-        📥 Excel
+      <a href="{{ url_for('admin.exportar_reporte', formato='excel') }}" class="btn btn-success" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Descargar Excel</span>
       </a>
     </div>
   </div>

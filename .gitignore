@@ -17,3 +17,12 @@ cloudflared.exe
 # IDE
 .vscode/
 .idea/
+
+# Unrelated desktop folders & venvs
+.venv/
+mctiers-autojoin/
+Pkmn*/
+proyecto/
+*.sql
+*.txt
+*.docx

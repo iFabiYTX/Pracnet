@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Términos y Condiciones y Política de Privacidad - PRACNET{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+  <div class="legal-header">
+    <div class="legal-badge">DOCUMENTO LEGAL INSTITUCIONAL</div>
+    <h1 class="legal-title">Términos y Condiciones de Uso y Política de Privacidad</h1>
+    <p class="legal-subtitle">Plataforma Digital PRACNET • Universidad Técnica Federico Santa María • Vigencia 2026</p>
+  </div>
+
+  <div class="legal-card">
+    <section class="legal-section">
+      <h2>1. Objeto y Alcance de la Plataforma</h2>
+      <p>
+        La plataforma digital <strong>PRACNET</strong> tiene por objeto centralizar, gestionar y optimizar el proceso de búsqueda, postulación, seguimiento y validación académica de prácticas profesionales para estudiantes de educación superior, facilitando el vínculo formal entre la comunidad estudiantil, las instituciones de educación superior y las empresas en convenio.
+      </p>
+      <p>
+        PRACNET actúa exclusivamente como un <strong>intermediario tecnológico y canal administrativo institucional</strong>. La formalización académica final de las prácticas profesionales se rige por los reglamentos internos de cada unidad académica y por el Sistema de Información y Gestión Académica (SIGA).
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>2. Naturaleza Formativa de la Práctica (Artículo 8 del Código del Trabajo)</h2>
+      <p>
+        De conformidad con lo dispuesto en el <strong>Artículo 8° del Código del Trabajo de la República de Chile</strong>, se deja expresa constancia de que los servicios que preste un estudiante en práctica profesional o técnica, exigida por una institución de educación superior reconocida por el Estado, <strong>no dan origen a un contrato de trabajo ni generan vínculo laboral alguno</strong>.
+      </p>
+      <p>
+        Las asignaciones en dinero otorgadas eventualmente por los centros de práctica (compensación por concepto de movilización, colación o viáticos) no constituyen remuneración laboral para efectos legales ni previsionales.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>3. Seguro Escolar Obligatorio (Ley N° 16.744)</h2>
+      <p>
+        Todo estudiante que inicie su periodo de práctica profesional debe contar con la cobertura vigente del <strong>Seguro Escolar contra Accidentes del Trabajo y Enfermedades Profesionales</strong>, consagrado en la <strong>Ley N° 16.744</strong> y el Decreto Supremo N° 313.
+      </p>
+      <p>
+        La plataforma PRACNET verifica y exige de manera obligatoria la validación de la condición de alumno regular y el certificado de seguro escolar respectivo con anterioridad al inicio de cualquier actividad en dependencias del centro de práctica, asegurando la cobertura de trayecto y en faena.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>4. Protección de Datos Personales (Ley N° 19.628 y Estándares de Privacidad)</h2>
+      <p>
+        El tratamiento de los datos personales almacenados en PRACNET se sujeta estrictamente a la <strong>Ley N° 19.628 sobre Protección de la Vida Privada</strong> y sus normativas complementarias de protección de datos personales:
+      </p>
+      <ul>
+        <li><strong>Finalidad Exclusiva:</strong> La información personal, de contacto y antecedentes curriculares (RUT, asignaturas aprobadas, avance curricular, correo institucional y calificaciones) será utilizada únicamente con el fin de tramitar postulaciones, generar cartas de presentación institucionales y validar el cumplimiento del perfil de egreso.</li>
+        <li><strong>Seguridad y Confidencialidad:</strong> Los datos se almacenan bajo mecanismos criptográficos robustos para contraseñas y protocolos seguros de transferencia de datos. El acceso está restringido estrictamente según el perfil y rol del usuario (Estudiante, Jefatura Institucional, Administrador y Empresa con Token Único).</li>
+        <li><strong>Derechos ARCO:</strong> Los estudiantes y usuarios registrados tienen derecho a ejercer en cualquier momento sus facultades de Acceso, Rectificación, Cancelación y Oposición respecto a sus datos personales mediante comunicación dirigida a la coordinación académica o soporte del sistema.</li>
+      </ul>
+    </section>
+
+    <section class="legal-section">
+      <h2>5. Obligaciones y Responsabilidades de las Partes</h2>
+      <ul>
+        <li><strong>Estudiantes:</strong> Garantizar la veracidad de la información curricular ingresada, mantener la confidencialidad de sus credenciales de acceso y respetar las normas éticas y reglamentos internos tanto de la universidad como de la empresa receptora.</li>
+        <li><strong>Empresas Oferentes:</strong> Publicar ofertas fidedignas con tareas que tributen efectivamente al perfil de egreso de la carrera, resguardar las condiciones de higiene y seguridad laboral de los practicantes y emitir la evaluación de desempeño oportuna.</li>
+        <li><strong>Institución y Administrador:</strong> Asegurar la disponibilidad operativa del sistema, velar por el correcto flujo de validación curricular y resguardar la trazabilidad de los expedientes académicos.</li>
+      </ul>
+    </section>
+
+    <section class="legal-section">
+      <h2>6. Propiedad Intelectual</h2>
+      <p>
+        Todos los derechos sobre la marca comercial <strong>PRACNET</strong>, su arquitectura de software, diseños de interfaz, logotipos, documentación y código fuente se encuentran protegidos por la <strong>Ley N° 17.336 sobre Propiedad Intelectual</strong> y normativas de transferencia tecnológica institucional.
+      </p>
+    </section>
+
+    <div class="legal-footer-action">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Volver al Portal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

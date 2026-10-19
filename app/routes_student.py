@@ -216,24 +216,37 @@ def perfil():
         estudiante = cursor.fetchone()
     return render_template('student/perfil.html', estudiante=estudiante)
 
+@student_bp.route('/contacto')
+def contacto():
+    estudiante_id = session.get('estudiante_id')
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM estudiante WHERE id = ?", (estudiante_id,))
+        estudiante = cursor.fetchone()
+    return render_template('student/contacto.html', estudiante=estudiante)
+
 @student_bp.route('/asistente-ai', methods=['POST'])
 def asistente_ai():
-    """Asistente Virtual interactivo para resolver consultas sobre prácticas y Ley 16.744."""
+    """Asistente Virtual IA con conocimiento de normativa chilena y reglamentos USM."""
     data = request.get_json() or {}
     pregunta = data.get('pregunta', '').lower().strip()
     
     if not pregunta:
         return jsonify({'respuesta': 'Hola, soy el Asistente Virtual de PRACNET. ¿En qué puedo orientarte hoy sobre tu práctica profesional?'})
         
-    if 'seguro' in pregunta or '16.744' in pregunta:
-        respuesta = "El Seguro Escolar (Ley N° 16.744) cubre accidentes de trayecto y durante la jornada laboral en tu centro de práctica. Debes descargar el certificado de alumno regular en SIGA USM y subirlo a la pestaña 'Documentos' para que tu práctica quede legalmente cubierta."
-    elif 'siga' in pregunta or 'convalid' in pregunta or 'validar' in pregunta:
-        respuesta = "Para validar tu práctica en SIGA: 1) Registra la empresa en PRACNET, 2) Espera la aprobación de tu jefe de carrera, 3) Descarga la Carta de Presentación oficial, y 4) Al finalizar, sube el informe final para que la jefatura ingrese la nota formal."
-    elif 'remuneraci' in pregunta or 'sueldo' in pregunta or 'pago' in pregunta:
-        respuesta = "Según el Artículo 8 del Código del Trabajo, las prácticas no constituyen contrato de trabajo remunerado obligatorio. Sin embargo, las empresas en PRACNET suelen otorgar asignaciones de movilización y colación (en promedio $200.000 a $300.000 CLP)."
-    elif 'horas' in pregunta or 'duracion' in pregunta:
-        respuesta = "Las prácticas profesionales estándar en la USM requieren generalmente 180 horas (primera práctica) o 360 horas (práctica industrial/profesional completa). Verifica el requisito específico de tu carrera en tu perfil académico."
+    if 'seguro' in pregunta or '16.744' in pregunta or 'accidente' in pregunta:
+        respuesta = "El Seguro Escolar (Ley N° 16.744 y D.S. N° 313) otorga cobertura integral médica y de rehabilitación ante accidentes de trayecto o durante la realización de la práctica en el centro laboral. Para activarlo válidamente, debes cargar en PRACNET tu Certificado de Alumno Regular vigente obtenido en SIGA."
+    elif 'siga' in pregunta or 'convalid' in pregunta or 'validar' in pregunta or 'tramite' in pregunta:
+        respuesta = "El flujo oficial de validación consta de 4 etapas: 1) Postulación y selección con la empresa, 2) Revisión por la Jefatura de Carrera y emisión de la Carta de Presentación, 3) Realización de las horas cronológicas requeridas, y 4) Carga del Formulario 6000 B junto al Informe Final para el ingreso de la calificación en SIGA."
+    elif 'remuneraci' in pregunta or 'sueldo' in pregunta or 'pago' in pregunta or 'dinero' in pregunta:
+        respuesta = "De acuerdo al Artículo 8° del Código del Trabajo de Chile, la práctica universitaria tiene carácter estrictamente formativo y no constituye contrato laboral. Por ley, no exige sueldo mínimo, pero las empresas en PRACNET suelen otorgar asignaciones de movilización y colación voluntarias (promedio $220.000 a $320.000 CLP)."
+    elif 'horas' in pregunta or 'duracion' in pregunta or 'tiempo' in pregunta:
+        respuesta = "Para carreras de ingeniería en la USM, se exigen habitualmente 180 horas cronológicas para la primera práctica (operaria/técnica) y 360 horas para la práctica profesional avanzada. Puedes revisar tu requisito específico en tu perfil académico de PRACNET."
+    elif 'carta' in pregunta or 'presentacion' in pregunta or 'formulario' in pregunta or '6000' in pregunta:
+        respuesta = "La Carta de Presentación oficial es emitida por la Secretaría Docente una vez aprobada tu postulación por la jefatura. El Formulario 6000 B es la pauta institucional de evaluación que tu supervisor de empresa debe firmar al término de tu práctica."
+    elif 'rechaz' in pregunta or 'descalific' in pregunta or 'feedback' in pregunta:
+        respuesta = "Si tu postulación es rechazada, en PRACNET la empresa te dejará una retroalimentación constructiva indicando las competencias a reforzar. Puedes postular libremente a otras vacantes activas en el Muro de Oportunidades."
     else:
-        respuesta = f"Respecto a tu consulta: '{pregunta}', recuerda que puedes revisar el estado de tu expediente en la sección 'Validación' o consultar directamente a la secretaría de tu carrera mediante la opción de contacto de PRACNET."
+        respuesta = f"Entiendo tu consulta sobre '{pregunta}'. Te sugiero verificar el estado de tus antecedentes en la sección 'Documentación', o bien contactar directamente a la Secretaría de tu carrera a través del Directorio de Contactos de PRACNET."
         
     return jsonify({'respuesta': respuesta})

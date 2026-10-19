@@ -51,8 +51,9 @@
         </td>
         <td>
           {% if of.token_acceso %}
-            <a href="{{ url_for('empresa.portal', token=of.token_acceso) }}" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.78rem; background-color: #0369a1; color: white;">
-              🔑 Ver como Empresa
+            <a href="{{ url_for('empresa.portal', token=of.token_acceso) }}" target="_blank" class="btn" style="padding: 4px 10px; font-size: 0.78rem; background-color: #0369a1; color: white; display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 7 2 2-7.5 7.5a2.5 2.5 0 0 1-1.5.75L4 18l.75-4a2.5 2.5 0 0 1 .75-1.5L13 5a3.5 3.5 0 0 1 5 5Z"/></svg>
+              <span>Portal Empresa</span>
             </a>
           {% else %}
             <span style="color: #94a3b8; font-size: 0.75rem;">Sin token</span>

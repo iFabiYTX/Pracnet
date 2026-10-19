@@ -16,12 +16,15 @@ def seed_database():
 
         print("Poblando base de datos con datos de prueba de PRACNET...")
         
-        # 1. Crear Usuarios de Jefaturas y Admin
+        # 1. Crear Usuarios de Jefaturas, Admin y Personal
         usuarios_staff = [
-            ("jefe.informatica@usm.cl", hash_password("usm2026"), "jefe_carrera", "Prof. José Carrasco (Jefe Informática)", "11.111.111-1"),
+            ("jefe@pracnet.cl", hash_password("jefe2026"), "jefe_carrera", "Prof. José Carrasco (Jefe Informática)", "11.111.111-1"),
+            ("secretaria@pracnet.cl", hash_password("secre2026"), "jefe_carrera", "Secretaría Docente Depto. Informática", "16.666.666-6"),
+            ("admin@pracnet.cl", hash_password("admin2026"), "admin", "Administrador Central PRACNET", "14.444.444-4"),
+            ("empresa@pracnet.cl", hash_password("empresa2026"), "empresa", "Tech Solutions (Reclutamiento)", "76.999.888-2"),
+            ("jefe.informatica@usm.cl", hash_password("usm2026"), "jefe_carrera", "Prof. José Carrasco (Jefe Informática)", "11.111.111-9"),
             ("jefe.prevencion@usm.cl", hash_password("usm2026"), "jefe_carrera", "Prof. Claudia Grandon (Jefa Prevención)", "12.222.222-2"),
             ("jefe.manufactura@usm.cl", hash_password("usm2026"), "jefe_carrera", "Prof. Marcelo Quiroz (Jefe Manufactura)", "13.333.333-3"),
-            ("admin@pracnet.cl", hash_password("admin2026"), "admin", "Administrador Central PRACNET", "14.444.444-4"),
         ]
         
         for email, p_hash, rol, nom, rut in usuarios_staff:
@@ -49,7 +52,7 @@ def seed_database():
 
         # 3. Crear Estudiantes y sus Cuentas de Usuario
         estudiantes = [
-            ("Carlos", "Mendoza", "carlos.mendoza@alumnos.usm.cl", "20.123.456-7", "Ingeniería Civil Informática", 2022, 8, 85, 185, "Python, SQL, Git, FastAPI, Docker", "Santiago"),
+            ("Carlos", "Mendoza", "alumno@pracnet.cl", "20.123.456-7", "Ingeniería Civil Informática", 2022, 8, 85, 185, "Python, SQL, Git, FastAPI, Docker", "Santiago"),
             ("Ana", "Rojas", "ana.rojas@alumnos.usm.cl", "19.876.543-2", "Ingeniería Comercial", 2021, 9, 72, 170, "PowerBI, Excel, Finanzas, Análisis de Datos", "Valparaíso"),
             ("María", "Soto L.", "maria.soto@alumnos.usm.cl", "20.456.789-0", "Ingeniería en Manufactura Industrial", 2022, 8, 82, 180, "Mantenimiento, AutoCAD, Lean Manufacturing", "Concepción"),
             ("Juan", "Pérez G.", "juan.perez@alumnos.usm.cl", "20.321.654-8", "Ingeniería Civil Informática", 2022, 7, 75, 160, "Node.js, React, APIs REST, PostgreSQL", "Santiago"),
