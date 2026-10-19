@@ -102,18 +102,6 @@
           <li>Las prácticas no constituyen relación laboral (Art. 8° Código del Trabajo).</li>
           <li>Es requisito obligatorio contar con Seguro Escolar Ley N° 16.744 validado.</li>
         </ul>
-
-        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 0.74rem;">
-          <span style="color: #64748b; font-weight: 600;">Completar datos de prueba:</span>
-          <div style="display: flex; gap: 6px; margin-top: 5px;">
-            <button type="button" onclick="fillForm('alumno@pracnet.cl', 'alumno2026')" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.72rem;">
-              Alumno (alumno@pracnet.cl)
-            </button>
-            <button type="button" onclick="fillForm('docente@pracnet.cl', 'docente2026')" class="btn btn-outline" style="padding: 3px 8px; font-size: 0.72rem;">
-              Docente (docente@pracnet.cl)
-            </button>
-          </div>
-        </div>
       </div>
 
       <div style="margin-top: 18px; text-align: center; font-size: 0.8rem;">
@@ -158,10 +146,4 @@
   </div>
 </div>
 
-<script>
-  function fillForm(email, pass) {
-    document.getElementById('email').value = email;
-    document.getElementById('password').value = pass;
-  }
-</script>
 {% endblock %}
