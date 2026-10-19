@@ -3,10 +3,9 @@ from app import create_app
 from app.seed_data import seed_database
 
 app = create_app()
+seed_database()
 
 if __name__ == '__main__':
-    # Poblar base de datos inicial si está vacía
-    seed_database()
     
     port = int(os.environ.get('PORT', 5000))
     print("=" * 65)
