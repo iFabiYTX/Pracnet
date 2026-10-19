@@ -99,5 +99,78 @@ class TestPracnetApp(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn(b'aceptado/a para proceso de entrevista', res.data)
 
+    def test_login_docente_alias(self):
+        res = self.client.post('/login', data={
+            'email': 'docente@pracnet.cl',
+            'password': 'docente2026'
+        }, follow_redirects=True)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Panel de administraci', res.data)
+
+    def test_password_recovery_success(self):
+        res = self.client.post('/recuperar-password', data={
+            'email': 'alumno@pracnet.cl'
+        }, follow_redirects=True)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'clave temporal', res.data)
+
+    def test_student_messaging(self):
+        # Iniciar sesión como alumno
+        self.client.post('/login', data={
+            'email': 'alumno@pracnet.cl',
+            'password': 'alumno2026'
+        })
+        # Ver bandeja
+        res = self.client.get('/estudiante/mensajes')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Mensajer\xc3\xada Institucional', res.data)
+        
+        # Enviar mensaje
+        res = self.client.post('/estudiante/mensajes', data={
+            'asunto': 'Duda con timbraje Formulario 6000 B',
+            'cuerpo': 'Estimada Coordinación, ¿el timbre puede ser digital o debe ser físico?'
+        }, follow_redirects=True)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Mensaje enviado exitosamente', res.data)
+
+    def test_admin_document_signing(self):
+        # Login como docente
+        self.client.post('/login', data={
+            'email': 'docente@pracnet.cl',
+            'password': 'docente2026'
+        })
+        # Listar documentos
+        res = self.client.get('/admin/documentos')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Revisi\xc3\xb3n y Firma de Documentos', res.data)
+
+        # Firmar documento id 1
+        res = self.client.post('/admin/documentos/1/firmar', follow_redirects=True)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'firmado digitalmente y aprobado', res.data)
+
+    def test_admin_document_rejection(self):
+        # Login como docente
+        self.client.post('/login', data={
+            'email': 'docente@pracnet.cl',
+            'password': 'docente2026'
+        })
+        # Rechazar documento id 2
+        res = self.client.post('/admin/documentos/2/rechazar', data={
+            'motivo': 'Falta firma del tutor laboral'
+        }, follow_redirects=True)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'rechazado con observaci', res.data)
+
+    def test_student_download_template_6000b(self):
+        self.client.post('/login', data={
+            'email': 'alumno@pracnet.cl',
+            'password': 'alumno2026'
+        })
+        res = self.client.get('/estudiante/plantilla/formulario-6000b')
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue('application/pdf' in res.headers.get('Content-Type', ''))
+
 if __name__ == '__main__':
     unittest.main()
+

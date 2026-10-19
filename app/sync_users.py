@@ -7,34 +7,39 @@ def sync_pracnet_users():
         cursor = conn.cursor()
         
         # 1. Alumno oficial: alumno@pracnet.cl / alumno2026
-        cursor.execute("UPDATE usuario SET email = 'alumno@pracnet.cl', password_hash = ? WHERE email = 'carlos.mendoza@alumnos.usm.cl'", (hash_password('alumno2026'),))
+        cursor.execute("UPDATE usuario SET email = 'alumno@pracnet.cl', password_hash = ?, nombre = 'Carlos Mendoza' WHERE id = 5 OR email = 'alumno@pracnet.cl'", (hash_password('alumno2026'),))
         cursor.execute("UPDATE estudiante SET correo_institucional = 'alumno@pracnet.cl' WHERE rut = '20.123.456-7'")
 
-        # 2. Jefe de Carrera: jefe@pracnet.cl / jefe2026
-        cursor.execute("UPDATE usuario SET email = 'jefe@pracnet.cl', password_hash = ? WHERE email = 'jefe.informatica@usm.cl'", (hash_password('jefe2026'),))
+        # 2. Coordinación Docente Institucional
+        cursor.execute("UPDATE usuario SET nombre = 'Coordinación Académica de Prácticas', password_hash = ? WHERE id = 1", (hash_password('docente2026'),))
+        cursor.execute("UPDATE usuario SET nombre = 'Coordinación de Prácticas (Prevención)' WHERE id = 2")
+        cursor.execute("UPDATE usuario SET nombre = 'Coordinación de Prácticas (Industrias)' WHERE id = 3")
+        cursor.execute("UPDATE usuario SET nombre = 'Secretaría Docente' WHERE id = 12")
+        cursor.execute("UPDATE usuario SET nombre = 'Administración del Sistema' WHERE id = 4")
 
-        # 3. Admin Central: admin@pracnet.cl / admin2026
-        cursor.execute("UPDATE usuario SET email = 'admin@pracnet.cl', password_hash = ? WHERE email = 'admin@pracnet.cl'", (hash_password('admin2026'),))
+        # 3. Limpiar bitácora de nombres reales anteriores
+        cursor.execute("UPDATE bitacora_auditoria SET detalle = REPLACE(detalle, 'Prof. José Carrasco (Jefe Informática)', 'Coordinación Académica') WHERE detalle LIKE '%Carrasco%'")
+        cursor.execute("UPDATE bitacora_auditoria SET detalle = REPLACE(detalle, 'Prof. José Carrasco', 'Coordinación Académica') WHERE detalle LIKE '%Carrasco%'")
+        cursor.execute("UPDATE bitacora_auditoria SET detalle = REPLACE(detalle, 'Prof. Claudia Grandon', 'Coordinación Académica') WHERE detalle LIKE '%Grandon%'")
+        cursor.execute("UPDATE bitacora_auditoria SET detalle = REPLACE(detalle, 'Prof. Marcelo Quiroz', 'Coordinación Académica') WHERE detalle LIKE '%Quiroz%'")
 
-        # 4. Crear secretaria@pracnet.cl si no existe
-        cursor.execute("SELECT id FROM usuario WHERE email = 'secretaria@pracnet.cl'")
-        if not cursor.fetchone():
-            cursor.execute(
-                "INSERT INTO usuario (email, password_hash, rol, nombre, rut) VALUES (?, ?, 'jefe_carrera', ?, ?)",
-                ('secretaria@pracnet.cl', hash_password('secre2026'), 'Secretaría Docente Depto. Informática', '16.666.666-6')
-            )
+        # 4. Mensajes iniciales de prueba si no existen
+        cursor.execute("SELECT COUNT(*) as cnt FROM mensaje")
+        if cursor.fetchone()['cnt'] == 0:
+            cursor.execute("SELECT id FROM estudiante LIMIT 1")
+            est_row = cursor.fetchone()
+            if est_row:
+                e_id = est_row['id']
+                cursor.execute(
+                    "INSERT INTO mensaje (estudiante_id, remitente_tipo, asunto, cuerpo, leido) VALUES (?, 'docente', 'Bienvenido a PRACNET - Proceso de Práctica', 'Estimado estudiante, bienvenido al sistema de gestión de prácticas. Recuerda que antes de iniciar tus actividades debes subir tu certificado de Seguro Escolar y Formulario 6000 B para validación institucional.', 1)",
+                    (e_id,)
+                )
+                cursor.execute(
+                    "INSERT INTO mensaje (estudiante_id, remitente_tipo, asunto, cuerpo, leido) VALUES (?, 'estudiante', 'Consulta sobre Seguro Escolar Ley 16.744', 'Estimada Coordinación, ya cargué mi certificado de seguro emitido por la Dirección de Asuntos Estudiantiles. ¿Cuánto demora la firma digital?', 0)",
+                    (e_id,)
+                )
 
-        # 5. Crear empresa@pracnet.cl si no existe
-        cursor.execute("SELECT id FROM usuario WHERE email = 'empresa@pracnet.cl'")
-        if not cursor.fetchone():
-            cursor.execute(
-                "INSERT INTO usuario (email, password_hash, rol, nombre, rut) VALUES (?, ?, 'empresa', ?, ?)",
-                ('empresa@pracnet.cl', hash_password('empresa2026'), 'Tech Solutions (Reclutamiento)', '76.999.888-2')
-            )
-            u_emp_id = cursor.lastrowid
-            cursor.execute("UPDATE empresa SET usuario_id = ? WHERE id = 1", (u_emp_id,))
-
-        print(">> Usuarios @pracnet.cl actualizados exitosamente en la base de datos.")
+        print(">> Nombres sanitizados y usuarios @pracnet.cl sincronizados.")
 
 if __name__ == '__main__':
     sync_pracnet_users()

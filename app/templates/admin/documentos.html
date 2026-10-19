@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Revisión y Firma de Documentos - PracNet{% endblock %}
+
+{% block admin_title %}
+<h1>Revisión y Firma de Documentos</h1>
+<p>Validación reglamentaria de antecedentes y firma digital de expedientes de práctica.</p>
+{% endblock %}
+
+{% block content %}
+<div class="table-card">
+  <div class="table-header">
+    <div>
+      <h3>Expedientes Documentales de Alumnos</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Revisión de Seguro Escolar (Ley 16.744), Formulario 6000 B e Informes Finales.</p>
+    </div>
+    
+    <!-- Filtros de Estado -->
+    <div style="display: flex; gap: 8px;">
+      <a href="{{ url_for('admin.documentos') }}" class="btn {% if not estado_filtro %}btn-primary{% else %}btn-outline{% endif %}" style="font-size: 0.78rem; padding: 6px 12px;">Todos</a>
+      <a href="{{ url_for('admin.documentos', estado='En Revisión') }}" class="btn {% if estado_filtro == 'En Revisión' %}btn-primary{% else %}btn-outline{% endif %}" style="font-size: 0.78rem; padding: 6px 12px;">En Revisión</a>
+      <a href="{{ url_for('admin.documentos', estado='Aprobado') }}" class="btn {% if estado_filtro == 'Aprobado' %}btn-primary{% else %}btn-outline{% endif %}" style="font-size: 0.78rem; padding: 6px 12px;">Firmados</a>
+      <a href="{{ url_for('admin.documentos', estado='Rechazado') }}" class="btn {% if estado_filtro == 'Rechazado' %}btn-primary{% else %}btn-outline{% endif %}" style="font-size: 0.78rem; padding: 6px 12px;">Rechazados</a>
+    </div>
+  </div>
+
+  {% if documentos %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ALUMNO / CARRERA</th>
+        <th>TIPO DOCUMENTO</th>
+        <th>ARCHIVO</th>
+        <th>ESTADO</th>
+        <th>FIRMA / OBSERVACIÓN</th>
+        <th style="text-align: right;">ACCIONES DE JEFATURA</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in documentos %}
+      <tr>
+        <td>
+          <strong style="color: var(--primary-navy); font-size: 0.95rem;">{{ d.est_nombre }} {{ d.est_apellido }}</strong><br>
+          <span style="color: #64748b; font-size: 0.8rem;">{{ d.est_carrera }}</span><br>
+          <span style="font-family: monospace; font-size: 0.78rem; color: #94a3b8;">RUT: {{ d.est_rut }}</span>
+        </td>
+        <td>
+          <strong style="color: #1e293b; font-size: 0.9rem;">
+            {% if d.tipo_documento == 'seguro_escolar' %}
+              Seguro Escolar (Ley 16.744)
+            {% elif d.tipo_documento == 'formulario_6000b' %}
+              Formulario 6000 B
+            {% elif d.tipo_documento == 'carta_aceptacion' %}
+              Carta de Aceptación Empresa
+            {% elif d.tipo_documento == 'informe_final' %}
+              Informe Final de Práctica
+            {% elif d.tipo_documento == 'curriculum' %}
+              Curriculum Vitae
+            {% else %}
+              {{ d.tipo_documento }}
+            {% endif %}
+          </strong>
+          {% if d.empresa_nombre %}
+            <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+              Empresa: {{ d.empresa_nombre }}
+            </div>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{{ url_for('admin.descargar_documento_admin', doc_id=d.id) }}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Ver Archivo</span>
+          </a>
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px;">
+            {{ (d.tamano_bytes / 1024)|round(1) if d.tamano_bytes else '120' }} KB
+          </div>
+        </td>
+        <td>
+          {% if d.estado_validacion == 'Aprobado' %}
+            <span class="badge badge-success">✓ Firmado y Aprobado</span>
+          {% elif d.estado_validacion == 'Rechazado' %}
+            <span class="badge badge-danger">✗ Rechazado</span>
+          {% else %}
+            <span class="badge badge-warning">● En Revisión</span>
+          {% endif %}
+        </td>
+        <td style="max-width: 220px;">
+          {% if d.firmado_por %}
+            <div style="font-size: 0.75rem; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 4px;">
+              <strong>{{ d.firmado_por }}</strong>
+              <div style="color: #64748b; font-size: 0.7rem;">{{ d.fecha_firma }}</div>
+            </div>
+          {% elif d.observacion %}
+            <div style="font-size: 0.75rem; color: #991b1b; background: #fef2f2; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px;">
+              <em>"{{ d.observacion }}"</em>
+            </div>
+          {% else %}
+            <span style="font-size: 0.78rem; color: #94a3b8;">Pendiente de firma</span>
+          {% endif %}
+        </td>
+        <td style="text-align: right; white-space: nowrap;">
+          {% if d.estado_validacion != 'Aprobado' %}
+            <form method="POST" action="{{ url_for('admin.firmar_documento', doc_id=d.id) }}" style="display: inline-block; margin: 0;">
+              <button type="submit" class="btn btn-success" style="padding: 6px 12px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Firmar y Aprobar</span>
+              </button>
+            </form>
+
+            <button type="button" onclick="abrirRechazo('{{ d.id }}', '{{ d.est_nombre }} {{ d.est_apellido }}', '{{ d.tipo_documento }}')" class="btn btn-danger" style="padding: 6px 10px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span>Rechazar</span>
+            </button>
+          {% else %}
+            <span style="font-size: 0.78rem; color: #166534; font-weight: 600;">Expediente Conforme</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="padding: 40px; text-align: center; color: #64748b;">
+    <p style="font-size: 1rem; margin-bottom: 6px;">No hay documentos registrados bajo este filtro.</p>
+    <a href="{{ url_for('admin.documentos') }}" style="color: #0284c7; font-size: 0.85rem; text-decoration: none;">Ver todos los documentos</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal para Rechazar Documento con Observaciones -->
+<div id="modal-rechazo" class="modal-overlay">
+  <div class="modal-window">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="color: #b91c1c; font-size: 1.15rem; margin: 0;">Rechazar Documento</h3>
+      <button onclick="closeModal('modal-rechazo')" style="background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #64748b;">&times;</button>
+    </div>
+
+    <p style="font-size: 0.85rem; color: #475569; margin-bottom: 14px;">
+      Indica al estudiante <strong id="alumno-rechazo-nombre"></strong> el motivo por el cual se rechaza el documento, para que cargue una versión corregida.
+    </p>
+
+    <form id="form-rechazo" method="POST" action="">
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label for="motivo" style="font-weight: 600; font-size: 0.82rem; color: #1e293b; display: block; margin-bottom: 6px;">
+          Motivo / Observación de Corrección
+        </label>
+        <textarea id="motivo" name="motivo" class="form-control" rows="3" placeholder="Ej: Falta timbre de la empresa en la cláusula 3 o certificado vencido..." required></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" onclick="closeModal('modal-rechazo')" class="btn btn-outline" style="font-size: 0.85rem;">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-danger" style="font-size: 0.85rem;">
+          Confirmar Rechazo
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function abrirRechazo(docId, alumnoNombre, tipoDoc) {
+    document.getElementById('alumno-rechazo-nombre').textContent = alumnoNombre;
+    document.getElementById('form-rechazo').action = '/admin/documentos/' + docId + '/rechazar';
+    openModal('modal-rechazo');
+  }
+</script>
+{% endblock %}

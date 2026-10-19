@@ -6,8 +6,9 @@ venv/
 env/
 .env
 
-# Database
+# Database & Uploads
 app/uploads/*.tmp
+app/uploads/est_*
 
 # Executables & Shortcuts
 *.lnk

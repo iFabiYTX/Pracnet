@@ -137,9 +137,22 @@ def init_db():
             ruta_archivo TEXT NOT NULL,
             tamano_bytes INTEGER,
             estado_validacion TEXT DEFAULT 'Pendiente',
+            observacion TEXT,
+            firmado_por TEXT,
+            fecha_firma TIMESTAMP,
             fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         ''')
+
+        # Migración automática de columnas para firma y observaciones si no existen
+        cursor.execute("PRAGMA table_info(documento_practica)")
+        doc_cols = [r['name'] for r in cursor.fetchall()]
+        if 'observacion' not in doc_cols:
+            cursor.execute("ALTER TABLE documento_practica ADD COLUMN observacion TEXT")
+        if 'firmado_por' not in doc_cols:
+            cursor.execute("ALTER TABLE documento_practica ADD COLUMN firmado_por TEXT")
+        if 'fecha_firma' not in doc_cols:
+            cursor.execute("ALTER TABLE documento_practica ADD COLUMN fecha_firma TIMESTAMP")
 
         # 7. Tabla Bitácora de Auditoría (Trazabilidad y Seguridad)
         cursor.execute('''
@@ -162,5 +175,29 @@ def init_db():
             mensaje TEXT NOT NULL,
             leida INTEGER DEFAULT 0,
             fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        ''')
+
+        # 9. Mensajería Directa Alumno <-> Docente/Jefatura
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS mensaje (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            estudiante_id INTEGER NOT NULL REFERENCES estudiante(id) ON DELETE CASCADE,
+            remitente_tipo TEXT NOT NULL CHECK(remitente_tipo IN ('estudiante', 'docente')),
+            asunto TEXT NOT NULL,
+            cuerpo TEXT NOT NULL,
+            leido INTEGER DEFAULT 0,
+            fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        ''')
+
+        # 10. Recuperación de Contraseñas
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS recuperacion_clave (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+            codigo TEXT NOT NULL,
+            expira_en TIMESTAMP NOT NULL,
+            usado INTEGER DEFAULT 0
         );
         ''')

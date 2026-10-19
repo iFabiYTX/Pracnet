@@ -288,6 +288,183 @@ def exportar_reporte(formato):
     flash(f"Generado reporte en formato {formato.upper()}.", 'info')
     return redirect(url_for('admin.reportes'))
 
+@admin_bp.route('/documentos')
+def documentos():
+    """Módulo de Revisión y Firma Digital de Documentos para Jefatura de Carrera."""
+    estado_filtro = request.args.get('estado', '')
+    with get_db() as conn:
+        cursor = conn.cursor()
+        query = """
+            SELECT d.*, e.nombre as est_nombre, e.apellido as est_apellido, e.rut as est_rut, e.carrera as est_carrera,
+                   o.titulo as oferta_titulo, emp.nombre as empresa_nombre
+            FROM documento_practica d
+            JOIN estudiante e ON d.estudiante_id = e.id
+            LEFT JOIN postulacion p ON d.postulacion_id = p.id
+            LEFT JOIN oferta_practica o ON p.oferta_practica_id = o.id
+            LEFT JOIN empresa emp ON o.empresa_id = emp.id
+        """
+        params = []
+        if estado_filtro:
+            query += " WHERE d.estado_validacion = ?"
+            params.append(estado_filtro)
+        query += " ORDER BY d.id DESC"
+        cursor.execute(query, tuple(params))
+        documentos_lista = cursor.fetchall()
+        
+    return render_template('admin/documentos.html', documentos=documentos_lista, estado_filtro=estado_filtro)
+
+@admin_bp.route('/documentos/<int:doc_id>/firmar', methods=['POST'])
+def firmar_documento(doc_id):
+    """Aplica Firma Digital Institucional y aprueba el documento."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT d.*, e.nombre as est_nombre, e.apellido as est_apellido, p.id as post_id
+            FROM documento_practica d
+            JOIN estudiante e ON d.estudiante_id = e.id
+            LEFT JOIN postulacion p ON d.postulacion_id = p.id
+            WHERE d.id = ?
+        """, (doc_id,))
+        doc = cursor.fetchone()
+        if not doc:
+            flash('Documento no encontrado.', 'danger')
+            return redirect(url_for('admin.documentos'))
+            
+        firma_texto = "FIRMADO DIGITALMENTE - COORDINACIÓN ACADÉMICA USM"
+        cursor.execute("""
+            UPDATE documento_practica 
+            SET estado_validacion = 'Aprobado', firmado_por = ?, fecha_firma = CURRENT_TIMESTAMP, observacion = 'Validado conforme a normativa académica vigente.'
+            WHERE id = ?
+        """, (firma_texto, doc_id))
+        
+        # Si era el Seguro Escolar y había postulación, actualizar fase
+        if doc['tipo_documento'] == 'seguro_escolar' and doc['post_id']:
+            cursor.execute("UPDATE postulacion SET fase_administrativa = 'Carta Presentación Emitida' WHERE id = ?", (doc['post_id'],))
+        elif doc['tipo_documento'] == 'informe_final' and doc['post_id']:
+            cursor.execute("UPDATE postulacion SET estado = 'Aprobado', fase_administrativa = 'Aprobado' WHERE id = ?", (doc['post_id'],))
+            
+        cursor.execute(
+            "INSERT INTO bitacora_auditoria (usuario_id, accion, detalle) VALUES (?, 'DOCUMENTO_FIRMADO', ?)",
+            (session.get('user_id'), f"Firma digital aplicada al documento #{doc_id} ({doc['tipo_documento']}) de {doc['est_nombre']} {doc['est_apellido']}")
+        )
+        
+    flash(f'Documento #{doc_id} de {doc["est_nombre"]} {doc["est_apellido"]} firmado digitalmente y aprobado con éxito.', 'success')
+    return redirect(url_for('admin.documentos'))
+
+@admin_bp.route('/documentos/<int:doc_id>/rechazar', methods=['POST'])
+def rechazar_documento(doc_id):
+    """Rechaza el documento con observaciones para que el alumno lo corrija."""
+    motivo = request.form.get('motivo', 'Documento incompleto o no cumple con el formato exigido.').strip()
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT d.*, e.nombre as est_nombre, e.apellido as est_apellido
+            FROM documento_practica d
+            JOIN estudiante e ON d.estudiante_id = e.id
+            WHERE d.id = ?
+        """, (doc_id,))
+        doc = cursor.fetchone()
+        if not doc:
+            flash('Documento no encontrado.', 'danger')
+            return redirect(url_for('admin.documentos'))
+            
+        cursor.execute("""
+            UPDATE documento_practica 
+            SET estado_validacion = 'Rechazado', observacion = ?, firmado_por = NULL
+            WHERE id = ?
+        """, (motivo, doc_id))
+        
+        cursor.execute(
+            "INSERT INTO bitacora_auditoria (usuario_id, accion, detalle) VALUES (?, 'DOCUMENTO_RECHAZADO', ?)",
+            (session.get('user_id'), f"Rechazado documento #{doc_id} ({doc['tipo_documento']}) de {doc['est_nombre']} {doc['est_apellido']}. Observación: {motivo}")
+        )
+        
+    flash(f'Documento #{doc_id} rechazado con observación enviada al estudiante.', 'warning')
+    return redirect(url_for('admin.documentos'))
+
+@admin_bp.route('/documentos/<int:doc_id>/descargar')
+def descargar_documento_admin(doc_id):
+    import os
+    from app.config import Config
+    from flask import send_from_directory
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM documento_practica WHERE id = ?", (doc_id,))
+        doc = cursor.fetchone()
+    if not doc:
+        flash('Documento no encontrado.', 'danger')
+        return redirect(url_for('admin.documentos'))
+    file_path = os.path.join(Config.UPLOAD_FOLDER, doc['ruta_archivo'])
+    if not os.path.exists(file_path):
+        with open(file_path, 'wb') as f:
+            f.write(f"%PDF-1.4\n% PRACNET USM - Expediente Digital Institucional\nDocumento: {doc['tipo_documento']}\n".encode('utf-8'))
+    return send_from_directory(Config.UPLOAD_FOLDER, doc['ruta_archivo'], as_attachment=True, download_name=doc['nombre_archivo'])
+
+@admin_bp.route('/mensajes', methods=['GET', 'POST'])
+def mensajes():
+    """Módulo de Mensajería y Consultas con Estudiantes."""
+    if request.method == 'POST':
+        estudiante_id = request.form.get('estudiante_id')
+        asunto = request.form.get('asunto', '').strip()
+        cuerpo = request.form.get('cuerpo', '').strip()
+        
+        if not estudiante_id or not cuerpo:
+            flash('Por favor complete el mensaje.', 'warning')
+            return redirect(url_for('admin.mensajes'))
+            
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO mensaje (estudiante_id, remitente_tipo, asunto, cuerpo, leido)
+                VALUES (?, 'docente', ?, ?, 0)
+            """, (estudiante_id, asunto or 'Respuesta de Coordinación Académica', cuerpo))
+            
+            cursor.execute(
+                "INSERT INTO bitacora_auditoria (usuario_id, accion, detalle) VALUES (?, 'MENSAJE_DOCENTE', ?)",
+                (session.get('user_id'), f"Respuesta enviada a alumno #{estudiante_id}")
+            )
+            
+        flash('Respuesta enviada exitosamente al estudiante.', 'success')
+        return redirect(url_for('admin.mensajes', estudiante_id=estudiante_id))
+        
+    estudiante_seleccionado = request.args.get('estudiante_id', '')
+    with get_db() as conn:
+        cursor = conn.cursor()
+        
+        # Lista de estudiantes que han tenido conversación
+        cursor.execute("""
+            SELECT DISTINCT e.id, e.nombre, e.apellido, e.carrera, e.rut,
+                   (SELECT COUNT(*) FROM mensaje WHERE estudiante_id = e.id AND remitente_tipo = 'estudiante' AND leido = 0) as sin_leer
+            FROM estudiante e
+            JOIN mensaje m ON e.id = m.estudiante_id
+            ORDER BY sin_leer DESC, e.nombre ASC
+        """)
+        estudiantes_con_mensajes = cursor.fetchall()
+        
+        # Si no hay seleccionado y hay alguno, seleccionar el primero
+        if not estudiante_seleccionado and estudiantes_con_mensajes:
+            estudiante_seleccionado = estudiantes_con_mensajes[0]['id']
+            
+        mensajes_hilo = []
+        estudiante_activo = None
+        if estudiante_seleccionado:
+            cursor.execute("SELECT * FROM estudiante WHERE id = ?", (estudiante_seleccionado,))
+            estudiante_activo = cursor.fetchone()
+            
+            # Marcar como leídos
+            cursor.execute("UPDATE mensaje SET leido = 1 WHERE estudiante_id = ? AND remitente_tipo = 'estudiante'", (estudiante_seleccionado,))
+            
+            cursor.execute("SELECT * FROM mensaje WHERE estudiante_id = ? ORDER BY id ASC", (estudiante_seleccionado,))
+            mensajes_hilo = cursor.fetchall()
+            
+    return render_template(
+        'admin/mensajes.html',
+        estudiantes=estudiantes_con_mensajes,
+        estudiante_activo=estudiante_activo,
+        mensajes=mensajes_hilo,
+        estudiante_seleccionado=estudiante_seleccionado
+    )
+
 @admin_bp.route('/usuarios')
 @role_required(['admin'])
 def usuarios():

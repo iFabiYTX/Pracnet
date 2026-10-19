@@ -1,142 +1,384 @@
 {% extends 'base.html' %}
 
-{% block title %}Validación de Práctica - PracNet Móvil{% endblock %}
+{% block title %}Validación y Expediente de Práctica - PracNet Móvil{% endblock %}
 
 {% block student_content %}
 <div style="margin-bottom: 20px;">
-  <h2 style="font-size: 1.3rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 8px;">Validación de la práctica</h2>
-  <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 6px;">
-    Tu proceso de validación está al <strong>{{ progreso }}%</strong>
-  </div>
-  <div style="background: #e2e8f0; height: 8px; border-radius: 9999px; overflow: hidden;">
-    <div style="background: #10b981; height: 100%; width: {{ progreso }}%; transition: width 0.3s;"></div>
-  </div>
-</div>
-
-<!-- Guía Paso a Paso (Mockup 9.1) -->
-<div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
-  <h3 style="font-size: 1rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 14px;">Guía paso a paso</h3>
-  
-  <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.95rem;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-      <span style="font-weight: 600; color: #1e293b;">Inscripción de Práctica</span>
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+    <div>
+      <h2 style="font-size: 1.25rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 4px;">
+        Expediente de Práctica
+      </h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">
+        Carga, revisión y firma digital de antecedentes reglamentarios USM
+      </p>
     </div>
-
-    <div style="display: flex; align-items: center; gap: 10px;">
-      {% if 'seguro_escolar' in docs_map %}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-      {% else %}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-      {% endif %}
-      <span style="font-weight: 600; color: #1e293b;">Seguro Escolar (Ley 16.744)</span>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: 10px;">
-      {% if postulacion and postulacion.fase_administrativa in ['Práctica Iniciada', 'Aprobado'] %}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-      {% else %}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-      {% endif %}
-      <span style="font-weight: 600; color: #1e293b;">Validación de Horas</span>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: 10px;">
-      {% if 'informe_final' in docs_map %}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-      {% else %}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
-      {% endif %}
-      <span style="font-weight: 600; color: #1e293b;">Informe Final</span>
-    </div>
-  </div>
-</div>
-
-<!-- Sección Documentos (Mockup 9.1) -->
-<div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-    <h3 style="font-size: 1rem; color: var(--primary-navy); font-weight: 700;">Documentos</h3>
-    <button id="btn-open-ai" class="btn" style="background: #e0f2fe; color: #0284c7; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+    <button id="btn-open-ai" class="btn" style="background: #e0f2fe; color: #0284c7; padding: 6px 10px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; border-radius: 6px;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
-      <span>Consultar Asistente IA</span>
+      <span>Asistente IA</span>
     </button>
   </div>
 
-  <div style="display: flex; flex-direction: column; gap: 12px;">
-    <!-- Doc 1: CV -->
-    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="background: #fee2e2; color: #ef4444; font-size: 0.75rem; font-weight: bold; padding: 4px 6px; border-radius: 4px;">PDF</span>
-        <div>
-          <div style="font-size: 0.85rem; font-weight: 600;">Curriculum_Vitae.pdf</div>
-          <span style="background: #dcfce7; color: #166534; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px;">Subido</span>
-        </div>
-      </div>
-      <a href="#" style="color: #1e5bb0; font-size: 0.85rem; text-decoration: none; font-weight: 600;">Ver</a>
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-top: 10px;">
+    <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
+      <span style="font-weight: 600; color: #334155;">Progreso Administrativo Total</span>
+      <strong style="color: {% if progreso == 100 %}#16a34a{% else %}#0284c7{% endif %};">{{ progreso }}%</strong>
     </div>
-
-    <!-- Doc 2: Seguro Escolar -->
-    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="background: #e0f2fe; color: #0284c7; font-size: 0.75rem; font-weight: bold; padding: 4px 6px; border-radius: 4px;">PDF</span>
-        <div>
-          <div style="font-size: 0.85rem; font-weight: 600;">Seguro_Escolar_2026.pdf</div>
-          {% if 'seguro_escolar' in docs_map %}
-            <span style="background: #dcfce7; color: #166534; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px;">Subido</span>
-          {% else %}
-            <span style="background: #fef3c7; color: #92400e; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px;">Pendiente</span>
-          {% endif %}
-        </div>
-      </div>
-      <a href="#" style="color: #1e5bb0; font-size: 0.85rem; text-decoration: none; font-weight: 600;">Ver</a>
-    </div>
-
-    <!-- Doc 3: Informe Final -->
-    <div style="border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="background: #f1f5f9; color: #64748b; font-size: 0.75rem; font-weight: bold; padding: 4px 6px; border-radius: 4px;">DOC</span>
-          <div>
-            <div style="font-size: 0.85rem; font-weight: 600;">Informe_Final_Practica</div>
-            <span style="font-size: 0.75rem; color: #94a3b8;">
-              {% if 'informe_final' in docs_map %}Subido con éxito{% else %}No se ha subido archivo{% endif %}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <form method="POST" action="{{ url_for('student.subir_documento') }}" enctype="multipart/form-data" style="margin-top: 8px; display: flex; gap: 6px;">
-        <input type="hidden" name="tipo_documento" value="informe_final">
-        <input type="hidden" name="postulacion_id" value="{{ postulacion.id if postulacion else '' }}">
-        <input type="file" name="archivo" class="form-control" style="font-size: 0.75rem; padding: 4px 6px;" required>
-        <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; white-space: nowrap; background: #0e2a47;">
-          + Subir
-        </button>
-      </form>
+    <div style="background: #e2e8f0; height: 8px; border-radius: 9999px; overflow: hidden;">
+      <div style="background: {% if progreso == 100 %}#16a34a{% else %}#0284c7{% endif %}; height: 100%; width: {{ progreso }}%; transition: width 0.3s;"></div>
     </div>
   </div>
 </div>
 
-<!-- Modal Asistente AI (Mockup 9.1) -->
-<div id="ai-modal" class="modal-overlay">
-  <div class="modal-window" style="height: 480px; display: flex; flex-direction: column;">
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
-      <h3 style="color: var(--primary-navy); font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
-        <span>Asistente Jurídico y Académico IA</span>
-      </h3>
-      <button id="btn-close-ai" style="background: none; border: none; font-size: 1.4rem; cursor: pointer;">&times;</button>
+<!-- Guía de Etapas Normativas -->
+<div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+  <h3 style="font-size: 0.92rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 12px;">
+    Flujo de Acreditación Curricular
+  </h3>
+  
+  <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem;">
+    <!-- Etapa 1: Inscripción -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      {% if postulacion %}
+        <span style="color: #16a34a; font-weight: bold; font-size: 0.9rem;">✓</span>
+      {% else %}
+        <span style="color: #94a3b8; font-size: 0.9rem;">○</span>
+      {% endif %}
+      <span style="color: #1e293b; font-weight: 600;">
+        1. Inscripción y Selección de Práctica
+        {% if postulacion %}
+          <span style="font-size: 0.75rem; color: #64748b; font-weight: normal;">({{ postulacion.empresa_nombre }})</span>
+        {% endif %}
+      </span>
     </div>
 
-    <div id="ai-chat-box" style="flex: 1; overflow-y: auto; padding: 12px 0; display: flex; flex-direction: column;">
-      <div style="background: #f1f5f9; padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; align-self: flex-start; max-width: 80%; font-size: 0.85rem; border-left: 3px solid #1e5bb0;">
-        ¡Hola! Soy tu asistente virtual de PRACNET. ¿En qué puedo ayudarte hoy sobre tu proceso de práctica o documentación?
+    <!-- Etapa 2: Seguro Escolar -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      {% if 'seguro_escolar' in docs_map and docs_map['seguro_escolar'].estado_validacion == 'Aprobado' %}
+        <span style="color: #16a34a; font-weight: bold; font-size: 0.9rem;">✓</span>
+      {% elif 'seguro_escolar' in docs_map %}
+        <span style="color: #eab308; font-weight: bold; font-size: 0.9rem;">●</span>
+      {% else %}
+        <span style="color: #94a3b8; font-size: 0.9rem;">○</span>
+      {% endif %}
+      <span style="color: #1e293b; font-weight: 600;">2. Seguro Escolar Obligatorio (Ley 16.744)</span>
+    </div>
+
+    <!-- Etapa 3: Formulario 6000 B -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      {% if 'formulario_6000b' in docs_map and docs_map['formulario_6000b'].estado_validacion == 'Aprobado' %}
+        <span style="color: #16a34a; font-weight: bold; font-size: 0.9rem;">✓</span>
+      {% elif 'formulario_6000b' in docs_map %}
+        <span style="color: #eab308; font-weight: bold; font-size: 0.9rem;">●</span>
+      {% else %}
+        <span style="color: #94a3b8; font-size: 0.9rem;">○</span>
+      {% endif %}
+      <span style="color: #1e293b; font-weight: 600;">3. Formulario 6000 B (Evaluación de Tutor)</span>
+    </div>
+
+    <!-- Etapa 4: Informe Final -->
+    <div style="display: flex; align-items: center; gap: 10px;">
+      {% if 'informe_final' in docs_map and docs_map['informe_final'].estado_validacion == 'Aprobado' %}
+        <span style="color: #16a34a; font-weight: bold; font-size: 0.9rem;">✓</span>
+      {% elif 'informe_final' in docs_map %}
+        <span style="color: #eab308; font-weight: bold; font-size: 0.9rem;">●</span>
+      {% else %}
+        <span style="color: #94a3b8; font-size: 0.9rem;">○</span>
+      {% endif %}
+      <span style="color: #1e293b; font-weight: 600;">4. Informe Final y Calificación SIGA</span>
+    </div>
+  </div>
+</div>
+
+<!-- Lista de Documentos Requeridos para Subir / Revisar / Descargar -->
+<div style="display: flex; flex-direction: column; gap: 16px;">
+
+  <!-- =========================================================================
+       DOCUMENTO 1: SEGURO ESCOLAR (LEY 16.744)
+       ========================================================================= -->
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <div>
+        <h4 style="font-size: 0.95rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 2px;">
+          1. Seguro Escolar Obligatorio (Ley N° 16.744)
+        </h4>
+        <p style="font-size: 0.78rem; color: #64748b; margin: 0;">
+          Certificado de alumno regular que activa la cobertura médica estatal ante accidentes de trayecto o trabajo.
+        </p>
+      </div>
+
+      {% if 'seguro_escolar' in docs_map %}
+        {% set d = docs_map['seguro_escolar'] %}
+        {% if d.estado_validacion == 'Aprobado' %}
+          <span class="badge badge-success" style="font-size: 0.72rem; white-space: nowrap;">✓ Firmado y Aprobado</span>
+        {% elif d.estado_validacion == 'Rechazado' %}
+          <span class="badge badge-danger" style="font-size: 0.72rem; white-space: nowrap;">✗ Rechazado</span>
+        {% else %}
+          <span class="badge badge-warning" style="font-size: 0.72rem; white-space: nowrap;">● En Revisión</span>
+        {% endif %}
+      {% else %}
+        <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; white-space: nowrap;">Pendiente de Envío</span>
+      {% endif %}
+    </div>
+
+    {% if 'seguro_escolar' in docs_map %}
+      {% set d = docs_map['seguro_escolar'] %}
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin: 10px 0; font-size: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>Archivo:</strong> {{ d.nombre_archivo }}
+            <span style="color: #94a3b8; font-size: 0.72rem; margin-left: 6px;">({{ (d.tamano_bytes / 1024)|round(1) if d.tamano_bytes else '120' }} KB)</span>
+          </div>
+          <a href="{{ url_for('student.descargar_documento', doc_id=d.id) }}" class="btn btn-outline" style="font-size: 0.75rem; padding: 3px 8px;">
+            Descargar
+          </a>
+        </div>
+
+        {% if d.estado_validacion == 'Aprobado' and d.firmado_por %}
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1; color: #166534; font-size: 0.75rem;">
+            <strong>Firma Digital:</strong> {{ d.firmado_por }} — {{ d.fecha_firma }}
+          </div>
+        {% elif d.estado_validacion == 'Rechazado' and d.observacion %}
+          <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; color: #991b1b; font-size: 0.75rem;">
+            <strong>Observación de la Jefatura:</strong> "{{ d.observacion }}". Por favor sube una nueva versión corregida.
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Formulario para Cargar o Reemplazar -->
+    <form method="POST" action="{{ url_for('student.subir_documento') }}" enctype="multipart/form-data" style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+      <input type="hidden" name="tipo_documento" value="seguro_escolar">
+      <input type="hidden" name="postulacion_id" value="{{ postulacion.id if postulacion else '' }}">
+      <input type="file" name="archivo" class="form-control" accept=".pdf,.doc,.docx" style="font-size: 0.76rem; padding: 5px 8px; flex: 1;" required>
+      <button type="submit" class="btn btn-primary" style="background: #0c2340; font-size: 0.76rem; padding: 6px 12px; white-space: nowrap;">
+        {% if 'seguro_escolar' in docs_map %}Reemplazar{% else %}Subir Archivo{% endif %}
+      </button>
+    </form>
+  </div>
+
+  <!-- =========================================================================
+       DOCUMENTO 2: FORMULARIO 6000 B / SOLICITUD DE PRÁCTICA
+       ========================================================================= -->
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <div>
+        <h4 style="font-size: 0.95rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 2px;">
+          2. Formulario 6000 B / Solicitud de Práctica
+        </h4>
+        <p style="font-size: 0.78rem; color: #64748b; margin: 0;">
+          Pauta oficial de evaluación y registro académico UTFSM. Debe contar con timbre y firma del tutor en la empresa.
+        </p>
+      </div>
+
+      {% if 'formulario_6000b' in docs_map %}
+        {% set d = docs_map['formulario_6000b'] %}
+        {% if d.estado_validacion == 'Aprobado' %}
+          <span class="badge badge-success" style="font-size: 0.72rem; white-space: nowrap;">✓ Firmado y Aprobado</span>
+        {% elif d.estado_validacion == 'Rechazado' %}
+          <span class="badge badge-danger" style="font-size: 0.72rem; white-space: nowrap;">✗ Rechazado</span>
+        {% else %}
+          <span class="badge badge-warning" style="font-size: 0.72rem; white-space: nowrap;">● En Revisión</span>
+        {% endif %}
+      {% else %}
+        <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; white-space: nowrap;">Pendiente de Envío</span>
+      {% endif %}
+    </div>
+
+    <!-- Enlace para descargar la plantilla oficial en blanco -->
+    <div style="margin: 8px 0 12px 0;">
+      <a href="{{ url_for('student.descargar_plantilla_6000b') }}" style="color: #0284c7; font-size: 0.78rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Descargar formato oficial en blanco (Formulario 6000 B PDF)</span>
+      </a>
+    </div>
+
+    {% if 'formulario_6000b' in docs_map %}
+      {% set d = docs_map['formulario_6000b'] %}
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin: 10px 0; font-size: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>Archivo:</strong> {{ d.nombre_archivo }}
+            <span style="color: #94a3b8; font-size: 0.72rem; margin-left: 6px;">({{ (d.tamano_bytes / 1024)|round(1) if d.tamano_bytes else '120' }} KB)</span>
+          </div>
+          <a href="{{ url_for('student.descargar_documento', doc_id=d.id) }}" class="btn btn-outline" style="font-size: 0.75rem; padding: 3px 8px;">
+            Descargar
+          </a>
+        </div>
+
+        {% if d.estado_validacion == 'Aprobado' and d.firmado_por %}
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1; color: #166534; font-size: 0.75rem;">
+            <strong>Firma Digital Jefatura:</strong> {{ d.firmado_por }} — {{ d.fecha_firma }}
+          </div>
+        {% elif d.estado_validacion == 'Rechazado' and d.observacion %}
+          <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; color: #991b1b; font-size: 0.75rem;">
+            <strong>Observación de la Jefatura:</strong> "{{ d.observacion }}". Corrige el formulario y vuelve a adjuntarlo.
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Formulario para Cargar o Reemplazar -->
+    <form method="POST" action="{{ url_for('student.subir_documento') }}" enctype="multipart/form-data" style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+      <input type="hidden" name="tipo_documento" value="formulario_6000b">
+      <input type="hidden" name="postulacion_id" value="{{ postulacion.id if postulacion else '' }}">
+      <input type="file" name="archivo" class="form-control" accept=".pdf,.doc,.docx" style="font-size: 0.76rem; padding: 5px 8px; flex: 1;" required>
+      <button type="submit" class="btn btn-primary" style="background: #0c2340; font-size: 0.76rem; padding: 6px 12px; white-space: nowrap;">
+        {% if 'formulario_6000b' in docs_map %}Reemplazar{% else %}Subir Formulario{% endif %}
+      </button>
+    </form>
+  </div>
+
+  <!-- =========================================================================
+       DOCUMENTO 3: CARTA DE ACEPTACIÓN DE LA EMPRESA
+       ========================================================================= -->
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <div>
+        <h4 style="font-size: 0.95rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 2px;">
+          3. Carta de Aceptación de la Empresa
+        </h4>
+        <p style="font-size: 0.78rem; color: #64748b; margin: 0;">
+          Documento emitido por la empresa receptora con membrete oficial, indicando jornada laboral, fechas de inicio y término.
+        </p>
+      </div>
+
+      {% if 'carta_aceptacion' in docs_map %}
+        {% set d = docs_map['carta_aceptacion'] %}
+        {% if d.estado_validacion == 'Aprobado' %}
+          <span class="badge badge-success" style="font-size: 0.72rem; white-space: nowrap;">✓ Firmado y Aprobado</span>
+        {% elif d.estado_validacion == 'Rechazado' %}
+          <span class="badge badge-danger" style="font-size: 0.72rem; white-space: nowrap;">✗ Rechazado</span>
+        {% else %}
+          <span class="badge badge-warning" style="font-size: 0.72rem; white-space: nowrap;">● En Revisión</span>
+        {% endif %}
+      {% else %}
+        <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; white-space: nowrap;">Pendiente de Envío</span>
+      {% endif %}
+    </div>
+
+    {% if 'carta_aceptacion' in docs_map %}
+      {% set d = docs_map['carta_aceptacion'] %}
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin: 10px 0; font-size: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>Archivo:</strong> {{ d.nombre_archivo }}
+            <span style="color: #94a3b8; font-size: 0.72rem; margin-left: 6px;">({{ (d.tamano_bytes / 1024)|round(1) if d.tamano_bytes else '120' }} KB)</span>
+          </div>
+          <a href="{{ url_for('student.descargar_documento', doc_id=d.id) }}" class="btn btn-outline" style="font-size: 0.75rem; padding: 3px 8px;">
+            Descargar
+          </a>
+        </div>
+
+        {% if d.estado_validacion == 'Aprobado' and d.firmado_por %}
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1; color: #166534; font-size: 0.75rem;">
+            <strong>Firma Digital:</strong> {{ d.firmado_por }} — {{ d.fecha_firma }}
+          </div>
+        {% elif d.estado_validacion == 'Rechazado' and d.observacion %}
+          <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; color: #991b1b; font-size: 0.75rem;">
+            <strong>Observación:</strong> "{{ d.observacion }}".
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Formulario para Cargar o Reemplazar -->
+    <form method="POST" action="{{ url_for('student.subir_documento') }}" enctype="multipart/form-data" style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+      <input type="hidden" name="tipo_documento" value="carta_aceptacion">
+      <input type="hidden" name="postulacion_id" value="{{ postulacion.id if postulacion else '' }}">
+      <input type="file" name="archivo" class="form-control" accept=".pdf,.doc,.docx" style="font-size: 0.76rem; padding: 5px 8px; flex: 1;" required>
+      <button type="submit" class="btn btn-primary" style="background: #0c2340; font-size: 0.76rem; padding: 6px 12px; white-space: nowrap;">
+        {% if 'carta_aceptacion' in docs_map %}Reemplazar{% else %}Subir Carta{% endif %}
+      </button>
+    </form>
+  </div>
+
+  <!-- =========================================================================
+       DOCUMENTO 4: INFORME FINAL DE PRÁCTICA
+       ========================================================================= -->
+  <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+      <div>
+        <h4 style="font-size: 0.95rem; color: var(--primary-navy); font-weight: 700; margin-bottom: 2px;">
+          4. Informe Final de Práctica
+        </h4>
+        <p style="font-size: 0.78rem; color: #64748b; margin: 0;">
+          Memoria técnica y reporte comprensivo de labores realizadas, requerida para la calificación curricular definitiva en SIGA.
+        </p>
+      </div>
+
+      {% if 'informe_final' in docs_map %}
+        {% set d = docs_map['informe_final'] %}
+        {% if d.estado_validacion == 'Aprobado' %}
+          <span class="badge badge-success" style="font-size: 0.72rem; white-space: nowrap;">✓ Firmado y Aprobado</span>
+        {% elif d.estado_validacion == 'Rechazado' %}
+          <span class="badge badge-danger" style="font-size: 0.72rem; white-space: nowrap;">✗ Rechazado</span>
+        {% else %}
+          <span class="badge badge-warning" style="font-size: 0.72rem; white-space: nowrap;">● En Revisión</span>
+        {% endif %}
+      {% else %}
+        <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.72rem; white-space: nowrap;">Pendiente de Envío</span>
+      {% endif %}
+    </div>
+
+    {% if 'informe_final' in docs_map %}
+      {% set d = docs_map['informe_final'] %}
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; margin: 10px 0; font-size: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>Archivo:</strong> {{ d.nombre_archivo }}
+            <span style="color: #94a3b8; font-size: 0.72rem; margin-left: 6px;">({{ (d.tamano_bytes / 1024)|round(1) if d.tamano_bytes else '120' }} KB)</span>
+          </div>
+          <a href="{{ url_for('student.descargar_documento', doc_id=d.id) }}" class="btn btn-outline" style="font-size: 0.75rem; padding: 3px 8px;">
+            Descargar
+          </a>
+        </div>
+
+        {% if d.estado_validacion == 'Aprobado' and d.firmado_por %}
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #cbd5e1; color: #166534; font-size: 0.75rem;">
+            <strong>Aprobación Docente:</strong> {{ d.firmado_por }} — {{ d.fecha_firma }}
+          </div>
+        {% elif d.estado_validacion == 'Rechazado' and d.observacion %}
+          <div style="margin-top: 8px; padding: 8px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; color: #991b1b; font-size: 0.75rem;">
+            <strong>Observación de Corrección:</strong> "{{ d.observacion }}".
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Formulario para Cargar o Reemplazar -->
+    <form method="POST" action="{{ url_for('student.subir_documento') }}" enctype="multipart/form-data" style="margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+      <input type="hidden" name="tipo_documento" value="informe_final">
+      <input type="hidden" name="postulacion_id" value="{{ postulacion.id if postulacion else '' }}">
+      <input type="file" name="archivo" class="form-control" accept=".pdf,.doc,.docx" style="font-size: 0.76rem; padding: 5px 8px; flex: 1;" required>
+      <button type="submit" class="btn btn-primary" style="background: #0c2340; font-size: 0.76rem; padding: 6px 12px; white-space: nowrap;">
+        {% if 'informe_final' in docs_map %}Reemplazar{% else %}Subir Informe Final{% endif %}
+      </button>
+    </form>
+  </div>
+
+</div>
+
+<!-- Modal Asistente IA (Mockup 9.1) -->
+<div id="ai-modal" class="modal-overlay">
+  <div class="modal-window" style="height: 500px; display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+      <h3 style="color: var(--primary-navy); font-size: 1.05rem; display: flex; align-items: center; gap: 8px; margin: 0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+        <span>Asistente Jurídico y Normativo IA</span>
+      </h3>
+      <button id="btn-close-ai" style="background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #64748b;">&times;</button>
+    </div>
+
+    <div id="ai-chat-box" style="flex: 1; overflow-y: auto; padding: 12px 0; display: flex; flex-direction: column; gap: 8px;">
+      <div style="background: #f1f5f9; padding: 10px 14px; border-radius: 8px; align-self: flex-start; max-width: 85%; font-size: 0.84rem; border-left: 3px solid #0284c7; color: #1e293b;">
+        ¡Hola! Soy tu asistente virtual de PRACNET. ¿En qué puedo orientarte hoy sobre la Ley N° 16.744 de Seguro Escolar, el Formulario 6000 B o la convalidación de tus horas de práctica?
       </div>
     </div>
 
     <form id="ai-form" style="border-top: 1px solid #e2e8f0; padding-top: 10px; display: flex; gap: 6px;">
-      <input type="text" id="ai-input" class="form-control" placeholder="¿En qué puedo ayudarte?" style="font-size: 0.85rem;" required>
-      <button type="submit" class="btn btn-primary" style="padding: 8px 14px; background: #0e2a47;">Enviar</button>
+      <input type="text" id="ai-input" class="form-control" placeholder="Escribe tu consulta sobre trámites o requisitos..." style="font-size: 0.85rem;" required>
+      <button type="submit" class="btn btn-primary" style="padding: 8px 14px; background: #0c2340; white-space: nowrap;">Consultar</button>
     </form>
   </div>
 </div>

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Mensajería con Alumnos - PracNet{% endblock %}
+
+{% block admin_title %}
+<h1>Mensajería con Alumnos</h1>
+<p>Canal directo de consultas y orientación académica para estudiantes en proceso de práctica.</p>
+{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 320px 1fr; gap: 20px; min-height: 540px;">
+  <!-- Columna Izquierda: Lista de Alumnos -->
+  <div class="table-card" style="padding: 18px; display: flex; flex-direction: column;">
+    <h3 style="font-size: 1rem; color: var(--primary-navy); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+      Consultas Recibidas
+    </h3>
+
+    {% if estudiantes %}
+    <div style="display: flex; flex-direction: column; gap: 6px; overflow-y: auto; flex: 1;">
+      {% for e in estudiantes %}
+      <a href="{{ url_for('admin.mensajes', estudiante_id=e.id) }}" style="text-decoration: none; padding: 10px 12px; border-radius: 6px; border: 1px solid {% if estudiante_activo and estudiante_activo.id == e.id %}#0284c7{% else %}#e2e8f0{% endif %}; background: {% if estudiante_activo and estudiante_activo.id == e.id %}#f0f9ff{% else %}#ffffff{% endif %}; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s ease;">
+        <div>
+          <strong style="font-size: 0.88rem; color: #0f172a; display: block;">{{ e.nombre }} {{ e.apellido }}</strong>
+          <span style="font-size: 0.74rem; color: #64748b;">{{ e.carrera }}</span>
+        </div>
+        {% if e.sin_leer > 0 %}
+          <span class="badge badge-warning" style="font-size: 0.7rem; padding: 2px 7px;">{{ e.sin_leer }} nuevo</span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="padding: 20px; text-align: center; color: #64748b; font-size: 0.85rem;">
+      No hay mensajes de alumnos aún.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Columna Derecha: Hilo de Conversación y Respuesta -->
+  <div class="table-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+    {% if estudiante_activo %}
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px;">
+        <div>
+          <h3 style="color: var(--primary-navy); font-size: 1.15rem; margin: 0;">{{ estudiante_activo.nombre }} {{ estudiante_activo.apellido }}</h3>
+          <span style="font-size: 0.8rem; color: #64748b;">{{ estudiante_activo.carrera }} • RUT: {{ estudiante_activo.rut }} • {{ estudiante_activo.correo_institucional }}</span>
+        </div>
+        <span class="badge badge-info" style="font-size: 0.75rem;">Semestre {{ estudiante_activo.semestre_actual }}</span>
+      </div>
+
+      <!-- Hilo de Mensajes -->
+      <div style="max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 10px 4px; margin-bottom: 20px;">
+        {% for m in mensajes %}
+        <div style="max-width: 80%; padding: 12px 16px; border-radius: 8px; font-size: 0.88rem; line-height: 1.5; {% if m.remitente_tipo == 'docente' %}align-self: flex-end; background: #0c2340; color: #ffffff;{% else %}align-self: flex-start; background: #f1f5f9; color: #1e293b; border-left: 3px solid #0284c7;{% endif %}">
+          <div style="font-size: 0.75rem; font-weight: 700; opacity: 0.85; margin-bottom: 4px; display: flex; justify-content: space-between; gap: 16px;">
+            <span>{% if m.remitente_tipo == 'docente' %}Coordinación Académica{% else %}{{ estudiante_activo.nombre }}{% endif %}</span>
+            <span>{{ m.fecha_envio }}</span>
+          </div>
+          <strong style="display: block; margin-bottom: 4px; font-size: 0.88rem;">{{ m.asunto }}</strong>
+          <div>{{ m.cuerpo }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Formulario de Respuesta Rápida -->
+    <form method="POST" action="{{ url_for('admin.mensajes') }}" style="border-top: 1px solid var(--border-subtle); padding-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+      <input type="hidden" name="estudiante_id" value="{{ estudiante_activo.id }}">
+      <div style="display: flex; gap: 10px;">
+        <input type="text" name="asunto" class="form-control" placeholder="Asunto de la respuesta..." value="Respuesta Coordinación: " style="font-size: 0.85rem;" required>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <textarea name="cuerpo" class="form-control" rows="2" placeholder="Escribe aquí tu respuesta para el estudiante..." style="font-size: 0.85rem;" required></textarea>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.85rem; background: #0c2340; white-space: nowrap;">
+          Enviar Respuesta
+        </button>
+      </div>
+    </form>
+    {% else %}
+    <div style="padding: 60px; text-align: center; color: #64748b;">
+      <p style="font-size: 1.1rem; margin-bottom: 8px;">Selecciona un alumno de la lista para ver su conversación.</p>
+      <span style="font-size: 0.85rem; color: #94a3b8;">Los mensajes de los estudiantes aparecerán en el panel izquierdo.</span>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -124,11 +124,13 @@ def validacion():
         docs = cursor.fetchall()
         docs_map = {d['tipo_documento']: d for d in docs}
         
-        # Calcular porcentaje de validación (base de 25% por etapa)
-        progreso = 25  # Inscripción hecha
+        # Calcular porcentaje de validación (base de 25% por etapa reglamentaria)
+        progreso = 0
+        if postulacion:
+            progreso += 25
         if 'seguro_escolar' in docs_map:
             progreso += 25
-        if postulacion and postulacion['fase_administrativa'] in ('Entrevista Técnica Realizada', 'Carta Presentación Emitida', 'Práctica Iniciada', 'Aprobado'):
+        if 'formulario_6000b' in docs_map or (postulacion and postulacion['fase_administrativa'] in ('Entrevista Técnica Realizada', 'Carta Presentación Emitida', 'Práctica Iniciada', 'Aprobado')):
             progreso += 25
         if 'informe_final' in docs_map:
             progreso += 25
@@ -147,6 +149,10 @@ def subir_documento():
     tipo_documento = request.form.get('tipo_documento')
     postulacion_id = request.form.get('postulacion_id')
     
+    if not tipo_documento:
+        flash('Tipo de documento no especificado.', 'warning')
+        return redirect(url_for('student.validacion'))
+
     if 'archivo' not in request.files:
         flash('No se seleccionó ningún archivo.', 'warning')
         return redirect(url_for('student.validacion'))
@@ -158,7 +164,7 @@ def subir_documento():
         
     if file and allowed_file(file.filename):
         safe_name = sanitize_safe_filename(file.filename)
-        # Prefijo único para evitar sobreescritura accidental
+        # Prefijo único para trazabilidad
         saved_filename = f"est_{estudiante_id}_{tipo_documento}_{safe_name}"
         file_path = os.path.join(Config.UPLOAD_FOLDER, saved_filename)
         file.save(file_path)
@@ -166,24 +172,95 @@ def subir_documento():
         
         with get_db() as conn:
             cursor = conn.cursor()
-            # Eliminar registro anterior del mismo tipo si existe
+            # Eliminar registro anterior del mismo tipo si existe para reemplazarlo con la nueva versión
             cursor.execute("DELETE FROM documento_practica WHERE estudiante_id = ? AND tipo_documento = ?", (estudiante_id, tipo_documento))
             cursor.execute("""
                 INSERT INTO documento_practica 
-                (estudiante_id, postulacion_id, tipo_documento, nombre_archivo, ruta_archivo, tamano_bytes, estado_validacion)
-                VALUES (?, ?, ?, ?, ?, ?, 'Aprobado')
+                (estudiante_id, postulacion_id, tipo_documento, nombre_archivo, ruta_archivo, tamano_bytes, estado_validacion, observacion, firmado_por, fecha_firma)
+                VALUES (?, ?, ?, ?, ?, ?, 'En Revisión', NULL, NULL, NULL)
             """, (estudiante_id, postulacion_id or None, tipo_documento, safe_name, saved_filename, file_size))
             
             cursor.execute(
                 "INSERT INTO bitacora_auditoria (usuario_id, accion, detalle) VALUES (?, 'DOCUMENTO_SUBIDO', ?)",
-                (session.get('user_id'), f"Subido documento {tipo_documento}: {safe_name}")
+                (session.get('user_id'), f"Subido documento {tipo_documento}: {safe_name} (en espera de revisión docente)")
             )
             
-        flash(f'Documento {safe_name} subido y validado exitosamente.', 'success')
+        flash(f'Documento "{safe_name}" cargado exitosamente. Ahora está en estado "En Revisión" para firma de Jefatura.', 'success')
     else:
-        flash('Formato de archivo no permitido. Solo se aceptan PDF, DOC y DOCX.', 'danger')
+        flash('Formato de archivo no permitido. Solo se aceptan extensiones PDF, DOC y DOCX (máx 10MB).', 'danger')
         
     return redirect(url_for('student.validacion'))
+
+@student_bp.route('/documento/<int:doc_id>/descargar')
+def descargar_documento(doc_id):
+    estudiante_id = session.get('estudiante_id')
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM documento_practica WHERE id = ? AND estudiante_id = ?", (doc_id, estudiante_id))
+        doc = cursor.fetchone()
+        
+    if not doc:
+        flash('Documento no encontrado o sin permisos de acceso.', 'danger')
+        return redirect(url_for('student.validacion'))
+        
+    file_path = os.path.join(Config.UPLOAD_FOLDER, doc['ruta_archivo'])
+    if not os.path.exists(file_path):
+        # Si es archivo demostración que no existe físicamente en disco, generar un placeholder limpio
+        with open(file_path, 'wb') as f:
+            f.write(f"%PDF-1.4\n% PRACNET USM - Expediente Digital Institucional\nEstudiante ID: {estudiante_id}\nDocumento: {doc['tipo_documento']}\n".encode('utf-8'))
+            
+    return send_from_directory(Config.UPLOAD_FOLDER, doc['ruta_archivo'], as_attachment=True, download_name=doc['nombre_archivo'])
+
+@student_bp.route('/plantilla/formulario-6000b')
+def descargar_plantilla_6000b():
+    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+    template_name = "Formulario_6000_B_USM_Practica_Profesional.pdf"
+    file_path = os.path.join(Config.UPLOAD_FOLDER, template_name)
+    if not os.path.exists(file_path):
+        with open(file_path, 'wb') as f:
+            f.write(b"%PDF-1.4\n% UNIVERSIDAD TECNICA FEDERICO SANTA MARIA\n% Formulario 6000 B - Solicitud y Evaluacion de Practica Profesional\n% Direccion General de Docencia - Coordinacion Academica de Practicas\n")
+    return send_from_directory(Config.UPLOAD_FOLDER, template_name, as_attachment=True, download_name=template_name)
+
+@student_bp.route('/mensajes', methods=['GET', 'POST'])
+def mensajes():
+    estudiante_id = session.get('estudiante_id')
+    
+    if request.method == 'POST':
+        asunto = request.form.get('asunto', '').strip()
+        cuerpo = request.form.get('cuerpo', '').strip()
+        
+        if not asunto or not cuerpo:
+            flash('Por favor ingresa el asunto y el mensaje para la Jefatura.', 'warning')
+            return redirect(url_for('student.mensajes'))
+            
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO mensaje (estudiante_id, remitente_tipo, asunto, cuerpo, leido)
+                VALUES (?, 'estudiante', ?, ?, 0)
+            """, (estudiante_id, asunto, cuerpo))
+            
+            cursor.execute(
+                "INSERT INTO bitacora_auditoria (usuario_id, accion, detalle) VALUES (?, 'MENSAJE_ENVIADO', ?)",
+                (session.get('user_id'), f"Mensaje enviado a Coordinación: {asunto}")
+            )
+            
+        flash('Mensaje enviado exitosamente a la Coordinación Académica.', 'success')
+        return redirect(url_for('student.mensajes'))
+        
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM estudiante WHERE id = ?", (estudiante_id,))
+        estudiante = cursor.fetchone()
+        
+        # Marcar mensajes del docente como leídos
+        cursor.execute("UPDATE mensaje SET leido = 1 WHERE estudiante_id = ? AND remitente_tipo = 'docente'", (estudiante_id,))
+        
+        # Obtener lista de mensajes en orden cronológico
+        cursor.execute("SELECT * FROM mensaje WHERE estudiante_id = ? ORDER BY id ASC", (estudiante_id,))
+        mensajes_lista = cursor.fetchall()
+        
+    return render_template('student/mensajes.html', estudiante=estudiante, mensajes=mensajes_lista)
 
 @student_bp.route('/seguimiento')
 def seguimiento():

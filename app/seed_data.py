@@ -16,15 +16,12 @@ def seed_database():
 
         print("Poblando base de datos con datos de prueba de PRACNET...")
         
-        # 1. Crear Usuarios de Jefaturas, Admin y Personal
+        # 1. Crear Usuarios Institucionales (Jefatura y Coordinación)
         usuarios_staff = [
-            ("jefe@pracnet.cl", hash_password("jefe2026"), "jefe_carrera", "Prof. José Carrasco (Jefe Informática)", "11.111.111-1"),
-            ("secretaria@pracnet.cl", hash_password("secre2026"), "jefe_carrera", "Secretaría Docente Depto. Informática", "16.666.666-6"),
-            ("admin@pracnet.cl", hash_password("admin2026"), "admin", "Administrador Central PRACNET", "14.444.444-4"),
+            ("docente@pracnet.cl", hash_password("docente2026"), "jefe_carrera", "Coordinación Académica de Prácticas", "11.111.111-1"),
+            ("jefe@pracnet.cl", hash_password("jefe2026"), "jefe_carrera", "Coordinación Académica de Prácticas", "11.111.111-2"),
+            ("admin@pracnet.cl", hash_password("admin2026"), "admin", "Administración del Sistema", "14.444.444-4"),
             ("empresa@pracnet.cl", hash_password("empresa2026"), "empresa", "Tech Solutions (Reclutamiento)", "76.999.888-2"),
-            ("jefe.informatica@usm.cl", hash_password("usm2026"), "jefe_carrera", "Prof. José Carrasco (Jefe Informática)", "11.111.111-9"),
-            ("jefe.prevencion@usm.cl", hash_password("usm2026"), "jefe_carrera", "Prof. Claudia Grandon (Jefa Prevención)", "12.222.222-2"),
-            ("jefe.manufactura@usm.cl", hash_password("usm2026"), "jefe_carrera", "Prof. Marcelo Quiroz (Jefe Manufactura)", "13.333.333-3"),
         ]
         
         for email, p_hash, rol, nom, rut in usuarios_staff:
