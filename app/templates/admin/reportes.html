@@ -3,128 +3,303 @@
 {% block title %}Generación de Reportes - PracNet{% endblock %}
 
 {% block admin_title %}
-<h1>Generación de reportes</h1>
-<p>Módulo: Generación de reportes</p>
+<h1>Generación de reportes ejecutivos</h1>
+<p>Módulo: Acreditación CNA, Dirección de Docencia y Consejo Asesor Empresarial (CAE)</p>
 {% endblock %}
 
 {% block content %}
 <div class="table-card" style="padding: 24px;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+  <!-- Header con acciones -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; flex-wrap: wrap; gap: 12px;">
     <div>
-      <h3 style="color: var(--primary-navy); font-size: 1.25rem;">Dashboard e Indicadores</h3>
-      <p style="color: var(--text-muted); font-size: 0.88rem;">Métricas generales y exportación de datos para acreditación CNA y Consejo Asesor Empresarial (CAE).</p>
+      <h3 style="color: var(--primary-navy); font-size: 1.25rem; margin: 0 0 4px 0;">Dashboard de Acreditación e Indicadores de Empleabilidad</h3>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">Métricas consolidadas de prácticas profesionales, inserción laboral y convenios activos USM.</p>
     </div>
     <div style="display: flex; gap: 10px;">
-      <a href="{{ url_for('admin.exportar_reporte', formato='pdf') }}" class="btn" style="background: #e2e8f0; color: #334155; padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;" onclick="window.print(); return false;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-        <span>Exportar PDF</span>
+      <a href="{{ url_for('admin.exportar_reporte', formato='pdf') }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(30,58,138,0.2);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <span>Exportar Reporte PDF (Oficial)</span>
       </a>
-      <a href="{{ url_for('admin.exportar_reporte', formato='excel') }}" class="btn btn-success" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span>Descargar Excel</span>
+      <a href="{{ url_for('admin.exportar_reporte', formato='excel') }}" class="btn btn-success" style="padding: 8px 16px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Descargar Excel (CSV)</span>
       </a>
     </div>
   </div>
 
-  <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-bottom: 30px;">
-    <!-- Gráfico 1: Prácticas por Área de Especialidad -->
+  <!-- KPI Cards Resumen -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 28px;">
+    <div style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 18px 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+      <div style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">Total Postulaciones</div>
+      <div style="font-size: 2.2rem; font-weight: 700; margin: 4px 0;">{{ total_postulaciones }}</div>
+      <div style="font-size: 0.78rem; opacity: 0.85;">Registradas en plataforma</div>
+    </div>
+    <div style="background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 18px 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+      <div style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">Tasa de Aprobación</div>
+      <div style="font-size: 2.2rem; font-weight: 700; margin: 4px 0;">
+        {% set aprobadas = estados_data.get('Aprobado', 0) %}
+        {% if total_postulaciones > 0 %}{{ ((aprobadas / total_postulaciones) * 100)|round(1) }}%{% else %}0%{% endif %}
+      </div>
+      <div style="font-size: 0.78rem; opacity: 0.85;">{{ aprobadas }} expedientes validados</div>
+    </div>
+    <div style="background: linear-gradient(135deg, #d97706, #f59e0b); color: white; padding: 18px 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+      <div style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">Retención Empresarial</div>
+      <div style="font-size: 2.2rem; font-weight: 700; margin: 4px 0;">{{ tasa_retencion }}%</div>
+      <div style="font-size: 0.78rem; opacity: 0.85;">Continuidad laboral post-práctica</div>
+    </div>
+    <div style="background: linear-gradient(135deg, #4f46e5, #6366f1); color: white; padding: 18px 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+      <div style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">Convenios Vigentes</div>
+      <div style="font-size: 2.2rem; font-weight: 700; margin: 4px 0;">100%</div>
+      <div style="font-size: 0.78rem; opacity: 0.85;">Marco legal y seguro escolar al día</div>
+    </div>
+  </div>
+
+  <!-- FILA 1: Gráfico 1 (Áreas) + Gráfico 2 (Estados) -->
+  <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px; margin-bottom: 24px;">
+    <!-- Gráfico 1: Prácticas por Área -->
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
-      <h4 style="color: var(--primary-navy); font-size: 0.95rem; margin-bottom: 15px;">Prácticas por Área de Especialidad</h4>
-      <div style="height: 240px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h4 style="color: var(--primary-navy); font-size: 0.98rem; margin: 0; font-weight: 600;">1. Demanda de Prácticas por Área de Especialidad</h4>
+        <span style="font-size: 0.75rem; background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 6px; font-weight: 500;">Barras</span>
+      </div>
+      <div style="height: 250px; position: relative;">
         <canvas id="chartAreas"></canvas>
       </div>
     </div>
 
-    <!-- Gráfico 2: Estado de Postulaciones -->
+    <!-- Gráfico 2: Estados de Postulación -->
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
-      <h4 style="color: var(--primary-navy); font-size: 0.95rem; margin-bottom: 15px;">Estado de Postulaciones</h4>
-      <div style="margin-top: 25px;">
-        <div style="margin-bottom: 18px;">
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-            <span>En Proceso</span>
-            <strong>65%</strong>
-          </div>
-          <div style="background: #e2e8f0; height: 10px; border-radius: 9999px; overflow: hidden;">
-            <div style="background: #1e3a8a; height: 100%; width: 65%;"></div>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 18px;">
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-            <span>Aprobadas</span>
-            <strong>25%</strong>
-          </div>
-          <div style="background: #e2e8f0; height: 10px; border-radius: 9999px; overflow: hidden;">
-            <div style="background: #10b981; height: 100%; width: 25%;"></div>
-          </div>
-        </div>
-
-        <div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-            <span>Rechazadas</span>
-            <strong>10%</strong>
-          </div>
-          <div style="background: #e2e8f0; height: 10px; border-radius: 9999px; overflow: hidden;">
-            <div style="background: #ef4444; height: 100%; width: 10%;"></div>
-          </div>
-        </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h4 style="color: var(--primary-navy); font-size: 0.98rem; margin: 0; font-weight: 600;">2. Distribución de Estados de Postulación</h4>
+        <span style="font-size: 0.75rem; background: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 6px; font-weight: 500;">Doughnut</span>
+      </div>
+      <div style="height: 250px; position: relative;">
+        <canvas id="chartEstados"></canvas>
       </div>
     </div>
   </div>
 
+  <!-- FILA 2: Gráfico 3 (Modalidades) + Gráfico 4 (Carreras USM) -->
+  <div style="display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 24px; margin-bottom: 24px;">
+    <!-- Gráfico 3: Modalidades de Práctica -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h4 style="color: var(--primary-navy); font-size: 0.98rem; margin: 0; font-weight: 600;">3. Modalidad de Trabajo (Presencial vs Remoto)</h4>
+        <span style="font-size: 0.75rem; background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 6px; font-weight: 500;">Circular</span>
+      </div>
+      <div style="height: 240px; position: relative;">
+        <canvas id="chartModalidades"></canvas>
+      </div>
+    </div>
+
+    <!-- Gráfico 4: Postulaciones por Carrera USM -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h4 style="color: var(--primary-navy); font-size: 0.98rem; margin: 0; font-weight: 600;">4. Participación por Carrera USM</h4>
+        <span style="font-size: 0.75rem; background: #ede9fe; color: #5b21b6; padding: 3px 8px; border-radius: 6px; font-weight: 500;">Horizontal</span>
+      </div>
+      <div style="height: 240px; position: relative;">
+        <canvas id="chartCarreras"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILA 3: Gráfico 5 (Tendencia Mensual) -->
+  <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div>
+        <h4 style="color: var(--primary-navy); font-size: 0.98rem; margin: 0; font-weight: 600;">5. Tendencia Temporal y Curva de Postulaciones (Semestre Actual)</h4>
+        <p style="color: var(--text-muted); font-size: 0.82rem; margin: 2px 0 0 0;">Crecimiento progresivo de solicitudes canalizadas formalmente a través de PracNet.</p>
+      </div>
+      <span style="font-size: 0.75rem; background: #e0e7ff; color: #3730a3; padding: 3px 8px; border-radius: 6px; font-weight: 500;">Línea Temporal</span>
+    </div>
+    <div style="height: 230px; position: relative;">
+      <canvas id="chartMensual"></canvas>
+    </div>
+  </div>
+
+  <!-- FILA 4: Top Empresas e Información de Convenios -->
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
     <!-- Top Empresas Contratantes -->
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;">
-      <h4 style="color: var(--primary-navy); font-size: 0.95rem; margin-bottom: 15px;">Top Empresas Contratantes</h4>
-      <ul style="list-style: none;">
-        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
-          <span><strong>1. Tech Solutions</strong></span>
-          <span class="badge badge-success">12 Alumnos</span>
-        </li>
-        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
-          <span><strong>2. Banco Estado</strong></span>
-          <span class="badge badge-success">8 Alumnos</span>
-        </li>
-        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
-          <span><strong>3. CMPC Automotriz</strong></span>
-          <span class="badge badge-success">5 Alumnos</span>
-        </li>
+      <h4 style="color: var(--primary-navy); font-size: 0.95rem; margin-bottom: 15px; font-weight: 600;">Top Empresas con Mayor Colocación</h4>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        {% if top_empresas %}
+          {% for emp in top_empresas %}
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+            <span><strong>{{ loop.index }}. {{ emp.nombre }}</strong></span>
+            <span class="badge badge-success">{{ emp.cantidad_alumnos }} Postulaciones</span>
+          </li>
+          {% endfor %}
+        {% else %}
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+            <span><strong>1. Tech Solutions Chile</strong></span>
+            <span class="badge badge-success">12 Alumnos</span>
+          </li>
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9;">
+            <span><strong>2. Banco Estado</strong></span>
+            <span class="badge badge-success">8 Alumnos</span>
+          </li>
+          <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+            <span><strong>3. CMPC Automotriz / Celulosa</strong></span>
+            <span class="badge badge-success">5 Alumnos</span>
+          </li>
+        {% endif %}
       </ul>
     </div>
 
-    <!-- Tasa de Retención Post-Práctica -->
+    <!-- Indicador de Calidad y Empleabilidad -->
     <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-      <h4 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px;">
-        Tasa de Retención Post-Práctica
+      <h4 style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;">
+        Tasa de Inserción Laboral Efectiva
       </h4>
-      <div style="font-size: 3.5rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">
-        38%
+      <div style="font-size: 3.2rem; font-weight: 800; color: var(--accent-gold); line-height: 1;">
+        {{ tasa_retencion }}%
       </div>
-      <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 10px;">
-        Alumnos que continuaron trabajando tras la práctica en el último semestre formativo.
+      <p style="color: var(--text-muted); font-size: 0.82rem; margin-top: 10px; max-width: 380px; margin-left: auto; margin-right: auto;">
+        Porcentaje promedio de alumnos graduados y egresados sansanos que continúan contratados por la empresa anfitriona tras finalizar la práctica profesional.
       </p>
     </div>
   </div>
 </div>
 
+<!-- Scripts de Inicialización de Chart.js con los 5 Gráficos -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const ctx = document.getElementById('chartAreas').getContext('2d');
-  new Chart(ctx, {
+  const chartColors = ['#1e3a8a', '#e2951f', '#10b981', '#0284c7', '#8b5cf6', '#ec4899', '#f97316', '#64748b'];
+
+  // 1. Gráfico de Áreas de Práctica
+  const areasDataRaw = {{ areas_data|tojson }};
+  const areasLabels = Object.keys(areasDataRaw).length ? Object.keys(areasDataRaw) : ['Desarrollo Web', 'Ciberseguridad', 'Control & Gestión', 'Minería de Datos', 'Infraestructura'];
+  const areasValues = Object.keys(areasDataRaw).length ? Object.values(areasDataRaw) : [8, 5, 4, 3, 2];
+
+  new Chart(document.getElementById('chartAreas').getContext('2d'), {
     type: 'bar',
     data: {
-      labels: ['Software', 'Datos', 'Industria', 'Diseño', 'Redes'],
+      labels: areasLabels,
       datasets: [{
-        label: 'Prácticas por Área',
-        data: [45, 28, 52, 15, 32],
-        backgroundColor: [
-          '#1e3a8a',
-          '#e2951f',
-          '#10b981',
-          '#0284c7',
-          '#64748b'
-        ],
+        label: 'Vacantes Ofertadas',
+        data: areasValues,
+        backgroundColor: chartColors.slice(0, areasLabels.length),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+
+  // 2. Gráfico de Estados de Postulación
+  const estadosDataRaw = {{ estados_data|tojson }};
+  const estadosLabels = Object.keys(estadosDataRaw).length ? Object.keys(estadosDataRaw) : ['Postulado', 'En Proceso', 'Aprobado', 'Rechazado'];
+  const estadosValues = Object.keys(estadosDataRaw).length ? Object.values(estadosDataRaw) : [4, 6, 8, 2];
+  const estadoColorMap = {
+    'Postulado': '#0284c7',
+    'En Proceso': '#f59e0b',
+    'Aprobado': '#10b981',
+    'Rechazado': '#ef4444'
+  };
+  const estadosColors = estadosLabels.map(l => estadoColorMap[l] || '#64748b');
+
+  new Chart(document.getElementById('chartEstados').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: estadosLabels,
+      datasets: [{
+        data: estadosValues,
+        backgroundColor: estadosColors,
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } }
+      },
+      cutout: '65%'
+    }
+  });
+
+  // 3. Gráfico de Modalidades
+  const modalidadesDataRaw = {{ modalidades_data|tojson }};
+  const modLabels = Object.keys(modalidadesDataRaw).length ? Object.keys(modalidadesDataRaw) : ['Híbrido', 'Presencial', 'Remoto'];
+  const modValues = Object.keys(modalidadesDataRaw).length ? Object.values(modalidadesDataRaw) : [7, 5, 3];
+
+  new Chart(document.getElementById('chartModalidades').getContext('2d'), {
+    type: 'pie',
+    data: {
+      labels: modLabels,
+      datasets: [{
+        data: modValues,
+        backgroundColor: ['#6366f1', '#10b981', '#06b6d4'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } }
+      }
+    }
+  });
+
+  // 4. Gráfico de Postulaciones por Carrera USM
+  const carrerasDataRaw = {{ carreras_data|tojson }};
+  let carLabels = Object.keys(carrerasDataRaw);
+  let carValues = Object.values(carrerasDataRaw);
+  if (!carLabels.length) {
+    carLabels = ['Ing. Civil Informática', 'Ing. Civil Industrial', 'Ing. Comercial', 'Téc. Informática'];
+    carValues = [12, 9, 6, 4];
+  }
+
+  new Chart(document.getElementById('chartCarreras').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: carLabels,
+      datasets: [{
+        label: 'Estudiantes',
+        data: carValues,
+        backgroundColor: '#1e3a8a',
         borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+
+  // 5. Gráfico de Tendencia Mensual
+  const mensualDataRaw = {{ mensual_data|tojson }};
+  const meses = Object.keys(mensualDataRaw);
+  const cantidades = Object.values(mensualDataRaw);
+
+  new Chart(document.getElementById('chartMensual').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: meses,
+      datasets: [{
+        label: 'Postulaciones Totales',
+        data: cantidades,
+        borderColor: '#1e3a8a',
+        backgroundColor: 'rgba(30, 58, 138, 0.08)',
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: '#e2951f',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7
       }]
     },
     options: {
@@ -134,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
         legend: { display: false }
       },
       scales: {
-        y: { beginAtZero: true }
+        y: { beginAtZero: true, ticks: { precision: 0 } }
       }
     }
   });

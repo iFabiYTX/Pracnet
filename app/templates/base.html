@@ -71,6 +71,12 @@
             <span>Directorio institucional</span>
           </a>
         </li>
+        <li>
+          <a href="{{ url_for('auth.descargar_app') }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span>Descargar App APK</span>
+          </a>
+        </li>
       </ul>
       
       <div style="padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.08);">
@@ -140,6 +146,10 @@
           <span style="font-size: 0.72rem; color: var(--text-muted); border-left: 1px solid var(--border-subtle); padding-left: 8px;">Portal Alumno</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
+          <a href="{{ url_for('auth.descargar_app') }}" title="Descargar APK Android" style="color: #1e3a8a; font-size: 0.72rem; text-decoration: none; font-weight: 600; background: #e0f2fe; padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>APK</span>
+          </a>
           <span class="badge badge-info" style="font-size: 0.7rem;">Estudiante</span>
           <a href="{{ url_for('auth.logout') }}" style="color: var(--danger-red); font-size: 0.78rem; text-decoration: none; font-weight: 600; background: var(--danger-light); padding: 3px 8px; border-radius: 4px;">
             Salir

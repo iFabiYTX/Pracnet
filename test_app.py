@@ -170,7 +170,37 @@ class TestPracnetApp(unittest.TestCase):
         res = self.client.get('/estudiante/plantilla/formulario-6000b')
         self.assertEqual(res.status_code, 200)
         self.assertTrue('application/pdf' in res.headers.get('Content-Type', ''))
+        self.assertTrue(res.data.startswith(b'%PDF-'))
+
+    def test_admin_reports_render_5_charts(self):
+        self.client.post('/login', data={
+            'email': 'jefe@pracnet.cl',
+            'password': 'jefe2026'
+        })
+        res = self.client.get('/admin/reportes')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'chartAreas', res.data)
+        self.assertIn(b'chartEstados', res.data)
+        self.assertIn(b'chartModalidades', res.data)
+        self.assertIn(b'chartCarreras', res.data)
+        self.assertIn(b'chartMensual', res.data)
+
+    def test_admin_reports_export_pdf(self):
+        self.client.post('/login', data={
+            'email': 'jefe@pracnet.cl',
+            'password': 'jefe2026'
+        })
+        res = self.client.get('/admin/reportes/exportar/pdf')
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue('application/pdf' in res.headers.get('Content-Type', ''))
+        self.assertTrue(res.data.startswith(b'%PDF-'))
+
+    def test_download_android_apk(self):
+        res = self.client.get('/descargar/app')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.headers.get('Content-Disposition'), 'attachment; filename=PracNet_USM.apk')
 
 if __name__ == '__main__':
     unittest.main()
+
 

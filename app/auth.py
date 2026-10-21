@@ -213,3 +213,18 @@ def logout():
 @auth_bp.route('/unauthorized')
 def unauthorized():
     return render_template('unauthorized.html'), 403
+
+@auth_bp.route('/descargar/app')
+@auth_bp.route('/app')
+def descargar_app():
+    """Descarga directa del instalador APK para Android conectado a la nube PracNet."""
+    import os
+    from flask import current_app, send_from_directory
+    downloads_dir = os.path.join(current_app.root_path, 'static', 'downloads')
+    return send_from_directory(
+        downloads_dir,
+        'PracNet.apk',
+        as_attachment=True,
+        download_name='PracNet_USM.apk'
+    )
+

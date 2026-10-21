@@ -198,16 +198,19 @@ def descargar_documento(doc_id):
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM documento_practica WHERE id = ? AND estudiante_id = ?", (doc_id, estudiante_id))
         doc = cursor.fetchone()
+        cursor.execute("SELECT * FROM estudiante WHERE id = ?", (estudiante_id,))
+        estudiante = cursor.fetchone()
         
     if not doc:
         flash('Documento no encontrado o sin permisos de acceso.', 'danger')
         return redirect(url_for('student.validacion'))
         
+    os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
     file_path = os.path.join(Config.UPLOAD_FOLDER, doc['ruta_archivo'])
-    if not os.path.exists(file_path):
-        # Si es archivo demostración que no existe físicamente en disco, generar un placeholder limpio
-        with open(file_path, 'wb') as f:
-            f.write(f"%PDF-1.4\n% PRACNET USM - Expediente Digital Institucional\nEstudiante ID: {estudiante_id}\nDocumento: {doc['tipo_documento']}\n".encode('utf-8'))
+    # Si no existe o tiene tamaño ínfimo de texto corrupto, generar PDF válido
+    if not os.path.exists(file_path) or os.path.getsize(file_path) < 400:
+        from app.pdf_generator import generar_expediente_estudiante_pdf
+        generar_expediente_estudiante_pdf(file_path, dict(doc), dict(estudiante) if estudiante else {})
             
     return send_from_directory(Config.UPLOAD_FOLDER, doc['ruta_archivo'], as_attachment=True, download_name=doc['nombre_archivo'])
 
@@ -216,9 +219,8 @@ def descargar_plantilla_6000b():
     os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
     template_name = "Formulario_6000_B_USM_Practica_Profesional.pdf"
     file_path = os.path.join(Config.UPLOAD_FOLDER, template_name)
-    if not os.path.exists(file_path):
-        with open(file_path, 'wb') as f:
-            f.write(b"%PDF-1.4\n% UNIVERSIDAD TECNICA FEDERICO SANTA MARIA\n% Formulario 6000 B - Solicitud y Evaluacion de Practica Profesional\n% Direccion General de Docencia - Coordinacion Academica de Practicas\n")
+    from app.pdf_generator import generar_formulario_6000b_pdf
+    generar_formulario_6000b_pdf(file_path)
     return send_from_directory(Config.UPLOAD_FOLDER, template_name, as_attachment=True, download_name=template_name)
 
 @student_bp.route('/mensajes', methods=['GET', 'POST'])

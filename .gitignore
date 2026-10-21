@@ -19,6 +19,13 @@ cloudflared.exe
 .vscode/
 .idea/
 
+# Android build cache
+android-app/.gradle/
+android-app/build/
+android-app/*/build/
+android-app/local.properties
+
+
 # Unrelated desktop folders & venvs
 .venv/
 mctiers-autojoin/
