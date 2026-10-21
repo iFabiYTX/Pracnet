@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image as RLImage
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
@@ -80,17 +80,19 @@ def generar_formulario_6000b_pdf(output_path: str):
 
     story = []
     
-    # Encabezado institucional
-    header_data = [
-        [
-            Paragraph("<b>UNIVERSIDAD TÉCNICA FEDERICO SANTA MARÍA</b><br/>Dirección General de Docencia • Coordinación Institucional de Prácticas", cell_bold),
-            Paragraph("<b>PRACNET USM</b><br/>Folio Regulador: USM-6000B-2026", ParagraphStyle('RightH', parent=cell_style, alignment=2))
-        ]
-    ]
-    t_header = Table(header_data, colWidths=[380, 160])
+    # Encabezado institucional con Logos Oficiales
+    logo_usm = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo_usm.png')
+    logo_pracnet = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo_pracnet.png')
+    
+    col1 = RLImage(logo_usm, width=1.3*inch, height=0.6*inch) if os.path.exists(logo_usm) else Paragraph("<b>USM</b>", cell_bold)
+    col2 = Paragraph("<b>UNIVERSIDAD TÉCNICA FEDERICO SANTA MARÍA</b><br/>Dirección General de Docencia • Coordinación Institucional de Prácticas", cell_bold)
+    col3 = RLImage(logo_pracnet, width=0.65*inch, height=0.52*inch) if os.path.exists(logo_pracnet) else Paragraph("<b>PRACNET</b>", cell_bold)
+    
+    t_header = Table([[col1, col2, col3]], colWidths=[105, 375, 60])
     t_header.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 6)
+        ('ALIGN', (2,0), (2,0), 'RIGHT'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4)
     ]))
     story.append(t_header)
     story.append(HRFlowable(width="100%", thickness=2, color=NAVY_USM, spaceAfter=10))
@@ -215,14 +217,20 @@ def generar_expediente_estudiante_pdf(output_path: str, doc_info: dict, estudian
     
     story = []
     
-    # Header
-    header_data = [
-        [
-            Paragraph("<b>UNIVERSIDAD TÉCNICA FEDERICO SANTA MARÍA</b><br/>Expediente Digital Institucional de Prácticas Profesionales", cell_bold),
-            Paragraph(f"<b>FECHA:</b> {datetime.now().strftime('%d/%m/%Y %H:%M')}<br/><b>ESTADO:</b> {doc_info.get('estado_validacion', 'En Revisión')}", ParagraphStyle('RH', parent=cell_style, alignment=2))
-        ]
-    ]
-    t_head = Table(header_data, colWidths=[380, 160])
+    # Header con Logos
+    logo_usm = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo_usm.png')
+    logo_pracnet = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo_pracnet.png')
+    
+    col1 = RLImage(logo_usm, width=1.3*inch, height=0.6*inch) if os.path.exists(logo_usm) else Paragraph("<b>USM</b>", cell_bold)
+    col2 = Paragraph("<b>UNIVERSIDAD TÉCNICA FEDERICO SANTA MARÍA</b><br/>Expediente Digital Institucional de Prácticas Profesionales", cell_bold)
+    col3 = RLImage(logo_pracnet, width=0.65*inch, height=0.52*inch) if os.path.exists(logo_pracnet) else Paragraph("<b>PRACNET</b>", cell_bold)
+    
+    t_head = Table([[col1, col2, col3]], colWidths=[105, 375, 60])
+    t_head.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (2,0), (2,0), 'RIGHT'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4)
+    ]))
     story.append(t_head)
     story.append(HRFlowable(width="100%", thickness=2, color=NAVY_USM, spaceAfter=12))
     
@@ -313,14 +321,20 @@ def generar_reporte_ejecutivo_pdf(output_path: str, practicas_activas: int, alum
     
     story = []
     
-    # Header
-    header_data = [
-        [
-            Paragraph("<b>UNIVERSIDAD TÉCNICA FEDERICO SANTA MARÍA</b><br/>Dirección de Docencia • Sistema PRACNET USM", cell_bold),
-            Paragraph(f"<b>INFORME EJECUTIVO DE PRÁCTICAS</b><br/>Fecha Emisión: {datetime.now().strftime('%d/%m/%Y')}", ParagraphStyle('RH', parent=cell_style, alignment=2))
-        ]
-    ]
-    t_head = Table(header_data, colWidths=[360, 180])
+    # Header con Logos
+    logo_usm = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo_usm.png')
+    logo_pracnet = os.path.join(os.path.dirname(__file__), 'static', 'img', 'logo_pracnet.png')
+    
+    col1 = RLImage(logo_usm, width=1.3*inch, height=0.6*inch) if os.path.exists(logo_usm) else Paragraph("<b>USM</b>", cell_bold)
+    col2 = Paragraph("<b>UNIVERSIDAD TÉCNICA FEDERICO SANTA MARÍA</b><br/>Dirección de Docencia • Sistema PRACNET USM", cell_bold)
+    col3 = RLImage(logo_pracnet, width=0.65*inch, height=0.52*inch) if os.path.exists(logo_pracnet) else Paragraph("<b>PRACNET</b>", cell_bold)
+    
+    t_head = Table([[col1, col2, col3]], colWidths=[105, 375, 60])
+    t_head.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (2,0), (2,0), 'RIGHT'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4)
+    ]))
     story.append(t_head)
     story.append(HRFlowable(width="100%", thickness=2, color=NAVY_USM, spaceAfter=10))
     

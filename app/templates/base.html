@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}PRACNET - Sistema de Gestión de Prácticas Profesionales{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo_pracnet.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pracnet.css') }}">
   <script src="{{ url_for('static', filename='js/pracnet.js') }}" defer></script>
   <!-- Chart.js para dashboards ejecutivos -->
@@ -17,9 +18,12 @@
        ==================================================================== -->
   <div class="app-container">
     <aside class="sidebar">
-      <div class="sidebar-brand">
-        <h2>PracNet</h2>
-        <span style="color: #93c5fd;">COORDINACIÓN INSTITUCIONAL</span>
+      <div class="sidebar-brand" style="display: flex; align-items: center; gap: 12px; padding: 16px 20px;">
+        <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 38px; width: auto; background: #ffffff; padding: 4px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+        <div>
+          <h2 style="margin: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px;">PracNet</h2>
+          <span style="color: #93c5fd; font-size: 0.72rem; letter-spacing: 0.5px;">COORDINACIÓN USM</span>
+        </div>
       </div>
 
       <ul class="sidebar-menu">
@@ -142,6 +146,7 @@
     <div class="mobile-container">
       <div class="mobile-topbar">
         <div style="display: flex; align-items: center; gap: 8px;">
+          <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 28px; width: auto; object-fit: contain;">
           <strong style="color: var(--primary-navy); font-size: 0.95rem;">PracNet</strong>
           <span style="font-size: 0.72rem; color: var(--text-muted); border-left: 1px solid var(--border-subtle); padding-left: 8px;">Portal Alumno</span>
         </div>
@@ -222,13 +227,13 @@
        ==================================================================== -->
   <div style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
     <header class="usm-header">
-      <a href="{{ url_for('auth.login') }}" class="usm-brand">
-        <div class="usm-crest-box">
-          USM
+      <a href="{{ url_for('auth.login') }}" class="usm-brand" style="display: flex; align-items: center; gap: 14px; text-decoration: none;">
+        <div style="background: #ffffff; padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">
+          <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="Universidad Técnica Federico Santa María" style="height: 32px; width: auto; object-fit: contain;">
         </div>
-        <div class="usm-brand-text">
-          <span class="usm-uni-title">UNIVERSIDAD TECNICA FEDERICO SANTA MARIA</span>
-          <span class="usm-system-title">PracNet USM</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+          <span style="color: #ffffff; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px;">PracNet</span>
         </div>
       </a>
       <div class="usm-nav-links">

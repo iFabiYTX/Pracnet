@@ -7,6 +7,12 @@
   <!-- Panel Izquierdo: Hero Institucional USM (Mockup Imagen 2) -->
   <div class="usm-hero-panel">
     <div class="usm-hero-content">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap;">
+        <div style="background: #ffffff; padding: 6px 12px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15); display: inline-flex; align-items: center;">
+          <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="Universidad Técnica Federico Santa María" style="height: 40px; width: auto; object-fit: contain;">
+        </div>
+        <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 48px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));">
+      </div>
       <span class="usm-badge-tag">— PLATAFORMA DE GESTIÓN DE PRÁCTICAS</span>
       <h1 class="usm-hero-title">Tu práctica,<br>en un solo lugar.</h1>
       <p class="usm-hero-desc">
@@ -33,7 +39,10 @@
   <!-- Panel Derecho: Formulario de Autenticación (Mockup Imagen 2) -->
   <div class="usm-form-panel">
     <div class="usm-login-card">
-      <span class="usm-tag-secure">— ACCESO SEGURO</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <span class="usm-tag-secure">— ACCESO SEGURO</span>
+        <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 32px; width: auto; object-fit: contain;">
+      </div>
       <h2 class="usm-login-title">Ingresa a la plataforma</h2>
       <p class="usm-login-subtitle">Selecciona o ingresa con tu cuenta institucional.</p>
 
