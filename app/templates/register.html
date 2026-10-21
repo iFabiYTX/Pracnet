@@ -5,11 +5,12 @@
 {% block auth_content %}
 <div class="auth-card" style="max-width: 520px; text-align: left;">
   <div style="text-align: center; margin-bottom: 20px;">
-    <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 12px;">
-      <div style="background: white; padding: 4px 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: inline-flex; align-items: center;">
-        <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="USM" style="height: 26px; width: auto;">
+    <div style="display: flex; justify-content: center; margin-bottom: 14px;">
+      <div class="institutional-badge">
+        <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="USM" class="badge-usm-logo" style="height: 26px;">
+        <div class="badge-divider" style="height: 18px;"></div>
+        <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" class="badge-pracnet-logo" style="height: 28px;">
       </div>
-      <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 36px; width: auto;">
     </div>
     <h1 class="logo-title" style="margin: 0;">Registro de Estudiante</h1>
     <p class="sub-title">CREA TU PERFIL OFICIAL DE PRÁCTICA PROFESIONAL</p>

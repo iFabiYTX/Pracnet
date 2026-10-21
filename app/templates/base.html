@@ -227,13 +227,11 @@
        ==================================================================== -->
   <div style="min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;">
     <header class="usm-header">
-      <a href="{{ url_for('auth.login') }}" class="usm-brand" style="display: flex; align-items: center; gap: 14px; text-decoration: none;">
-        <div style="background: #ffffff; padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.25);">
-          <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="Universidad Técnica Federico Santa María" style="height: 32px; width: auto; object-fit: contain;">
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 38px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-          <span style="color: #ffffff; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px;">PracNet</span>
+      <a href="{{ url_for('auth.login') }}" class="usm-brand" style="text-decoration: none;">
+        <div class="institutional-badge">
+          <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="Universidad Técnica Federico Santa María" class="badge-usm-logo">
+          <div class="badge-divider"></div>
+          <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" class="badge-pracnet-logo">
         </div>
       </a>
       <div class="usm-nav-links">

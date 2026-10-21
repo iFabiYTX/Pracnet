@@ -34,8 +34,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -90,21 +92,28 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFF0F172A)
+                    color = Color(0xFF0C2340)
                 ) {
-                    PracNetApp(
-                        onOpenFilePicker = { callback, intent ->
-                            uploadMessage?.onReceiveValue(null)
-                            uploadMessage = callback
-                            try {
-                                filePickerLauncher.launch(intent)
-                            } catch (e: Exception) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .statusBarsPadding()
+                            .navigationBarsPadding()
+                    ) {
+                        PracNetApp(
+                            onOpenFilePicker = { callback, intent ->
                                 uploadMessage?.onReceiveValue(null)
-                                uploadMessage = null
-                                Toast.makeText(this, "No se pudo abrir el selector de archivos", Toast.LENGTH_SHORT).show()
+                                uploadMessage = callback
+                                try {
+                                    filePickerLauncher.launch(intent)
+                                } catch (e: Exception) {
+                                    uploadMessage?.onReceiveValue(null)
+                                    uploadMessage = null
+                                    Toast.makeText(this@MainActivity, "No se pudo abrir el selector de archivos", Toast.LENGTH_SHORT).show()
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }

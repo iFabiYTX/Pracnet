@@ -7,11 +7,12 @@
   <!-- Panel Izquierdo: Hero Institucional USM (Mockup Imagen 2) -->
   <div class="usm-hero-panel">
     <div class="usm-hero-content">
-      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap;">
-        <div style="background: #ffffff; padding: 6px 12px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15); display: inline-flex; align-items: center;">
-          <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="Universidad Técnica Federico Santa María" style="height: 40px; width: auto; object-fit: contain;">
+      <div class="hero-badge-container" style="margin-bottom: 22px;">
+        <div class="institutional-badge">
+          <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="Universidad Técnica Federico Santa María" class="badge-usm-logo" style="height: 38px;">
+          <div class="badge-divider" style="height: 28px;"></div>
+          <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" class="badge-pracnet-logo" style="height: 40px;">
         </div>
-        <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 48px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));">
       </div>
       <span class="usm-badge-tag">— PLATAFORMA DE GESTIÓN DE PRÁCTICAS</span>
       <h1 class="usm-hero-title">Tu práctica,<br>en un solo lugar.</h1>
@@ -19,7 +20,7 @@
         Accede a ofertas validadas por tu Jefatura de Carrera, tramita tu Seguro Escolar (Ley N° 16.744), sube tus informes y gestiona tu proceso formativo desde cualquier dispositivo.
       </p>
 
-      <div style="display: flex; gap: 24px; font-size: 0.85rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+      <div class="usm-hero-stats" style="display: flex; gap: 24px; font-size: 0.85rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
         <div>
           <strong style="color: #ffffff; display: block; font-size: 1.1rem;">100%</strong>
           <span>Acreditada CNA</span>

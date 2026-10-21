@@ -5,11 +5,12 @@
 {% macro contacto_content() %}
 <div class="legal-container">
   <div class="legal-header">
-    <div style="display: flex; justify-content: center; align-items: center; gap: 14px; margin-bottom: 14px;">
-      <div style="background: white; padding: 4px 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: inline-flex; align-items: center;">
-        <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="USM" style="height: 28px; width: auto;">
+    <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+      <div class="institutional-badge">
+        <img src="{{ url_for('static', filename='img/logo_usm.png') }}" alt="USM" class="badge-usm-logo" style="height: 28px;">
+        <div class="badge-divider" style="height: 20px;"></div>
+        <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" class="badge-pracnet-logo" style="height: 30px;">
       </div>
-      <img src="{{ url_for('static', filename='img/logo_pracnet.png') }}" alt="PracNet" style="height: 38px; width: auto;">
     </div>
     <div class="legal-badge">CANALES OFICIALES DE ATENCIÓN</div>
     <h1 class="legal-title">Directorio de Contacto y Asistencia Institucional</h1>
