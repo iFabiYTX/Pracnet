@@ -289,34 +289,96 @@ def reportes():
 
 @admin_bp.route('/reportes/exportar/<formato>')
 def exportar_reporte(formato):
-    """Genera exportación de datos en formato CSV / Excel o reporte formal PDF."""
+    """Genera exportación oficial de datos en formato Excel (.xlsx), CSV o reporte formal PDF."""
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT p.id as Folio, e.nombre || ' ' || e.apellido as Estudiante, e.rut as RUT, e.carrera as Carrera,
-                   o.titulo as Cargo, emp.nombre as Empresa, p.estado as Estado, p.fase_administrativa as Fase, p.fecha_postulacion as Fecha
+            SELECT p.id as Folio,
+                   e.nombre || ' ' || e.apellido as Estudiante,
+                   e.rut as RUT,
+                   e.correo_institucional,
+                   e.carrera as Carrera,
+                   e.avance_malla,
+                   emp.nombre as Empresa,
+                   emp.rut as emp_rut,
+                   o.titulo as Cargo,
+                   o.area,
+                   o.modalidad,
+                   o.duracion_horas,
+                   p.estado as Estado,
+                   p.fase_administrativa as Fase,
+                   p.fecha_postulacion as Fecha,
+                   p.nota_evaluacion,
+                   p.observaciones
             FROM postulacion p
             JOIN estudiante e ON p.estudiante_id = e.id
             JOIN oferta_practica o ON p.oferta_practica_id = o.id
             JOIN empresa emp ON o.empresa_id = emp.id
+            ORDER BY p.id ASC
         """)
-        rows = cursor.fetchall()
+        rows = [dict(r) for r in cursor.fetchall()]
+
+        cursor.execute("SELECT id, nombre, rut, area, convenio_vigente, tasa_retencion, direccion, correo_contacto FROM empresa ORDER BY nombre ASC")
+        empresas = [dict(r) for r in cursor.fetchall()]
+
+        cursor.execute("SELECT COUNT(*) as c FROM postulacion")
+        total_post = cursor.fetchone()['c']
+        cursor.execute("SELECT AVG(tasa_retencion) as r FROM empresa")
+        tasa_ret = round(cursor.fetchone()['r'] or 38.0, 1)
+
+        cursor.execute("SELECT estado, COUNT(*) as cantidad FROM postulacion GROUP BY estado")
+        estados_data = {r['estado']: r['cantidad'] for r in cursor.fetchall()}
+
+        cursor.execute("SELECT modalidad, COUNT(*) as cantidad FROM oferta_practica GROUP BY modalidad")
+        modalidades_data = {r['modalidad']: r['cantidad'] for r in cursor.fetchall()}
+
+        cursor.execute("""
+            SELECT e.nombre, COUNT(p.id) as cantidad_alumnos 
+            FROM empresa e
+            JOIN oferta_practica o ON e.id = o.empresa_id
+            JOIN postulacion p ON o.id = p.oferta_practica_id
+            GROUP BY e.id
+            ORDER BY cantidad_alumnos DESC
+            LIMIT 5
+        """)
+        top_empresas = [dict(r) for r in cursor.fetchall()]
         
     if formato == 'excel':
+        from app.excel_generator import generar_reporte_excel_oficial
+        metricas = {
+            'total_postulaciones': total_post,
+            'tasa_retencion': tasa_ret,
+            'estados_data': estados_data,
+            'modalidades_data': modalidades_data,
+            'top_empresas': top_empresas
+        }
+        excel_data = generar_reporte_excel_oficial(rows, metricas=metricas, empresas=empresas)
+        return Response(
+            excel_data,
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": "attachment; filename=Reporte_Oficial_Practicas_PRACNET_USM.xlsx"}
+        )
+
+    if formato == 'csv':
         import io
         import csv
         output = io.StringIO()
         writer = csv.writer(output, delimiter=';')
-        writer.writerow(['Folio', 'Estudiante', 'RUT', 'Carrera', 'Cargo', 'Empresa', 'Estado', 'Fase Administrativa', 'Fecha Postulación'])
+        writer.writerow(['Folio', 'Estudiante', 'RUT Alumno', 'Correo Institucional', 'Carrera', 'Avance Malla %', 'Empresa', 'RUT Empresa', 'Cargo', 'Area', 'Modalidad', 'Horas', 'Estado', 'Fase Administrativa', 'Fecha Postulación', 'Nota', 'Observaciones'])
         for r in rows:
-            writer.writerow([r['Folio'], r['Estudiante'], r['RUT'], r['Carrera'], r['Cargo'], r['Empresa'], r['Estado'], r['Fase'], r['Fecha']])
-            
+            writer.writerow([
+                r['Folio'], r['Estudiante'], r['RUT'], r.get('correo_institucional', ''), r['Carrera'],
+                f"{r.get('avance_malla', 0)}%", r['Empresa'], r.get('emp_rut', ''), r['Cargo'],
+                r.get('area', ''), r.get('modalidad', ''), r.get('duracion_horas', 360),
+                r['Estado'], r['Fase'], r['Fecha'], r.get('nota_evaluacion', 'Pendiente'), r.get('observaciones', '')
+            ])
         csv_data = output.getvalue().encode('utf-8-sig')
         return Response(
             csv_data,
             mimetype="text/csv",
-            headers={"Content-disposition": "attachment; filename=Reporte_Practicas_PRACNET_USM.csv"}
+            headers={"Content-Disposition": "attachment; filename=Reporte_Practicas_PRACNET_USM.csv"}
         )
+
     
     if formato == 'pdf':
         import os

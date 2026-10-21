@@ -72,8 +72,19 @@ class TestPracnetApp(unittest.TestCase):
         })
         res = self.client.get('/admin/reportes/exportar/excel')
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.headers['Content-Type'], 'text/csv; charset=utf-8')
-        self.assertIn(b'Folio;Estudiante;RUT;Carrera', res.data)
+        self.assertIn('spreadsheetml.sheet', res.headers['Content-Type'])
+        self.assertEqual(res.headers.get('Content-Disposition'), 'attachment; filename=Reporte_Oficial_Practicas_PRACNET_USM.xlsx')
+        self.assertTrue(res.data.startswith(b'PK\x03\x04'))
+
+    def test_admin_reports_export_csv(self):
+        self.client.post('/login', data={
+            'email': 'jefe@pracnet.cl',
+            'password': 'jefe2026'
+        })
+        res = self.client.get('/admin/reportes/exportar/csv')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('text/csv', res.headers['Content-Type'])
+        self.assertIn(b'Folio;Estudiante;RUT Alumno;Correo Institucional;Carrera', res.data)
 
     def test_empresa_token_access_valid(self):
         # Acceso con token válido
