@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}Términos y Condiciones y Política de Privacidad - PRACNET{% endblock %}
+{% block title %}Términos y Condiciones y Política de Privacidad - PRACNET USM{% endblock %}
 
-{% block content %}
+{% macro terminos_content() %}
 <div class="legal-container">
   <div class="legal-header">
     <div class="legal-badge">DOCUMENTO LEGAL INSTITUCIONAL</div>
@@ -69,9 +69,29 @@
       </p>
     </section>
 
-    <div class="legal-footer-action">
-      <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Volver al Portal</a>
+    <div class="legal-footer-action" style="margin-top: 30px; text-align: center;">
+      {% if session.get('user_id') %}
+        {% if session.get('rol') == 'estudiante' %}
+          <a href="{{ url_for('student.muro') }}" class="btn btn-primary" style="padding: 10px 24px;">Volver al Muro de Prácticas</a>
+        {% else %}
+          <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary" style="padding: 10px 24px;">Volver al Panel Administrativo</a>
+        {% endif %}
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="padding: 10px 24px;">Volver al Inicio de Sesión</a>
+      {% endif %}
     </div>
   </div>
 </div>
+{% endmacro %}
+
+{% block auth_content %}
+  {{ terminos_content() }}
+{% endblock %}
+
+{% block content %}
+  {{ terminos_content() }}
+{% endblock %}
+
+{% block student_content %}
+  {{ terminos_content() }}
 {% endblock %}

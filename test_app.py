@@ -211,6 +211,39 @@ class TestPracnetApp(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.headers.get('Content-Disposition'), 'attachment; filename=PracNet_USM.apk')
 
+    def test_terminos_page_renders_content_not_blank(self):
+        res = self.client.get('/terminos')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'T\xc3\xa9rminos y Condiciones de Uso y Pol\xc3\xadtica de Privacidad', res.data)
+        self.assertIn(b'Ley N\xc2\xb0 19.628', res.data)
+        self.assertIn(b'Ley N\xc2\xb0 16.744', res.data)
+        self.assertIn(b'Art\xc3\xadculo 8', res.data)
+
+    def test_contacto_page_renders_content_not_blank(self):
+        res = self.client.get('/contacto')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Directorio de Contacto y Asistencia Institucional', res.data)
+        self.assertIn(b'Secretar\xc3\xada Acad\xc3\xa9mica', res.data)
+        self.assertIn(b'Mesa de Ayuda', res.data)
+
+    def test_privacidad_alias_route(self):
+        res = self.client.get('/privacidad')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Protecci\xc3\xb3n de Datos Personales', res.data)
+
+    def test_register_requires_terminos_checkbox(self):
+        res = self.client.post('/register', data={
+            'nombre': 'Estudiante',
+            'apellido': 'Prueba',
+            'email': 'nuevo.alumno@alumnos.usm.cl',
+            'password': 'password123',
+            'rut': '19.876.543-2',
+            'carrera': 'Ingeniería Civil Informática'
+            # sin 'terminos'
+        })
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b'Debe aceptar los T\xc3\xa9rminos y Condiciones', res.data)
+
 if __name__ == '__main__':
     unittest.main()
 

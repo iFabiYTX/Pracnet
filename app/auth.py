@@ -138,6 +138,7 @@ def quick_login(role):
     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/terminos')
+@auth_bp.route('/privacidad')
 def terminos():
     """Términos y Condiciones de Uso y Política de Privacidad de Datos Personales (Ley N° 19.628)."""
     return render_template('terminos.html')

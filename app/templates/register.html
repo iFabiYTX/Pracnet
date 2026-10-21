@@ -71,11 +71,23 @@
       <input type="text" id="ubicacion" name="ubicacion" class="form-control" placeholder="Santiago / Valparaíso / Concepción" value="{{ form.get('ubicacion', 'Santiago, Chile') }}">
     </div>
 
-    <div style="margin: 18px 0; font-size: 0.85rem; display: flex; align-items: flex-start; gap: 8px;">
-      <input type="checkbox" id="terminos" name="terminos" style="margin-top: 3px;" required>
-      <label for="terminos" style="color: #4b5563; font-weight: normal;">
-        Acepto los <a href="#" style="color: #1e5bb0;">Términos y Condiciones</a> y autorizo el tratamiento de mis datos personales según la <strong>Ley N° 19.628</strong> exclusivamente para fines de postulación y validación de práctica.
-      </label>
+    <!-- Aceptación Obligatoria de Términos y Condiciones -->
+    <div style="margin: 20px 0; padding: 14px 16px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px;">
+      <div style="display: flex; align-items: flex-start; gap: 10px;">
+        <input 
+          type="checkbox" 
+          id="terminos" 
+          name="terminos" 
+          style="margin-top: 3px; width: 18px; height: 18px; cursor: pointer; accent-color: #0c2340;" 
+          required
+        >
+        <label for="terminos" style="color: #1e293b; font-size: 0.83rem; line-height: 1.45; cursor: pointer; margin: 0;">
+          <strong>He leído y acepto los <a href="{{ url_for('auth.terminos') }}" target="_blank" style="color: #0284c7; text-decoration: underline; font-weight: 700;">Términos y Condiciones</a></strong> y la <a href="{{ url_for('auth.terminos') }}" target="_blank" style="color: #0284c7; text-decoration: underline; font-weight: 700;">Política de Privacidad</a> (Ley N° 19.628 y Art. 8° Código del Trabajo). Entiendo que mis datos serán tratados exclusivamente para la gestión de prácticas y seguro escolar institucional.
+        </label>
+      </div>
+      <div style="margin-top: 8px; font-size: 0.74rem; color: #64748b; padding-left: 28px;">
+        * La aceptación es obligatoria por normativa de la Universidad Técnica Federico Santa María.
+      </div>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; background-color: #0e2a47;">

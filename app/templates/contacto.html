@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}Directorio de Contactos Institucionales - PRACNET{% endblock %}
+{% block title %}Directorio de Contactos Institucionales y Asistencia - PRACNET USM{% endblock %}
 
-{% block content %}
+{% macro contacto_content() %}
 <div class="legal-container">
   <div class="legal-header">
     <div class="legal-badge">CANALES OFICIALES DE ATENCIÓN</div>
@@ -10,14 +10,14 @@
     <p class="legal-subtitle">Universidad Técnica Federico Santa María • Red de Apoyo para Prácticas Profesionales</p>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
     <!-- Contacto 1: Secretaría Docente -->
     <div class="contact-card">
       <div class="contact-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       </div>
       <h3>Secretaría Académica y Docente</h3>
-      <p class="contact-desc">Atención de trámites curriculares, recepción de Formularios 6000 B y emisión de cartas de presentación oficiales.</p>
+      <p class="contact-desc">Atención de trámites curriculares, recepción y timbraje de Formularios 6000 B y cartas de presentación oficiales.</p>
       <div class="contact-details">
         <div><strong>Correo:</strong> secretaria@pracnet.cl</div>
         <div><strong>Ubicación:</strong> Edificio F, Piso 2, Oficina F-204</div>
@@ -32,12 +32,12 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
       </div>
       <h3>Jefatura de Carrera y Coordinación</h3>
-      <p class="contact-desc">Validación de pertinencia de centros de práctica con el perfil de egreso, evaluación de informes y convalidaciones.</p>
+      <p class="contact-desc">Validación de pertinencia con el perfil de egreso, evaluación de informes de práctica y convalidación formal.</p>
       <div class="contact-details">
-        <div><strong>Coordinación Informática:</strong> docente@pracnet.cl</div>
-        <div><strong>Coordinación Prevención:</strong> practicas.prevencion@pracnet.cl</div>
-        <div><strong>Coordinación Manufactura:</strong> practicas.industrias@pracnet.cl</div>
-        <div><strong>Consultas Académicas:</strong> docencia@pracnet.cl</div>
+        <div><strong>Coordinación Informática:</strong> informatica.practicas@usm.cl</div>
+        <div><strong>Coordinación Prevención:</strong> practicas.prevencion@usm.cl</div>
+        <div><strong>Coordinación Industrias:</strong> practicas.industrias@usm.cl</div>
+        <div><strong>Consultas Docencia:</strong> docencia@usm.cl</div>
       </div>
     </div>
 
@@ -46,27 +46,39 @@
       <div class="contact-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
       </div>
-      <h3>Mesa de Ayuda Tecnológica PRACNET</h3>
-      <p class="contact-desc">Soporte técnico para recuperación de contraseñas, problemas con carga de documentos o emisión de tokens empresariales.</p>
+      <h3>Mesa de Ayuda y Soporte Técnico</h3>
+      <p class="contact-desc">Soporte para recuperación de contraseñas, problemas con carga de documentos o validación de tokens empresariales.</p>
       <div class="contact-details">
-        <div><strong>Equipo Administrador:</strong> admin@pracnet.cl</div>
+        <div><strong>Mesa de Ayuda:</strong> soporte@pracnet.cl</div>
         <div><strong>Estado del Servicio:</strong> Operativo 24/7 (Capa Nube)</div>
         <div><strong>Tiempo de Respuesta:</strong> Menor a 24 horas hábiles</div>
-        <div><strong>Mesa de Ayuda:</strong> soporte@pracnet.cl</div>
+        <div><strong>Canal de Emergencia:</strong> +56 9 8765 4321</div>
       </div>
     </div>
   </div>
 
-  <div style="text-align: center; margin-top: 20px;">
+  <div style="text-align: center; margin-top: 30px;">
     {% if session.get('user_id') %}
       {% if session.get('rol') == 'estudiante' %}
-        <a href="{{ url_for('student.muro') }}" class="btn btn-primary">Volver al Muro de Prácticas</a>
+        <a href="{{ url_for('student.muro') }}" class="btn btn-primary" style="padding: 10px 24px;">Volver al Muro de Prácticas</a>
       {% else %}
-        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary">Volver al Panel Administrativo</a>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-primary" style="padding: 10px 24px;">Volver al Panel Administrativo</a>
       {% endif %}
     {% else %}
-      <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Volver al Inicio de Sesión</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="padding: 10px 24px;">Volver al Inicio de Sesión</a>
     {% endif %}
   </div>
 </div>
+{% endmacro %}
+
+{% block auth_content %}
+  {{ contacto_content() }}
+{% endblock %}
+
+{% block content %}
+  {{ contacto_content() }}
+{% endblock %}
+
+{% block student_content %}
+  {{ contacto_content() }}
 {% endblock %}
