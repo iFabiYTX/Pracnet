@@ -211,6 +211,11 @@ class TestPracnetApp(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.headers.get('Content-Disposition'), 'attachment; filename=PracNet_USM.apk')
 
+    def test_qr_code_image_exists_and_serves(self):
+        res = self.client.get('/static/img/qr_descarga_app.png')
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue('image/png' in res.headers.get('Content-Type', ''))
+
     def test_terminos_page_renders_content_not_blank(self):
         res = self.client.get('/terminos')
         self.assertEqual(res.status_code, 200)

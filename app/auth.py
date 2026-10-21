@@ -226,6 +226,7 @@ def descargar_app():
         downloads_dir,
         'PracNet.apk',
         as_attachment=True,
-        download_name='PracNet_USM.apk'
+        download_name='PracNet_USM.apk',
+        mimetype='application/vnd.android.package-archive'
     )
 
