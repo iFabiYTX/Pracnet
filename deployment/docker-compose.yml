@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # 1. Base de Datos Relacional MySQL 8.0
+  mysql:
+    image: mysql:8.0
+    container_name: pracnet-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: RootPasswordPracnet2026!
+      MYSQL_DATABASE: pracnet_db
+      MYSQL_USER: pracnet_user
+      MYSQL_PASSWORD: PracNet_USM_2026!
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --sql_mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ../database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "pracnet_user", "-pPracNet_USM_2026!"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Persistencia en Memoria y Caché Redis 7.2
+  redis:
+    image: redis:7.2-alpine
+    container_name: pracnet-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ""
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3. Backend API RESTful (Node.js v22)
+  backend-api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: pracnet-backend-api
+    restart: always
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: pracnet_user
+      DB_PASSWORD: PracNet_USM_2026!
+      DB_NAME: pracnet_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: pracnet_usm_jwt_super_secret_key_2026_secured
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  redis_data:
