@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// URL base: configurable para emulador Android (10.0.2.2) o servidor en producción
-const API_URL = 'http://10.0.2.2:5000/api';
+// URL base: conectada a la API de PRACNET en Render
+const API_URL = 'https://pracnet-api.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_URL,
