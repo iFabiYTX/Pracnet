@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "PracNet USM",
+    "slug": "pracnet-mobile-student",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#0C2340"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0C2340"
+      },
+      "package": "cl.usm.pracnet"
+    }
+  }
+}
