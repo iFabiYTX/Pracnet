@@ -40,7 +40,24 @@ const apiLimiter = rateLimit({
 
 app.use('/api', apiLimiter);
 
-// 4. Montar Enrutador Principal
+// 4. Ruta raíz informativa y Enrutador Principal
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    name: 'PRACNET RESTful API',
+    version: '2.0.0',
+    institution: 'Universidad Técnica Federico Santa María (USM)',
+    status: 'ONLINE',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      estudiantes: '/api/estudiante',
+      admin: '/api/admin',
+      empresas: '/api/empresa'
+    }
+  });
+});
+
 app.use('/api', apiRoutes);
 
 // 5. Manejo Centralizado de Errores (404 y 500)
