@@ -2,18 +2,22 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Sidebar from './components/Sidebar';
-import Login from './pages/Login';
+import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Ofertas from './pages/Ofertas';
 import Recomendacion from './pages/Recomendacion';
 import Postulaciones from './pages/Postulaciones';
 import Reportes from './pages/Reportes';
+import DocumentosSecretaria from './pages/DocumentosSecretaria';
+import DocenteEvaluacion from './pages/DocenteEvaluacion';
+import SupervisionJefatura from './pages/SupervisionJefatura';
+import SimuladorEstudiante from './pages/SimuladorEstudiante';
 
 function ProtectedLayout() {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return (
@@ -26,6 +30,10 @@ function ProtectedLayout() {
           <Route path="/recomendacion" element={<Recomendacion />} />
           <Route path="/postulaciones" element={<Postulaciones />} />
           <Route path="/reportes" element={<Reportes />} />
+          <Route path="/documentos-secretaria" element={<div className="p-6 sm:p-8"><DocumentosSecretaria /></div>} />
+          <Route path="/evaluacion-docente" element={<div className="p-6 sm:p-8"><DocenteEvaluacion /></div>} />
+          <Route path="/supervision-jefatura" element={<div className="p-6 sm:p-8"><SupervisionJefatura /></div>} />
+          <Route path="/simulador-estudiante" element={<div className="p-6 sm:p-8"><SimuladorEstudiante /></div>} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
@@ -38,7 +46,9 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          {/* Portada Institucional Principal inspirada en Aula USM */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
           <Route path="/*" element={<ProtectedLayout />} />
         </Routes>
       </BrowserRouter>

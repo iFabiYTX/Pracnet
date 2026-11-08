@@ -3,10 +3,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 import apiRoutes from './routes/index.js';
 import { pool, redis } from './config/db.js';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const publicPath = path.join(__dirname, '../public');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -40,25 +47,36 @@ const apiLimiter = rateLimit({
 
 app.use('/api', apiLimiter);
 
-// 4. Ruta raíz informativa y Enrutador Principal
-app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    name: 'PRACNET RESTful API',
-    version: '2.0.0',
-    institution: 'Universidad Técnica Federico Santa María (USM)',
-    status: 'ONLINE',
-    endpoints: {
-      health: '/api/health',
-      auth: '/api/auth',
-      estudiantes: '/api/estudiante',
-      admin: '/api/admin',
-      empresas: '/api/empresa'
-    }
-  });
-});
-
+// 4. Montar Enrutador Principal de la API
 app.use('/api', apiRoutes);
+
+// 5. Servir el Frontend Web en Producción (SPA) si está compilado en backend/public
+if (fs.existsSync(publicPath)) {
+  app.use(express.static(publicPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    return res.sendFile(path.join(publicPath, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.json({
+      success: true,
+      name: 'PRACNET RESTful API',
+      version: '2.0.0',
+      institution: 'Universidad Técnica Federico Santa María (USM)',
+      status: 'ONLINE',
+      endpoints: {
+        health: '/api/health',
+        auth: '/api/auth',
+        estudiantes: '/api/estudiante',
+        admin: '/api/admin',
+        empresas: '/api/empresa'
+      }
+    });
+  });
+}
 
 // 5. Manejo Centralizado de Errores (404 y 500)
 app.use((req, res) => {
