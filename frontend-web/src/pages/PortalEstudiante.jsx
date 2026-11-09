@@ -626,13 +626,11 @@ export default function PortalEstudiante() {
 
                 <div className="pt-4 flex flex-wrap gap-3">
                   <a
-                    href="https://github.com/iFabiYTX/Pracnet/releases"
-                    target="_blank"
-                    rel="noreferrer"
+                    href="/descargar-app"
                     className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 shadow transition-colors"
                   >
                     <Download className="w-4 h-4" />
-                    Descargar APK Oficial (Android)
+                    Descargar APK Directo (11.9 MB)
                   </a>
                   <button
                     onClick={() => window.open('/simulador-estudiante', '_blank')}

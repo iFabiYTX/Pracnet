@@ -50,6 +50,15 @@ app.use('/api', apiLimiter);
 // 4. Montar Enrutador Principal de la API
 app.use('/api', apiRoutes);
 
+// Ruta de Descarga Directa del APK Android al escanear el Código QR
+app.get(['/descargar-app', '/api/app/download', '/pracnet-movil.apk', '/PRACNET_Movil.apk'], (req, res) => {
+  const apkPath = path.join(publicPath, 'pracnet-movil.apk');
+  if (fs.existsSync(apkPath)) {
+    return res.download(apkPath, 'PRACNET_Movil_USM.apk');
+  }
+  return res.status(404).json({ success: false, message: 'Archivo APK no encontrado en el servidor.' });
+});
+
 // 5. Servir el Frontend Web en Producción (SPA) si está compilado en backend/public
 if (fs.existsSync(publicPath)) {
   app.use(express.static(publicPath));
