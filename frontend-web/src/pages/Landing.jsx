@@ -16,7 +16,9 @@ import {
   Building2,
   CheckCircle2,
   Sparkles,
-  User
+  User,
+  Download,
+  QrCode
 } from 'lucide-react';
 
 export default function Landing() {
@@ -82,7 +84,14 @@ export default function Landing() {
           </div>
 
           <div className="flex items-center gap-2 text-xs">
-            <span className="hidden sm:inline text-white/70">Ambiente Seguro</span>
+            <a
+              href="/descargar-app"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition-transform shadow active:scale-95"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              Descargar App Móvil (APK)
+            </a>
+            <span className="hidden md:inline text-white/70">Ambiente Seguro</span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               API v2.0 Online
@@ -198,6 +207,57 @@ export default function Landing() {
                 <p className="text-sm text-slate-600 mt-1">
                   Selecciona la opción que corresponde a tu perfil para ingresar con los permisos respectivos:
                 </p>
+              </div>
+
+              {/* TARJETA DESTACADA: RECOMENDACIÓN DE DESCARGA APP MÓVIL ESTUDIANTE CON CÓDIGO QR */}
+              <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#002855] via-[#003865] to-[#0A4D8C] text-white shadow-xl border border-amber-400/40 relative overflow-hidden">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
+                  {/* Código QR Real de Descarga */}
+                  <div className="bg-white p-2.5 rounded-2xl shadow-md text-center shrink-0 border border-white/20">
+                    <img
+                      src="/qr_code_pracnet.png"
+                      alt="Código QR PRACNET Móvil"
+                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-contain mx-auto"
+                    />
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-800 block mt-1">
+                      Escanear QR
+                    </span>
+                  </div>
+
+                  {/* Explicación y Llamado a la Acción */}
+                  <div className="flex-1 text-center sm:text-left space-y-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-bold border border-amber-400/30">
+                      <Smartphone className="w-3.5 h-3.5 text-amber-400" />
+                      Recomendado para Estudiantes
+                    </div>
+
+                    <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+                      Lleva PRACNET en tu celular
+                    </h3>
+
+                    <p className="text-xs text-white/80 leading-relaxed">
+                      Escanea este código QR con la cámara de tu smartphone para descargar el APK directo (11.9 MB) o ingresa directamente a la versión móvil.
+                    </p>
+
+                    <div className="pt-1 flex flex-wrap gap-2 justify-center sm:justify-start">
+                      <a
+                        href="/descargar-app"
+                        className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 active:scale-95"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        Descargar APK (11.9 MB)
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/app')}
+                        className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs border border-white/20 transition-all flex items-center gap-1.5 active:scale-95"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Abrir App Móvil
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* OPCIONES DE ACCESO POR ROL INSTITUCIONAL */}
