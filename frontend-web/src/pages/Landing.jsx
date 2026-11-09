@@ -15,7 +15,8 @@ import {
   BookOpen,
   Building2,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  User
 } from 'lucide-react';
 
 export default function Landing() {
