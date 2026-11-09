@@ -12,7 +12,8 @@ import {
   Smartphone,
   LogOut,
   Home,
-  UserCheck
+  UserCheck,
+  User
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -39,7 +40,8 @@ export default function Sidebar() {
     ];
   } else if (user?.rol === 'estudiante') {
     navItems = [
-      { to: '/simulador-estudiante', label: 'App PRACNET Móvil', icon: Smartphone },
+      { to: '/portal-estudiante', label: 'Mi Perfil & Portal Web', icon: User },
+      { to: '/simulador-estudiante', label: 'Simulador App Móvil', icon: Smartphone },
       { to: '/ofertas', label: 'Muro de Prácticas', icon: Briefcase }
     ];
   } else {
@@ -53,6 +55,7 @@ export default function Sidebar() {
       { to: '/documentos-secretaria', label: 'Trámites de Secretaría', icon: FileCheck2 },
       { to: '/evaluacion-docente', label: 'Evaluación Docente', icon: GraduationCap },
       { to: '/reportes', label: 'Generación de Reportes', icon: BarChart3 },
+      { to: '/portal-estudiante', label: 'Portal del Estudiante', icon: User },
       { to: '/simulador-estudiante', label: 'Simulador Estudiante', icon: Smartphone }
     ];
   }

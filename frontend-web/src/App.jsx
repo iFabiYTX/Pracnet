@@ -12,6 +12,7 @@ import DocumentosSecretaria from './pages/DocumentosSecretaria';
 import DocenteEvaluacion from './pages/DocenteEvaluacion';
 import SupervisionJefatura from './pages/SupervisionJefatura';
 import SimuladorEstudiante from './pages/SimuladorEstudiante';
+import PortalEstudiante from './pages/PortalEstudiante';
 
 function ProtectedLayout() {
   const { isAuthenticated } = useAuth();
@@ -33,6 +34,7 @@ function ProtectedLayout() {
           <Route path="/documentos-secretaria" element={<div className="p-6 sm:p-8"><DocumentosSecretaria /></div>} />
           <Route path="/evaluacion-docente" element={<div className="p-6 sm:p-8"><DocenteEvaluacion /></div>} />
           <Route path="/supervision-jefatura" element={<div className="p-6 sm:p-8"><SupervisionJefatura /></div>} />
+          <Route path="/portal-estudiante" element={<PortalEstudiante />} />
           <Route path="/simulador-estudiante" element={<div className="p-6 sm:p-8"><SimuladorEstudiante /></div>} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

@@ -265,26 +265,26 @@ export default function Landing() {
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-purple-700 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
                 </div>
 
-                {/* 4. ESTUDIANTES (Clarificación Multiplataforma / Móvil) */}
+                {/* 4. ESTUDIANTES (Portal Web + App Móvil) */}
                 <div 
-                  onClick={() => handleRoleSelect('estudiante', '/simulador-estudiante')}
+                  onClick={() => handleRoleSelect('estudiante', '/portal-estudiante')}
                   className="group p-4 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/60 hover:bg-amber-100/70 cursor-pointer transition-all duration-200 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
-                      <Smartphone className="w-6 h-6" />
+                      <User className="w-6 h-6" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-slate-900 text-base">
-                          Estudiantes (PRACNET Móvil)
+                          Portal Estudiante & App Móvil
                         </h3>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 uppercase">
-                          App Móvil
+                          Web + Móvil QR
                         </span>
                       </div>
                       <p className="text-xs text-slate-700 mt-0.5">
-                        La postulación y seguimiento opera en la App Móvil. <span className="font-semibold text-amber-800 underline">Haz clic para abrir el Simulador Web.</span>
+                        Perfil Discord-style con alias, muro web completo, Seguro Escolar y código QR para la App Móvil.
                       </p>
                     </div>
                   </div>
