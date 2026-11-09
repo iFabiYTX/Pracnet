@@ -29,19 +29,19 @@ export default function Sidebar() {
       { to: '/documentos-secretaria', label: 'Gestión Documental & Seguros', icon: FileCheck2 },
       { to: '/postulaciones', label: 'Seguimiento y Firmas', icon: FileText },
       { to: '/dashboard', label: 'Panel Resumen', icon: LayoutDashboard },
-      { to: '/simulador-estudiante', label: 'Simulador Estudiante', icon: Smartphone }
+      { to: '/app', label: 'Ver App Móvil Estudiantes', icon: Smartphone }
     ];
   } else if (user?.rol === 'docente') {
     navItems = [
       { to: '/evaluacion-docente', label: 'Evaluación de Informes', icon: GraduationCap },
       { to: '/supervision-jefatura', label: 'Consultas Académicas', icon: MessageSquare },
       { to: '/dashboard', label: 'Resumen de Prácticas', icon: LayoutDashboard },
-      { to: '/simulador-estudiante', label: 'Simulador Estudiante', icon: Smartphone }
+      { to: '/app', label: 'Ver App Móvil Estudiantes', icon: Smartphone }
     ];
   } else if (user?.rol === 'estudiante') {
     navItems = [
       { to: '/portal-estudiante', label: 'Mi Perfil & Portal Web', icon: User },
-      { to: '/simulador-estudiante', label: 'Simulador App Móvil', icon: Smartphone },
+      { to: '/app', label: 'App Móvil Estudiante', icon: Smartphone },
       { to: '/ofertas', label: 'Muro de Prácticas', icon: Briefcase }
     ];
   } else {
@@ -56,7 +56,7 @@ export default function Sidebar() {
       { to: '/evaluacion-docente', label: 'Evaluación Docente', icon: GraduationCap },
       { to: '/reportes', label: 'Generación de Reportes', icon: BarChart3 },
       { to: '/portal-estudiante', label: 'Portal del Estudiante', icon: User },
-      { to: '/simulador-estudiante', label: 'Simulador Estudiante', icon: Smartphone }
+      { to: '/app', label: 'Ver App Móvil Estudiantes', icon: Smartphone }
     ];
   }
 

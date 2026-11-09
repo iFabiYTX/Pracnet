@@ -281,10 +281,10 @@ export default function Landing() {
                   <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-purple-700 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
                 </div>
 
-                {/* 4. ESTUDIANTES (Portal Web + App Móvil) */}
+                {/* 4. ESTUDIANTE: PORTAL WEB */}
                 <div 
                   onClick={() => handleRoleSelect('estudiante', '/portal-estudiante')}
-                  className="group p-4 rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/60 hover:bg-amber-100/70 cursor-pointer transition-all duration-200 flex items-center justify-between"
+                  className="group p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
@@ -292,19 +292,57 @@ export default function Landing() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900 text-base">
-                          Portal Estudiante & App Móvil
+                        <h3 className="font-bold text-slate-900 group-hover:text-amber-700 transition-colors text-base">
+                          Portal Web Estudiante (Escritorio)
                         </h3>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 uppercase">
-                          Web + Móvil QR
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 uppercase">
+                          Perfil Discord & Muro Web
                         </span>
                       </div>
-                      <p className="text-xs text-slate-700 mt-0.5">
-                        Perfil Discord-style con alias, muro web completo, Seguro Escolar y código QR para la App Móvil.
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        Perfil estilo Discord con alias, biografía personalizada, Seguro Escolar y catálogo completo.
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-amber-600 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+                </div>
+
+                {/* 5. APP MÓVIL ESTUDIANTE (EXCLUSIVA MÓVIL / APK QR) */}
+                <div className="p-4 rounded-2xl border-2 border-dashed border-sky-400 bg-sky-50/70 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="w-12 h-12 rounded-xl bg-sky-600 text-white flex items-center justify-center shrink-0 shadow">
+                      <Smartphone className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-extrabold text-slate-900 text-base">
+                          PRACNET Móvil (App Estudiantil)
+                        </h3>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-sky-200 text-sky-900 uppercase">
+                          Exclusivo Celular
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        Interfaz 100% móvil exclusiva para alumnos (login, registro, 1-toque, Asistente IA).
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 justify-end">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/app')}
+                      className="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs transition-colors shadow"
+                    >
+                      Abrir App Móvil
+                    </button>
+                    <a
+                      href="/descargar-app"
+                      className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs transition-colors shadow flex items-center gap-1"
+                    >
+                      📥 APK (11.9MB)
+                    </a>
+                  </div>
                 </div>
               </div>
 

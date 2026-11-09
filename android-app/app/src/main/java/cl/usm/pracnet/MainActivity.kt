@@ -65,7 +65,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 class MainActivity : ComponentActivity() {
 
     companion object {
-        const val PRACNET_URL = "https://pracnet-api.onrender.com"
+        const val PRACNET_URL = "https://pracnet-api.onrender.com/app"
     }
 
     private var uploadMessage: ValueCallback<Array<Uri>>? = null

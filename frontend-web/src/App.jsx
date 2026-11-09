@@ -13,6 +13,7 @@ import DocenteEvaluacion from './pages/DocenteEvaluacion';
 import SupervisionJefatura from './pages/SupervisionJefatura';
 import SimuladorEstudiante from './pages/SimuladorEstudiante';
 import PortalEstudiante from './pages/PortalEstudiante';
+import AppMovilEstudiante from './pages/AppMovilEstudiante';
 
 function ProtectedLayout() {
   const { isAuthenticated } = useAuth();
@@ -51,6 +52,14 @@ export default function App() {
           {/* Portada Institucional Principal inspirada en Aula USM */}
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Navigate to="/" replace />} />
+
+          {/* Interfaz Exclusiva Móvil para Estudiantes (Mockup 9.1) */}
+          {/* NO pasa por ProtectedLayout ni redirige a la portada institucional */}
+          <Route path="/app" element={<AppMovilEstudiante />} />
+          <Route path="/movil" element={<AppMovilEstudiante />} />
+          <Route path="/app-estudiante" element={<AppMovilEstudiante />} />
+
+          {/* Rutas Protegidas del Portal Web Institucional */}
           <Route path="/*" element={<ProtectedLayout />} />
         </Routes>
       </BrowserRouter>
