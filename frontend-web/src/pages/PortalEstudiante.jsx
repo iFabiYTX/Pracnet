@@ -651,60 +651,30 @@ export default function PortalEstudiante() {
                     Escanear con tu Celular
                   </p>
 
-                  {/* QR Code SVG nítido */}
+                  {/* Imagen PNG del Código QR Real */}
                   <div className="p-3 bg-slate-50 rounded-2xl border-2 border-slate-200 inline-block shadow-inner">
-                    <svg viewBox="0 0 160 160" width="160" height="160" className="mx-auto">
-                      {/* Fondo blanco */}
-                      <rect width="160" height="160" fill="#ffffff" />
-                      {/* Patrón QR SVG simulado de alta fidelidad */}
-                      {/* Esquina sup izq */}
-                      <rect x="10" y="10" width="40" height="40" fill="#002855" rx="6" />
-                      <rect x="18" y="18" width="24" height="24" fill="#ffffff" rx="3" />
-                      <rect x="24" y="24" width="12" height="12" fill="#002855" rx="2" />
-                      {/* Esquina sup der */}
-                      <rect x="110" y="10" width="40" height="40" fill="#002855" rx="6" />
-                      <rect x="118" y="18" width="24" height="24" fill="#ffffff" rx="3" />
-                      <rect x="124" y="24" width="12" height="12" fill="#002855" rx="2" />
-                      {/* Esquina inf izq */}
-                      <rect x="10" y="110" width="40" height="40" fill="#002855" rx="6" />
-                      <rect x="18" y="118" width="24" height="24" fill="#ffffff" rx="3" />
-                      <rect x="24" y="124" width="12" height="12" fill="#002855" rx="2" />
-                      {/* Módulos de datos */}
-                      <rect x="60" y="20" width="10" height="10" fill="#002855" />
-                      <rect x="80" y="20" width="10" height="10" fill="#f59e0b" />
-                      <rect x="60" y="40" width="10" height="10" fill="#002855" />
-                      <rect x="75" y="40" width="15" height="10" fill="#002855" />
-                      <rect x="20" y="65" width="15" height="10" fill="#002855" />
-                      <rect x="45" y="65" width="10" height="10" fill="#002855" />
-                      <rect x="65" y="65" width="30" height="10" fill="#002855" />
-                      <rect x="105" y="65" width="10" height="10" fill="#f59e0b" />
-                      <rect x="125" y="65" width="20" height="10" fill="#002855" />
-                      <rect x="15" y="85" width="10" height="10" fill="#002855" />
-                      <rect x="35" y="85" width="25" height="10" fill="#002855" />
-                      <rect x="70" y="85" width="20" height="10" fill="#002855" />
-                      <rect x="100" y="85" width="15" height="10" fill="#002855" />
-                      <rect x="125" y="85" width="15" height="10" fill="#002855" />
-                      <rect x="60" y="105" width="10" height="10" fill="#f59e0b" />
-                      <rect x="80" y="105" width="20" height="10" fill="#002855" />
-                      <rect x="110" y="105" width="10" height="10" fill="#002855" />
-                      <rect x="130" y="105" width="15" height="10" fill="#002855" />
-                      <rect x="60" y="125" width="15" height="10" fill="#002855" />
-                      <rect x="85" y="125" width="10" height="10" fill="#002855" />
-                      <rect x="105" y="125" width="20" height="10" fill="#002855" />
-                      <rect x="135" y="125" width="10" height="10" fill="#002855" />
-                      <rect x="65" y="145" width="20" height="10" fill="#002855" />
-                      <rect x="95" y="145" width="15" height="10" fill="#002855" />
-                      <rect x="120" y="145" width="20" height="10" fill="#002855" />
-                      {/* Logo central USM */}
-                      <circle cx="80" cy="80" r="14" fill="#ffffff" />
-                      <circle cx="80" cy="80" r="11" fill="#002855" />
-                      <text x="80" y="84" textAnchor="middle" fill="#f59e0b" fontSize="8" fontWeight="bold">USM</text>
-                    </svg>
+                    <img
+                      src="/qr_code_pracnet.png"
+                      alt="Código QR Oficial PRACNET Móvil"
+                      className="w-44 h-44 mx-auto rounded-xl shadow-sm object-contain"
+                    />
                   </div>
 
-                  <p className="text-[11px] text-slate-500 font-medium">
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
                     Apunta con la cámara de tu smartphone para instalar la versión móvil de PRACNET.
                   </p>
+
+                  <div className="pt-1">
+                    <a
+                      href="/qr_code_pracnet.png"
+                      download="QR_PRACNET_Movil.png"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition-colors"
+                      title="Descargar imagen PNG del código QR"
+                    >
+                      <Download className="w-3.5 h-3.5 text-usm-blue" />
+                      Descargar Imagen QR (.png)
+                    </a>
+                  </div>
                 </div>
               </div>
 

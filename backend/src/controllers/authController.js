@@ -250,6 +250,17 @@ export async function recuperarPassword(req, res) {
   }
 }
 
+export async function pingSession(req, res) {
+  const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '190.161.45.12';
+  const cleanIp = Array.isArray(ip) ? ip[0] : (typeof ip === 'string' ? ip.split(',')[0].trim() : '190.161.45.12');
+  return res.json({
+    success: true,
+    ip: cleanIp,
+    inactivityLimitSeconds: 7200,
+    timestamp: new Date().toISOString()
+  });
+}
+
 export async function logout(req, res) {
   try {
     const authHeader = req.headers['authorization'];

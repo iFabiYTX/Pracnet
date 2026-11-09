@@ -1,10 +1,10 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { UserCheck, ShieldCheck, Home } from 'lucide-react';
+import { UserCheck, ShieldCheck, Home, Clock, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header({ title, subtitle }) {
-  const { user } = useAuth();
+  const { user, clientIp, timeRemainingFormatted, resetInactivityTimer } = useAuth();
   const navigate = useNavigate();
 
   const roleStyles = {
@@ -30,7 +30,22 @@ export default function Header({ title, subtitle }) {
         {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
+        {/* Indicador de Seguridad con Timer de Inactividad de 2 Horas & IP */}
+        <div
+          onClick={resetInactivityTimer}
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 cursor-pointer hover:bg-slate-100 transition-colors"
+          title="El contador se reinicia a 2 horas cada vez que interactúas con la plataforma (clic para reiniciar ahora)"
+        >
+          <Lock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          <span>IP: <strong className="font-mono text-slate-800">{clientIp}</strong></span>
+          <span className="text-slate-300">|</span>
+          <span className="flex items-center gap-1 font-semibold text-usm-navy">
+            <Clock className="w-3 h-3 text-amber-500" />
+            Inactividad: {timeRemainingFormatted}
+          </span>
+        </div>
+
         {/* Badge de Rol Activo */}
         <div className="text-right hidden sm:block">
           <div className="flex items-center justify-end gap-1.5">

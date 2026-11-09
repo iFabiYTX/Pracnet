@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function Landing() {
-  const { quickLogin, login, loading } = useAuth();
+  const { quickLogin, login, loading, sessionExpiredMessage, clearExpiredMessage } = useAuth();
   const navigate = useNavigate();
   const [showManualLogin, setShowManualLogin] = useState(false);
   const [email, setEmail] = useState('');
@@ -168,6 +168,21 @@ export default function Landing() {
             <div>
               {/* Encabezado del Formulario */}
               <div className="mb-6">
+                {sessionExpiredMessage && (
+                  <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-900 text-xs font-semibold flex items-center justify-between shadow-sm animate-fade-in">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                      <span>{sessionExpiredMessage}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearExpiredMessage}
+                      className="text-amber-700 hover:text-amber-900 font-bold ml-2 text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold tracking-widest uppercase text-usm-blue flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-usm-blue" />
