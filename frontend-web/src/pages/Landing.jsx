@@ -10,6 +10,8 @@ import {
   Mail,
   Lock,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Info,
   ExternalLink,
   BookOpen,
@@ -18,34 +20,41 @@ import {
   Sparkles,
   User,
   Download,
-  QrCode
+  QrCode,
+  AlertCircle
 } from 'lucide-react';
 
 export default function Landing() {
   const { login, loading, sessionExpiredMessage, clearExpiredMessage } = useAuth();
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState(null);
+
+  // Rol actualmente abierto en el acordeón de login: null | 'jefe' | 'secretaria' | 'docente' | 'estudiante'
+  const [openRole, setOpenRole] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rutFuncionario, setRutFuncionario] = useState('');
   const [error, setError] = useState('');
 
-  const handleRoleClick = (roleKey, hintEmail = '') => {
-    setSelectedRole(roleKey);
-    setError('');
-    if (hintEmail && !email) {
-      setEmail(hintEmail);
+  const toggleRole = (roleKey) => {
+    if (openRole === roleKey) {
+      setOpenRole(null);
+    } else {
+      setOpenRole(roleKey);
+      setError('');
+      setPassword('');
+      setEmail('');
+      setRutFuncionario('');
     }
-    const elem = document.getElementById('login-form-section');
-    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleLoginSubmit = async (e) => {
+  const handleRoleLogin = async (e, roleKey) => {
     e.preventDefault();
     setError('');
-    if (!email || !password) {
-      setError('Por favor ingresa tu correo y contraseña.');
+    if (!email.trim() || !password.trim()) {
+      setError('Por favor completa todos los campos requeridos.');
       return;
     }
+
     const res = await login(email, password);
     if (res.success && res.user) {
       if (res.user.rol === 'admin') {
@@ -56,6 +65,8 @@ export default function Landing() {
         navigate('/documentos-secretaria');
       } else if (res.user.rol === 'estudiante') {
         navigate('/portal-estudiante');
+      } else if (res.user.rol === 'jefe_carrera') {
+        navigate('/dashboard');
       } else {
         navigate('/dashboard');
       }
@@ -83,13 +94,6 @@ export default function Landing() {
             <span className="hidden md:inline hover:text-white cursor-pointer">Reglamento Prácticas</span>
             <span className="hidden sm:inline hover:text-white cursor-pointer">SIGA</span>
             <span className="text-amber-400 hover:text-amber-300 cursor-pointer">Accesibilidad y Ayuda</span>
-            <button
-              onClick={() => navigate('/admin')}
-              className="px-2.5 py-1 bg-amber-400/20 hover:bg-amber-400 text-amber-300 hover:text-slate-950 font-bold rounded-lg border border-amber-400/30 transition-all flex items-center gap-1"
-            >
-              <Lock className="w-3 h-3" />
-              Panel de Control Admin
-            </button>
           </div>
         </div>
       </header>
@@ -286,122 +290,435 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* OPCIONES DE ACCESO POR ROL INSTITUCIONAL */}
-              <div className="space-y-3.5 mb-6">
+              {/* OPCIONES DE ACCESO POR ROL INSTITUCIONAL (CADA ROL ABRE SU PROPIO LOGIN) */}
+              <div className="space-y-4 mb-6">
                 
                 {/* 1. JEFATURA DE CARRERA */}
                 <div 
-                  onClick={() => handleRoleClick('jefe')}
-                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
-                    selectedRole === 'jefe' ? 'border-usm-blue bg-sky-50' : 'border-slate-200 hover:border-usm-blue hover:bg-sky-50/50'
+                  className={`rounded-2xl border-2 transition-all duration-200 overflow-hidden shadow-sm ${
+                    openRole === 'jefe' ? 'border-usm-blue bg-sky-50/70 shadow-md ring-2 ring-usm-blue/20' : 'border-slate-200 bg-white hover:border-usm-blue hover:bg-sky-50/40'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-usm-navy text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
-                      <Award className="w-6 h-6 text-amber-400" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900 group-hover:text-usm-blue transition-colors text-base">
-                          Jefatura de Carrera
-                        </h3>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 uppercase">
-                          Monitoreo
-                        </span>
+                  <div 
+                    onClick={() => toggleRole('jefe')}
+                    className="p-4 cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-usm-navy text-white flex items-center justify-center shrink-0 shadow">
+                        <Award className="w-6 h-6 text-amber-400" />
                       </div>
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        Monitoreo de alumnos, motor de matching IA, comunicación directa y reportes.
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 text-base">
+                            Jefatura de Carrera
+                          </h3>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 uppercase">
+                            Monitoreo
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          Monitoreo de alumnos, motor de matching IA, comunicación directa y reportes.
+                        </p>
+                      </div>
                     </div>
+                    {openRole === 'jefe' ? (
+                      <ChevronUp className="w-5 h-5 text-usm-blue shrink-0 ml-2" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-usm-blue shrink-0 ml-2" />
+                    )}
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-usm-blue group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+
+                  {/* FORMULARIO ESPECÍFICO DE JEFATURA */}
+                  {openRole === 'jefe' && (
+                    <div className="p-5 border-t border-sky-200 bg-white text-xs space-y-3 animate-fade-in">
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-slate-900 text-xs flex items-center gap-1.5 text-usm-blue">
+                          <Lock className="w-3.5 h-3.5" /> Credenciales de Jefatura de Carrera
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setOpenRole(null)}
+                          className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold"
+                        >
+                          ✕ Cerrar
+                        </button>
+                      </div>
+
+                      {error && (
+                        <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                          <span>{error}</span>
+                        </div>
+                      )}
+
+                      <form onSubmit={(e) => handleRoleLogin(e, 'jefe')} className="space-y-3">
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">
+                            Correo Institucional Jefatura
+                          </label>
+                          <div className="relative">
+                            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="email"
+                              required
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="jefatura.informatica@pracnet.usm.cl o @usm.cl"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-usm-blue"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">Contraseña</label>
+                          <div className="relative">
+                            <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="password"
+                              required
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-usm-blue"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="w-full py-2.5 bg-usm-navy hover:bg-usm-blue text-white font-bold rounded-xl text-xs shadow transition-all active:scale-95"
+                        >
+                          {loading ? 'Verificando...' : 'Ingresar como Jefe de Carrera'}
+                        </button>
+                      </form>
+                    </div>
+                  )}
                 </div>
 
                 {/* 2. SECRETARÍA DE DOCENCIA */}
                 <div 
-                  onClick={() => handleRoleClick('secretaria')}
-                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
-                    selectedRole === 'secretaria' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/50'
+                  className={`rounded-2xl border-2 transition-all duration-200 overflow-hidden shadow-sm ${
+                    openRole === 'secretaria' ? 'border-emerald-600 bg-emerald-50/70 shadow-md ring-2 ring-emerald-600/20' : 'border-slate-200 bg-white hover:border-emerald-600 hover:bg-emerald-50/40'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
-                      <FileCheck2 className="w-6 h-6 text-emerald-200" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors text-base">
-                          Secretaría de Docencia
-                        </h3>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase">
-                          Gestión Documental
-                        </span>
+                  <div 
+                    onClick={() => toggleRole('secretaria')}
+                    className="p-4 cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow">
+                        <FileCheck2 className="w-6 h-6 text-emerald-200" />
                       </div>
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        Aprobación de Seguro Escolar (Ley 16.744), visado de Formulario 6000 B y timbres.
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 text-base">
+                            Secretaría de Docencia
+                          </h3>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 uppercase">
+                            Gestión Documental
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          Aprobación de Seguro Escolar (Ley 16.744), visado de Formulario 6000 B y timbres.
+                        </p>
+                      </div>
                     </div>
+                    {openRole === 'secretaria' ? (
+                      <ChevronUp className="w-5 h-5 text-emerald-700 shrink-0 ml-2" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-emerald-700 shrink-0 ml-2" />
+                    )}
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+
+                  {/* FORMULARIO ESPECÍFICO DE SECRETARÍA */}
+                  {openRole === 'secretaria' && (
+                    <div className="p-5 border-t border-emerald-200 bg-white text-xs space-y-3 animate-fade-in">
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-slate-900 text-xs flex items-center gap-1.5 text-emerald-800">
+                          <FileCheck2 className="w-3.5 h-3.5 text-emerald-600" /> Acceso Secretaría & Firma Digital
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setOpenRole(null)}
+                          className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold"
+                        >
+                          ✕ Cerrar
+                        </button>
+                      </div>
+
+                      {error && (
+                        <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                          <span>{error}</span>
+                        </div>
+                      )}
+
+                      <form onSubmit={(e) => handleRoleLogin(e, 'secretaria')} className="space-y-3">
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">
+                            Correo Institucional de Secretaría
+                          </label>
+                          <div className="relative">
+                            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="email"
+                              required
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="secretaria@pracnet.usm.cl o @usm.cl"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">
+                            RUT de Funcionario (Opcional)
+                          </label>
+                          <input
+                            type="text"
+                            value={rutFuncionario}
+                            onChange={(e) => setRutFuncionario(e.target.value)}
+                            placeholder="12.345.678-9"
+                            className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">Contraseña</label>
+                          <div className="relative">
+                            <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="password"
+                              required
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs shadow transition-all active:scale-95"
+                        >
+                          {loading ? 'Verificando...' : 'Ingresar a Secretaría de Docencia'}
+                        </button>
+                      </form>
+                    </div>
+                  )}
                 </div>
 
                 {/* 3. DOCENTES & PROFESORES GUÍA */}
                 <div 
-                  onClick={() => handleRoleClick('docente')}
-                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
-                    selectedRole === 'docente' ? 'border-purple-600 bg-purple-50' : 'border-slate-200 hover:border-purple-600 hover:bg-purple-50/50'
+                  className={`rounded-2xl border-2 transition-all duration-200 overflow-hidden shadow-sm ${
+                    openRole === 'docente' ? 'border-purple-600 bg-purple-50/70 shadow-md ring-2 ring-purple-600/20' : 'border-slate-200 bg-white hover:border-purple-600 hover:bg-purple-50/40'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-purple-700 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
-                      <GraduationCap className="w-6 h-6 text-purple-200" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900 group-hover:text-purple-700 transition-colors text-base">
-                          Profesores Guía y Docentes
-                        </h3>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 uppercase">
-                          Evaluación
-                        </span>
+                  <div 
+                    onClick={() => toggleRole('docente')}
+                    className="p-4 cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-purple-700 text-white flex items-center justify-center shrink-0 shadow">
+                        <GraduationCap className="w-6 h-6 text-purple-200" />
                       </div>
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        Acompañamiento académico, corrección de Informes de Práctica y retroalimentación.
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 text-base">
+                            Profesores Guía y Docentes
+                          </h3>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 uppercase">
+                            Evaluación
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          Acompañamiento académico, corrección de Informes de Práctica y retroalimentación.
+                        </p>
+                      </div>
                     </div>
+                    {openRole === 'docente' ? (
+                      <ChevronUp className="w-5 h-5 text-purple-700 shrink-0 ml-2" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-purple-700 shrink-0 ml-2" />
+                    )}
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-purple-700 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+
+                  {/* FORMULARIO ESPECÍFICO DE DOCENTES */}
+                  {openRole === 'docente' && (
+                    <div className="p-5 border-t border-purple-200 bg-white text-xs space-y-3 animate-fade-in">
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-slate-900 text-xs flex items-center gap-1.5 text-purple-800">
+                          <GraduationCap className="w-3.5 h-3.5 text-purple-600" /> Acceso para Profesores y Docentes
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setOpenRole(null)}
+                          className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold"
+                        >
+                          ✕ Cerrar
+                        </button>
+                      </div>
+
+                      {error && (
+                        <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                          <span>{error}</span>
+                        </div>
+                      )}
+
+                      <form onSubmit={(e) => handleRoleLogin(e, 'docente')} className="space-y-3">
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">
+                            Correo Institucional o Asignado por Administración
+                          </label>
+                          <div className="relative">
+                            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="email"
+                              required
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="ej: josecarrasco@pracnet.usm.cl o @usm.cl"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-purple-600"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">Contraseña</label>
+                          <div className="relative">
+                            <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="password"
+                              required
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-purple-600"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="w-full py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-bold rounded-xl text-xs shadow transition-all active:scale-95"
+                        >
+                          {loading ? 'Verificando...' : 'Ingresar a Evaluación Docente'}
+                        </button>
+                      </form>
+                    </div>
+                  )}
                 </div>
 
-                {/* 4. ESTUDIANTE: PORTAL WEB */}
+                {/* 4. ESTUDIANTE: PORTAL WEB (ESCRITORIO) */}
                 <div 
-                  onClick={() => handleRoleClick('estudiante')}
-                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
-                    selectedRole === 'estudiante' ? 'border-amber-500 bg-amber-50' : 'border-slate-200 hover:border-amber-500 hover:bg-amber-50/50'
+                  className={`rounded-2xl border-2 transition-all duration-200 overflow-hidden shadow-sm ${
+                    openRole === 'estudiante' ? 'border-amber-500 bg-amber-50/70 shadow-md ring-2 ring-amber-500/20' : 'border-slate-200 bg-white hover:border-amber-500 hover:bg-amber-50/40'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
-                      <User className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-slate-900 group-hover:text-amber-700 transition-colors text-base">
-                          Portal Web Estudiante (Escritorio)
-                        </h3>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 uppercase">
-                          Perfil Discord & Muro Web
-                        </span>
+                  <div 
+                    onClick={() => toggleRole('estudiante')}
+                    className="p-4 cursor-pointer flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow">
+                        <User className="w-6 h-6" />
                       </div>
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        Perfil estilo Discord con alias, biografía personalizada, Seguro Escolar y catálogo completo.
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 text-base">
+                            Portal Web Estudiante (Escritorio)
+                          </h3>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 uppercase">
+                            Perfil Discord & Muro Web
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">
+                          Perfil estilo Discord con alias, biografía personalizada, Seguro Escolar y catálogo completo.
+                        </p>
+                      </div>
                     </div>
+                    {openRole === 'estudiante' ? (
+                      <ChevronUp className="w-5 h-5 text-amber-600 shrink-0 ml-2" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-400 group-hover:text-amber-600 shrink-0 ml-2" />
+                    )}
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+
+                  {/* FORMULARIO ESPECÍFICO DE ESTUDIANTE WEB */}
+                  {openRole === 'estudiante' && (
+                    <div className="p-5 border-t border-amber-200 bg-white text-xs space-y-3 animate-fade-in">
+                      <div className="flex items-center justify-between">
+                        <span className="font-extrabold text-slate-900 text-xs flex items-center gap-1.5 text-amber-800">
+                          <User className="w-3.5 h-3.5 text-amber-600" /> Acceso al Portal de Estudiantes
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setOpenRole(null)}
+                          className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold"
+                        >
+                          ✕ Cerrar
+                        </button>
+                      </div>
+
+                      {error && (
+                        <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                          <span>{error}</span>
+                        </div>
+                      )}
+
+                      <form onSubmit={(e) => handleRoleLogin(e, 'estudiante')} className="space-y-3">
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">
+                            Correo Institucional Alumno (@alumnos.usm.cl)
+                          </label>
+                          <div className="relative">
+                            <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="email"
+                              required
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              placeholder="nombre.apellido@alumnos.usm.cl"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-700 font-bold mb-1">Contraseña</label>
+                          <div className="relative">
+                            <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                            <input
+                              type="password"
+                              required
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="w-full py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs shadow transition-all active:scale-95"
+                        >
+                          {loading ? 'Verificando...' : 'Ingresar al Portal Estudiante'}
+                        </button>
+                      </form>
+                    </div>
+                  )}
                 </div>
 
-                {/* 5. APP MÓVIL ESTUDIANTE (EXCLUSIVA MÓVIL / APK QR) */}
+                {/* 5. PRACNET MÓVIL ESTUDIANTE (EXCLUSIVA MÓVIL / APK QR) */}
                 <div className="p-4 rounded-2xl border-2 border-dashed border-sky-400 bg-sky-50/70 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <div className="w-12 h-12 rounded-xl bg-sky-600 text-white flex items-center justify-center shrink-0 shadow">
@@ -438,91 +755,7 @@ export default function Landing() {
                     </a>
                   </div>
                 </div>
-              </div>
 
-              {/* FORMULARIO DE ACCESO INSTITUCIONAL POR CREDENCIALES REALES */}
-              <div id="login-form-section" className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 sm:p-6 mb-6 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-usm-blue" />
-                      Iniciar Sesión Institucional
-                    </h3>
-                    <p className="text-[11px] text-slate-500">
-                      Ingresa con tus credenciales institucionales o asignadas por Administración.
-                    </p>
-                  </div>
-                  {selectedRole && (
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-200 uppercase">
-                      Rol: {selectedRole}
-                    </span>
-                  )}
-                </div>
-
-                {error && (
-                  <div className="p-3 mb-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleLoginSubmit} className="space-y-3 text-xs">
-                  <div>
-                    <label className="block text-slate-700 font-bold mb-1">
-                      Correo Electrónico (Institucional o Asignado)
-                    </label>
-                    <div className="relative">
-                      <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={
-                          selectedRole === 'docente'
-                            ? 'ej: josecarrasco@pracnet.usm.cl'
-                            : (selectedRole === 'secretaria' ? 'ej: secretaria@pracnet.usm.cl' : 'nombre.apellido@usm.cl o admin@pracnetadmin.cl')
-                        }
-                        className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-usm-blue font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-700 font-bold mb-1">Contraseña</label>
-                    <div className="relative">
-                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                      <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-usm-blue font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-2.5 bg-usm-navy hover:bg-usm-blue text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95"
-                  >
-                    {loading ? 'Verificando credenciales...' : 'Ingresar a la Plataforma'}
-                  </button>
-                </form>
-
-                <div className="mt-4 pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
-                  <span className="text-slate-500">¿Eres el Administrador General?</span>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/admin')}
-                    className="font-bold text-amber-800 hover:text-amber-950 bg-amber-100/80 hover:bg-amber-200 px-3 py-1.5 rounded-xl border border-amber-300 transition-colors flex items-center gap-1"
-                  >
-                    <Lock className="w-3.5 h-3.5 text-amber-700" />
-                    Panel de Control Super Admin (/admin)
-                  </button>
-                </div>
               </div>
             </div>
 
