@@ -23,11 +23,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    // No redirigir si el 401 ocurrió durante el intento de inicio de sesión
+    const isLoginEndpoint = error.config?.url?.includes('/auth/login');
+    if (error.response && error.response.status === 401 && !isLoginEndpoint) {
       localStorage.removeItem('pracnet_token');
       localStorage.removeItem('pracnet_user');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (window.location.pathname !== '/' && window.location.pathname !== '/login' && window.location.pathname !== '/admin') {
+        window.location.href = '/';
       }
     }
     return Promise.reject(error);

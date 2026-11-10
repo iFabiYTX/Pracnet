@@ -18,9 +18,10 @@ yarn-error.log*
 *.db
 *.sqlite
 *.sqlite3
-data/
 mysql_data/
 redis_data/
+!backend/data/
+!backend/data/*.json
 
 # Logs & temporary files
 logs/

@@ -14,6 +14,7 @@ import SupervisionJefatura from './pages/SupervisionJefatura';
 import SimuladorEstudiante from './pages/SimuladorEstudiante';
 import PortalEstudiante from './pages/PortalEstudiante';
 import AppMovilEstudiante from './pages/AppMovilEstudiante';
+import AdminPanel from './pages/AdminPanel';
 
 function ProtectedLayout() {
   const { isAuthenticated } = useAuth();
@@ -58,6 +59,11 @@ export default function App() {
           <Route path="/app" element={<AppMovilEstudiante />} />
           <Route path="/movil" element={<AppMovilEstudiante />} />
           <Route path="/app-estudiante" element={<AppMovilEstudiante />} />
+
+          {/* Panel de Control y Administración Central PRACNET */}
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/control-panel" element={<AdminPanel />} />
+          <Route path="/panel-control" element={<AdminPanel />} />
 
           {/* Rutas Protegidas del Portal Web Institucional */}
           <Route path="/*" element={<ProtectedLayout />} />

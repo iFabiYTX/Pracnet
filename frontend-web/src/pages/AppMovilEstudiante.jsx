@@ -93,71 +93,76 @@ export default function AppMovilEstudiante() {
     setTimeout(() => setToastMessage(''), 4000);
   };
 
-  // Login de Estudiante
-  const handleLogin = (e) => {
+  // Login de Estudiante Real
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const demo = {
-      nombre: 'Valentina Ríos Pérez',
-      alias: '@valen_dev',
-      email: loginEmail || 'valentina.rios@alumnos.usm.cl',
-      rut: '20.456.789-3',
-      carrera: 'Ingeniería Civil Informática',
-      semestre: '9° Semestre',
-      avanceMalla: '85%'
-    };
-    setEstudianteUser(demo);
-    localStorage.setItem('pracnet_movil_estudiante', JSON.stringify(demo));
-    showToast('¡Bienvenida a PRACNET Móvil!');
-  };
-
-  // Demo Login Rápido (1 toque para pruebas)
-  const handleQuickStudent = (alumno) => {
-    let mock;
-    if (alumno === 'carlos') {
-      mock = {
-        nombre: 'Carlos Mendoza Silva',
-        alias: '@carlos_m',
-        email: 'carlos.mendoza@alumnos.usm.cl',
-        rut: '20.123.456-7',
-        carrera: 'Ingeniería Civil Informática',
-        semestre: '6° Semestre',
-        avanceMalla: '60%'
-      };
-    } else {
-      mock = {
-        nombre: 'Valentina Ríos Pérez',
-        alias: '@valen_dev',
-        email: 'valentina.rios@alumnos.usm.cl',
-        rut: '20.456.789-3',
-        carrera: 'Ingeniería Civil Informática',
-        semestre: '9° Semestre',
-        avanceMalla: '85%'
-      };
+    if (!loginEmail || !loginPassword) {
+      showToast('Ingresa tu correo y contraseña.');
+      return;
     }
-    setEstudianteUser(mock);
-    localStorage.setItem('pracnet_movil_estudiante', JSON.stringify(mock));
-    showToast(`Sesión iniciada como ${mock.nombre}`);
+    try {
+      const res = await api.post('/auth/login', {
+        email: loginEmail,
+        password: loginPassword
+      });
+      if (res.data.success && res.data.user) {
+        const u = res.data.user;
+        const studentObj = {
+          nombre: u.nombre,
+          alias: `@${u.nombre.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+          email: u.email,
+          rut: u.rut || '20.123.456-7',
+          carrera: u.carrera || 'Ingeniería Civil Informática',
+          semestre: '8° Semestre',
+          avanceMalla: '85%'
+        };
+        setEstudianteUser(studentObj);
+        localStorage.setItem('pracnet_movil_estudiante', JSON.stringify(studentObj));
+        showToast(`¡Bienvenido/a ${u.nombre}!`);
+      } else {
+        showToast(res.data.message || 'Credenciales inválidas.');
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error: Correo o contraseña incorrectos.');
+    }
   };
 
-  // Registro de Estudiante
-  const handleRegister = (e) => {
+  // Registro de Estudiante Real
+  const handleRegister = async (e) => {
     e.preventDefault();
     if (!regData.terminos) {
       showToast('Debes aceptar la Política de Privacidad (Ley N° 19.628)');
       return;
     }
-    const nuevo = {
-      nombre: `${regData.nombre} ${regData.apellido}`,
-      alias: `@${regData.nombre.toLowerCase()}_usm`,
-      email: regData.email,
-      rut: regData.rut,
-      carrera: regData.carrera,
-      semestre: '6° Semestre',
-      avanceMalla: '60%'
-    };
-    setEstudianteUser(nuevo);
-    localStorage.setItem('pracnet_movil_estudiante', JSON.stringify(nuevo));
-    showToast('¡Cuenta creada exitosamente!');
+    try {
+      const res = await api.post('/auth/register', {
+        nombre: regData.nombre,
+        apellido: regData.apellido,
+        email: regData.email,
+        password: regData.password,
+        rut: regData.rut,
+        carrera: regData.carrera,
+        terminos: regData.terminos
+      });
+      if (res.data.success) {
+        const studentObj = {
+          nombre: `${regData.nombre} ${regData.apellido}`,
+          alias: `@${regData.nombre.toLowerCase()}_usm`,
+          email: regData.email,
+          rut: regData.rut,
+          carrera: regData.carrera,
+          semestre: '6° Semestre',
+          avanceMalla: '65%'
+        };
+        setEstudianteUser(studentObj);
+        localStorage.setItem('pracnet_movil_estudiante', JSON.stringify(studentObj));
+        showToast('¡Cuenta creada con éxito! Bienvenido a PRACNET.');
+      } else {
+        showToast(res.data.message || 'Error al crear la cuenta.');
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Error al registrar la cuenta.');
+    }
   };
 
   const handleLogout = () => {
@@ -294,29 +299,6 @@ export default function AppMovilEstudiante() {
                 >
                   Entrar como Estudiante
                 </button>
-
-                {/* Accesos Rápidos Demo para Evaluación */}
-                <div className="pt-3 border-t border-white/15 space-y-2">
-                  <p className="text-[10px] text-center text-white/70 font-semibold uppercase">
-                    O ingresa con 1 toque (Demo Alumnos):
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleQuickStudent('valentina')}
-                      className="flex-1 py-1.5 bg-white/15 hover:bg-white/25 rounded-xl text-[11px] font-bold text-white transition-colors"
-                    >
-                      Valentina Ríos (9°)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleQuickStudent('carlos')}
-                      className="flex-1 py-1.5 bg-white/15 hover:bg-white/25 rounded-xl text-[11px] font-bold text-white transition-colors"
-                    >
-                      Carlos Mendoza (6°)
-                    </button>
-                  </div>
-                </div>
               </form>
             ) : (
               /* FORMULARIO DE REGISTRO ESTUDIANTE */

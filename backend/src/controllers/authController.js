@@ -8,6 +8,7 @@ import {
   generateToken 
 } from '../utils/security.js';
 import { logAuditEvent } from '../middlewares/auth.js';
+import { findUserByEmail, createUser } from '../utils/dataStore.js';
 
 export async function login(req, res) {
   const { email, password } = req.body;
@@ -18,31 +19,48 @@ export async function login(req, res) {
   const cleanEmail = email.trim().toLowerCase();
 
   try {
-    const [users] = await pool.execute(
-      'SELECT * FROM usuarios WHERE email = ? AND activo = 1',
-      [cleanEmail]
-    );
+    // 1. Buscar en el almacén de datos persistente (dataStore)
+    let user = findUserByEmail(cleanEmail);
 
-    if (users.length === 0) {
-      return res.status(401).json({ success: false, message: 'Credenciales inválidas o cuenta desactivada.' });
+    // 2. Si no se encuentra en el archivo local, consultar MySQL si está conectado
+    if (!user) {
+      try {
+        const [mysqlUsers] = await pool.execute(
+          'SELECT * FROM usuarios WHERE email = ? AND activo = 1',
+          [cleanEmail]
+        );
+        if (mysqlUsers.length > 0) {
+          user = mysqlUsers[0];
+        }
+      } catch (dbErr) {
+        // MySQL no disponible
+      }
     }
 
-    const user = users[0];
-    const isPasswordValid = await comparePassword(password, user.password_hash);
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No existe una cuenta registrada con este correo. Solicita tu acceso al Administrador.' 
+      });
+    }
+
+    // 3. Validar contraseña (acepta tanto hash bcrypt como coincidencia directa para contraseñas de admin/iniciales)
+    let isPasswordValid = false;
+    if (user.password_hash === password) {
+      isPasswordValid = true;
+    } else {
+      try {
+        isPasswordValid = await comparePassword(password, user.password_hash);
+      } catch {
+        isPasswordValid = false;
+      }
+    }
 
     if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: 'Credenciales inválidas o cuenta desactivada.' });
-    }
-
-    let estudianteId = null;
-    if (user.rol === 'estudiante') {
-      const [estudiantes] = await pool.execute(
-        'SELECT id FROM estudiantes WHERE usuario_id = ?',
-        [user.id]
-      );
-      if (estudiantes.length > 0) {
-        estudianteId = estudiantes[0].id;
-      }
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Contraseña incorrecta. Por favor verifica tus credenciales.' 
+      });
     }
 
     const tokenPayload = {
@@ -50,21 +68,21 @@ export async function login(req, res) {
       email: user.email,
       rol: user.rol,
       nombre: user.nombre,
-      estudianteId
+      estudianteId: user.estudianteId || null
     };
 
     const token = generateToken(tokenPayload);
 
-    // Guardar sesión en Redis con expiración de 8 horas
+    // Guardar sesión en Redis con expiración de 8 horas si está disponible
     try {
       const sessionKey = `pracnet:session:${user.id}:${token}`;
       await redis.set(sessionKey, JSON.stringify(tokenPayload), 'EX', 28800);
-    } catch (redisErr) {
-      console.warn('>> [Redis] Fallback: sesión mantenida por JWT stateless.');
-    }
+    } catch {}
 
     // Auditoría oficial Ley N° 19.628
-    await logAuditEvent(user.id, 'LOGIN_EXITOSO', `Inicio de sesión con rol: ${user.rol}`, req);
+    try {
+      await logAuditEvent(user.id, 'LOGIN_EXITOSO', `Inicio de sesión con rol: ${user.rol}`, req);
+    } catch {}
 
     return res.json({
       success: true,
@@ -76,39 +94,18 @@ export async function login(req, res) {
         email: user.email,
         rol: user.rol,
         rut: user.rut,
-        estudianteId
+        carrera: user.carrera || '',
+        departamento: user.departamento || user.cargo || '',
+        estudianteId: user.estudianteId || null
       }
     });
   } catch (error) {
-    // Si la base de datos MySQL aún no está conectada (ej: Render en despliegue inicial), permitir login de demostración
-    if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
-      console.warn('>> [MySQL Fallback]: Base de datos no alcanzable, respondiendo con credenciales demo.');
-      const demoUsers = {
-        'jefe@pracnet.cl': { id: 1, email: 'jefe@pracnet.cl', rol: 'jefe_carrera', nombre: 'Coordinación Académica de Prácticas USM', rut: '11.111.111-1' },
-        'docente@pracnet.cl': { id: 2, email: 'docente@pracnet.cl', rol: 'jefe_carrera', nombre: 'Jefatura de Carrera (Prevención / Industrias)', rut: '11.111.111-2' },
-        'admin@pracnet.cl': { id: 3, email: 'admin@pracnet.cl', rol: 'admin', nombre: 'Administración Central PRACNET', rut: '14.444.444-4' },
-        'alumno@pracnet.cl': { id: 5, email: 'alumno@pracnet.cl', rol: 'estudiante', nombre: 'Carlos Mendoza', rut: '20.123.456-7', estudianteId: 1 }
-      };
-
-      const demoUser = demoUsers[cleanEmail];
-      if (demoUser) {
-        const token = generateToken(demoUser);
-        return res.json({
-          success: true,
-          message: `Bienvenido/a ${demoUser.nombre} (Modo Evaluación Demo)`,
-          token,
-          user: demoUser
-        });
-      }
-    }
-
     console.error('>> Error en login:', error);
     return res.status(500).json({ success: false, message: 'Error interno del servidor al procesar el inicio de sesión.' });
   }
 }
 
 export async function register(req, res) {
-  let connection;
   try {
     const {
       nombre,
@@ -132,88 +129,46 @@ export async function register(req, res) {
       });
     }
 
-    if (!nombre || !apellido || !email || !password || !rut) {
+    if (!nombre || !email || !password) {
       return res.status(400).json({ success: false, message: 'Por favor complete todos los campos obligatorios.' });
     }
 
-    // Validación matemática estricta Módulo 11 sin fallas
-    if (!validateRutChileno(rut)) {
-      return res.status(400).json({
-        success: false,
-        message: 'El RUT ingresado no es válido según el algoritmo del Módulo 11 chileno.'
-      });
-    }
-
-    const rutFormateado = formatRut(rut);
     const cleanEmail = email.trim().toLowerCase();
+    const nombreCompleto = apellido ? `${nombre.trim()} ${apellido.trim()}` : nombre.trim();
+    const rutFormateado = rut ? formatRut(rut) : '';
 
-    connection = await pool.getConnection();
-    await connection.beginTransaction();
-
-    // Verificar unicidad de correo y RUT
-    const [existentes] = await connection.execute(
-      'SELECT id FROM usuarios WHERE email = ? OR rut = ?',
-      [cleanEmail, rutFormateado]
-    );
-
-    if (existentes.length > 0) {
-      await connection.rollback();
+    // Validar unicidad
+    const existente = findUserByEmail(cleanEmail);
+    if (existente) {
       return res.status(409).json({
         success: false,
-        message: 'Ya existe una cuenta registrada con este correo electrónico o RUT institucional.'
+        message: 'Ya existe una cuenta registrada con este correo electrónico.'
       });
     }
 
-    const hashedPassword = await hashPassword(password);
-    const nombreCompleto = `${nombre.trim()} ${apellido.trim()}`;
+    // Crear en almacén persistente
+    const nuevoUsuario = await createUser({
+      nombre: nombreCompleto,
+      email: cleanEmail,
+      password,
+      rol: 'estudiante',
+      rut: rutFormateado,
+      carrera: carrera || 'Ingeniería Civil Informática',
+      departamento: universidad || 'Universidad Técnica Federico Santa María'
+    });
 
-    // 1. Insertar usuario
-    const [userResult] = await connection.execute(
-      `INSERT INTO usuarios (email, password_hash, rol, nombre, rut, terminos_aceptados) 
-       VALUES (?, ?, 'estudiante', ?, ?, 1)`,
-      [cleanEmail, hashedPassword, nombreCompleto, rutFormateado]
-    );
-
-    const usuarioId = userResult.insertId;
-
-    // 2. Insertar ficha de estudiante USM
-    await connection.execute(
-      `INSERT INTO estudiantes 
-       (usuario_id, nombre, apellido, rut, correo_institucional, carrera, universidad, ano_ingreso, habilidades, ubicacion)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        usuarioId,
-        nombre.trim(),
-        apellido.trim(),
-        rutFormateado,
-        cleanEmail,
-        carrera || 'Ingeniería Civil Informática',
-        universidad || 'Universidad Técnica Federico Santa María',
-        parseInt(ano_ingreso || '2022', 10),
-        habilidades || 'Python, SQL, Git, Trabajo en Equipo',
-        ubicacion || 'Santiago, Chile'
-      ]
-    );
-
-    await connection.commit();
-    await logAuditEvent(usuarioId, 'REGISTRO_ESTUDIANTE', `Cuenta creada para RUT: ${rutFormateado}`, req);
+    try {
+      await logAuditEvent(nuevoUsuario.id, 'REGISTRO_ESTUDIANTE', `Cuenta creada para RUT: ${rutFormateado}`, req);
+    } catch {}
 
     return res.status(201).json({
       success: true,
-      message: '¡Registro exitoso! Ya puedes iniciar sesión con tus credenciales institucionales.'
+      message: '¡Registro exitoso! Ya puedes iniciar sesión con tus credenciales de estudiante.',
+      user: nuevoUsuario
     });
   } catch (error) {
-    if (connection) await connection.rollback();
-    if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-      return res.status(201).json({
-        success: true,
-        message: '¡Registro exitoso (Modo Demo)! Ya puedes iniciar sesión.'
-      });
-    }
     console.error('>> Error en registro:', error);
-    return res.status(500).json({ success: false, message: 'Error interno al registrar la cuenta.' });
-  } finally {
-    if (connection) connection.release();
+    return res.status(500).json({ success: false, message: error.message || 'Error interno al registrar la cuenta.' });
   }
 }
 
@@ -225,25 +180,18 @@ export async function recuperarPassword(req, res) {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const rawCode = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const user = findUserByEmail(cleanEmail);
 
-    try {
-      const [users] = await pool.execute('SELECT id, nombre, email FROM usuarios WHERE email = ?', [cleanEmail]);
-      if (users.length > 0) {
-        const user = users[0];
-        const hashCode = crypto.createHash('sha256').update(rawCode).digest('hex');
-        const expiraEn = new Date(Date.now() + 15 * 60 * 1000);
-        await pool.execute(
-          'INSERT INTO recuperacion_clave (usuario_id, codigo_hash, expira_en, usado) VALUES (?, ?, ?, 0)',
-          [user.id, hashCode, expiraEn]
-        );
-      }
-    } catch (dbErr) {}
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'No se encontró una cuenta con el correo indicado.' });
+    }
+
+    const rawCode = crypto.randomBytes(3).toString('hex').toUpperCase();
 
     return res.json({
       success: true,
-      message: 'Código de recuperación generado.',
-      instruccion: `En producción se envía por correo. Para evaluación tu código es: ${rawCode}`
+      message: 'Solicitud de recuperación generada. Contacta al Administrador de PRACNET si requieres restablecimiento de emergencia.',
+      instruccion: `Código temporal de verificación: ${rawCode}`
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Error al procesar recuperación.' });

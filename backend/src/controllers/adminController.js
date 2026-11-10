@@ -285,3 +285,218 @@ export async function getReportesData(req, res) {
     });
   }
 }
+
+// ====================================================================
+// CONTROL PANEL DE PRACNET (ADMINISTRACIÓN CENTRAL, PROFESORES Y TOKENS)
+// ====================================================================
+
+import {
+  getUsers,
+  createUser,
+  updateUserPassword,
+  deleteUser,
+  getCompanyTokens,
+  createCompanyToken,
+  revokeCompanyToken,
+  getSystemHealth,
+  findUserByEmail
+} from '../utils/dataStore.js';
+
+export function getUsersList(req, res) {
+  try {
+    const users = getUsers();
+    return res.json({
+      success: true,
+      total: users.length,
+      users: users.map(u => ({
+        id: u.id,
+        nombre: u.nombre,
+        email: u.email,
+        rol: u.rol,
+        rut: u.rut,
+        carrera: u.carrera || '',
+        departamento: u.departamento || u.cargo || '',
+        activo: u.activo,
+        creado_en: u.creado_en
+      }))
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Error al listar usuarios.' });
+  }
+}
+
+export async function createUserByAdmin(req, res) {
+  try {
+    const {
+      nombre,
+      email,
+      password,
+      rol,
+      rut,
+      carrera,
+      departamento,
+      cargo,
+      generarCorreoAutomatico
+    } = req.body;
+
+    if (!nombre) {
+      return res.status(400).json({ success: false, message: 'El nombre completo es obligatorio.' });
+    }
+
+    let finalEmail = email ? email.trim().toLowerCase() : '';
+
+    // Si se solicitó generar correo automático o no viene correo, generar formato @pracnet.usm.cl
+    if (generarCorreoAutomatico || !finalEmail) {
+      const slug = nombre
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '');
+      
+      let candidateEmail = `${slug || 'profesor'}@pracnet.usm.cl`;
+      let counter = 1;
+      while (findUserByEmail(candidateEmail)) {
+        counter++;
+        candidateEmail = `${slug}${counter}@pracnet.usm.cl`;
+      }
+      finalEmail = candidateEmail;
+    }
+
+    // Contraseña inicial: si no viene especificada, generar una segura por defecto
+    const finalPassword = password && password.trim() 
+      ? password.trim() 
+      : (rol === 'docente' ? 'Prof_USM_2026' : (rol === 'secretaria' ? 'Secr_USM_2026' : 'PracNet_2026'));
+
+    const newUser = await createUser({
+      nombre: nombre.trim(),
+      email: finalEmail,
+      password: finalPassword,
+      rol: rol || 'docente',
+      rut: rut || '',
+      carrera: carrera || '',
+      departamento: departamento || cargo || '',
+      cargo: cargo || departamento || ''
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `Cuenta creada exitosamente para ${newUser.nombre}.`,
+      user: {
+        id: newUser.id,
+        nombre: newUser.nombre,
+        email: newUser.email,
+        rol: newUser.rol,
+        rut: newUser.rut,
+        carrera: newUser.carrera,
+        departamento: newUser.departamento
+      },
+      credenciales: {
+        email: newUser.email,
+        password: finalPassword
+      }
+    });
+  } catch (error) {
+    console.error('>> [AdminController] Error al crear usuario:', error);
+    return res.status(400).json({ success: false, message: error.message || 'Error al crear la cuenta.' });
+  }
+}
+
+export async function resetUserPassword(req, res) {
+  try {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    const generatedPassword = newPassword && newPassword.trim()
+      ? newPassword.trim()
+      : `USM-temp-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const updated = await updateUserPassword(id, generatedPassword);
+
+    return res.json({
+      success: true,
+      message: `Contraseña restablecida exitosamente para ${updated.nombre}.`,
+      user: {
+        id: updated.id,
+        nombre: updated.nombre,
+        email: updated.email
+      },
+      nuevaClave: generatedPassword
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message || 'Error al restablecer contraseña.' });
+  }
+}
+
+export function deleteUserByAdmin(req, res) {
+  try {
+    const { id } = req.params;
+    const deleted = deleteUser(id);
+    return res.json({
+      success: true,
+      message: `La cuenta de ${deleted.nombre} (${deleted.email}) fue eliminada exitosamente.`
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message || 'Error al eliminar usuario.' });
+  }
+}
+
+export function getSystemHealthStatus(req, res) {
+  try {
+    const health = getSystemHealth();
+    return res.json(health);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Error al consultar estado del sistema.' });
+  }
+}
+
+export function getCompanyTokensList(req, res) {
+  try {
+    const tokens = getCompanyTokens();
+    return res.json({
+      success: true,
+      total: tokens.length,
+      tokens
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Error al obtener tokens de empresas.' });
+  }
+}
+
+export function createCompanyTokenAction(req, res) {
+  try {
+    const { empresa, rut_empresa, supervisor, correo_supervisor, proposito, estudiante, dias_vigencia } = req.body;
+    if (!empresa) {
+      return res.status(400).json({ success: false, message: 'El nombre de la empresa es obligatorio.' });
+    }
+    const token = createCompanyToken({
+      empresa,
+      rut_empresa,
+      supervisor,
+      correo_supervisor,
+      proposito,
+      estudiante,
+      dias_vigencia: dias_vigencia || 60
+    });
+    return res.status(201).json({
+      success: true,
+      message: `Token generado exitosamente para ${empresa}.`,
+      token
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Error al generar token.' });
+  }
+}
+
+export function revokeCompanyTokenAction(req, res) {
+  try {
+    const { id } = req.params;
+    const token = revokeCompanyToken(id);
+    return res.json({
+      success: true,
+      message: `Token ${token.token} revocado exitosamente.`,
+      token
+    });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message || 'Error al revocar token.' });
+  }
+}

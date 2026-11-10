@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "email": "admin@pracnetadmin.cl",
+    "password_hash": "admin",
+    "nombre": "Administrador General PRACNET",
+    "rol": "admin",
+    "rut": "14.444.444-4",
+    "departamento": "Dirección Central de Administración y Tecnologías USM",
+    "activo": 1,
+    "creado_en": "2026-11-10T23:33:56.272Z"
+  }
+]

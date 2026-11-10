@@ -113,81 +113,19 @@ export function AuthProvider({ children }) {
         setUser(res.data.user);
         return { success: true, user: res.data.user };
       }
-      return { success: false, message: res.data.message };
+      return { success: false, message: res.data.message || 'Credenciales inválidas.' };
     } catch (err) {
-      // Fallback contingencia demo
-      const demoUser = {
-        id: 1,
-        email: email || 'jefe.carrera@usm.cl',
-        nombre: 'Dr. Roberto Canales',
-        cargo: 'Jefatura de Carrera - Depto. Informática',
-        rol: 'jefe_carrera',
-        rut: '11.111.111-1'
-      };
-      localStorage.setItem('pracnet_token', 'demo_jwt_token_2026');
-      localStorage.setItem('pracnet_user', JSON.stringify(demoUser));
-      resetInactivityTimer();
-      setUser(demoUser);
-      return { success: true, user: demoUser };
+      const errMsg = err.response?.data?.message || 'Error de autenticación. Verifica tu correo y contraseña o contacta al Administrador.';
+      return { success: false, message: errMsg };
     } finally {
       setLoading(false);
     }
   };
 
+  // Eliminado el auto-login por clic según requerimiento oficial
   const quickLogin = (role) => {
-    setSessionExpiredMessage('');
-    let mockUser;
-    if (role === 'jefe') {
-      mockUser = {
-        id: 1,
-        email: 'jefe.carrera@usm.cl',
-        nombre: 'Dr. Roberto Canales',
-        cargo: 'Jefatura de Carrera - Depto. Informática',
-        rol: 'jefe_carrera',
-        rut: '11.111.111-1'
-      };
-    } else if (role === 'secretaria') {
-      mockUser = {
-        id: 2,
-        email: 'secretaria.docencia@usm.cl',
-        nombre: 'Mariana Silva',
-        cargo: 'Secretaría de Docencia & Coordinación',
-        rol: 'secretaria',
-        rut: '12.222.222-2'
-      };
-    } else if (role === 'docente') {
-      mockUser = {
-        id: 3,
-        email: 'carlos.soto@usm.cl',
-        nombre: 'Prof. Carlos Soto',
-        cargo: 'Profesor Guía de Práctica Profesional',
-        rol: 'docente',
-        rut: '13.333.333-3'
-      };
-    } else if (role === 'estudiante') {
-      mockUser = {
-        id: 4,
-        email: 'valentina.rios@alumnos.usm.cl',
-        nombre: 'Valentina Ríos',
-        cargo: 'Estudiante Ing. Civil Informática (9° Semestre)',
-        rol: 'estudiante',
-        rut: '20.456.789-3'
-      };
-    } else {
-      mockUser = {
-        id: 5,
-        email: 'admin.general@usm.cl',
-        nombre: 'Administrador Institucional PRACNET',
-        cargo: 'Dirección de Estudios Institucionales USM',
-        rol: 'admin',
-        rut: '14.444.444-4'
-      };
-    }
-    localStorage.setItem('pracnet_token', 'demo_quick_token_2026');
-    localStorage.setItem('pracnet_user', JSON.stringify(mockUser));
-    resetInactivityTimer();
-    setUser(mockUser);
-    return mockUser;
+    console.warn('>> Auto-login desactivado por política de autenticación real.');
+    return null;
   };
 
   // Formato para mostrar tiempo restante (Ej: "1h 58m" o "52m")

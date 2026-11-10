@@ -22,26 +22,45 @@ import {
 } from 'lucide-react';
 
 export default function Landing() {
-  const { quickLogin, login, loading, sessionExpiredMessage, clearExpiredMessage } = useAuth();
+  const { login, loading, sessionExpiredMessage, clearExpiredMessage } = useAuth();
   const navigate = useNavigate();
-  const [showManualLogin, setShowManualLogin] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleRoleSelect = (roleKey, redirectPath = '/dashboard') => {
-    quickLogin(roleKey);
-    navigate(redirectPath);
+  const handleRoleClick = (roleKey, hintEmail = '') => {
+    setSelectedRole(roleKey);
+    setError('');
+    if (hintEmail && !email) {
+      setEmail(hintEmail);
+    }
+    const elem = document.getElementById('login-form-section');
+    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleManualSubmit = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!email || !password) {
+      setError('Por favor ingresa tu correo y contraseña.');
+      return;
+    }
     const res = await login(email, password);
-    if (res.success) {
-      navigate('/dashboard');
+    if (res.success && res.user) {
+      if (res.user.rol === 'admin') {
+        navigate('/admin');
+      } else if (res.user.rol === 'docente') {
+        navigate('/evaluacion-docente');
+      } else if (res.user.rol === 'secretaria') {
+        navigate('/documentos-secretaria');
+      } else if (res.user.rol === 'estudiante') {
+        navigate('/portal-estudiante');
+      } else {
+        navigate('/dashboard');
+      }
     } else {
-      setError(res.message || 'Credenciales inválidas.');
+      setError(res.message || 'Credenciales inválidas. Verifica tu correo y contraseña.');
     }
   };
 
@@ -64,6 +83,13 @@ export default function Landing() {
             <span className="hidden md:inline hover:text-white cursor-pointer">Reglamento Prácticas</span>
             <span className="hidden sm:inline hover:text-white cursor-pointer">SIGA</span>
             <span className="text-amber-400 hover:text-amber-300 cursor-pointer">Accesibilidad y Ayuda</span>
+            <button
+              onClick={() => navigate('/admin')}
+              className="px-2.5 py-1 bg-amber-400/20 hover:bg-amber-400 text-amber-300 hover:text-slate-950 font-bold rounded-lg border border-amber-400/30 transition-all flex items-center gap-1"
+            >
+              <Lock className="w-3 h-3" />
+              Panel de Control Admin
+            </button>
           </div>
         </div>
       </header>
@@ -265,8 +291,10 @@ export default function Landing() {
                 
                 {/* 1. JEFATURA DE CARRERA */}
                 <div 
-                  onClick={() => handleRoleSelect('jefe', '/dashboard')}
-                  className="group p-4 rounded-2xl border-2 border-slate-200 hover:border-usm-blue hover:bg-sky-50/50 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow"
+                  onClick={() => handleRoleClick('jefe')}
+                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
+                    selectedRole === 'jefe' ? 'border-usm-blue bg-sky-50' : 'border-slate-200 hover:border-usm-blue hover:bg-sky-50/50'
+                  }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-usm-navy text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
@@ -291,8 +319,10 @@ export default function Landing() {
 
                 {/* 2. SECRETARÍA DE DOCENCIA */}
                 <div 
-                  onClick={() => handleRoleSelect('secretaria', '/documentos-secretaria')}
-                  className="group p-4 rounded-2xl border-2 border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/50 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow"
+                  onClick={() => handleRoleClick('secretaria')}
+                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
+                    selectedRole === 'secretaria' ? 'border-emerald-600 bg-emerald-50' : 'border-slate-200 hover:border-emerald-600 hover:bg-emerald-50/50'
+                  }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-emerald-700 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
@@ -317,8 +347,10 @@ export default function Landing() {
 
                 {/* 3. DOCENTES & PROFESORES GUÍA */}
                 <div 
-                  onClick={() => handleRoleSelect('docente', '/evaluacion-docente')}
-                  className="group p-4 rounded-2xl border-2 border-slate-200 hover:border-purple-600 hover:bg-purple-50/50 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow"
+                  onClick={() => handleRoleClick('docente')}
+                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
+                    selectedRole === 'docente' ? 'border-purple-600 bg-purple-50' : 'border-slate-200 hover:border-purple-600 hover:bg-purple-50/50'
+                  }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-purple-700 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
@@ -343,8 +375,10 @@ export default function Landing() {
 
                 {/* 4. ESTUDIANTE: PORTAL WEB */}
                 <div 
-                  onClick={() => handleRoleSelect('estudiante', '/portal-estudiante')}
-                  className="group p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-500 hover:bg-amber-50/50 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow"
+                  onClick={() => handleRoleClick('estudiante')}
+                  className={`group p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between shadow-sm hover:shadow ${
+                    selectedRole === 'estudiante' ? 'border-amber-500 bg-amber-50' : 'border-slate-200 hover:border-amber-500 hover:bg-amber-50/50'
+                  }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow">
@@ -383,7 +417,7 @@ export default function Landing() {
                         </span>
                       </div>
                       <p className="text-xs text-slate-600 mt-0.5">
-                        Interfaz 100% móvil exclusiva para alumnos (login, registro, 1-toque, Asistente IA).
+                        Interfaz 100% móvil exclusiva para alumnos (login, registro, Asistente IA).
                       </p>
                     </div>
                   </div>
@@ -406,60 +440,89 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* TOGGLE: Ingreso Manual con Credenciales */}
-              <div className="border-t border-slate-200 pt-4 mb-4">
-                <button
-                  type="button"
-                  onClick={() => setShowManualLogin(!showManualLogin)}
-                  className="text-xs font-semibold text-usm-blue hover:text-usm-navy flex items-center gap-1 transition-colors"
-                >
-                  {showManualLogin ? '▲ Ocultar formulario manual' : '▼ O ingresa con tu correo y contraseña institucional'}
-                </button>
+              {/* FORMULARIO DE ACCESO INSTITUCIONAL POR CREDENCIALES REALES */}
+              <div id="login-form-section" className="bg-slate-50 border-2 border-slate-200 rounded-3xl p-5 sm:p-6 mb-6 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-usm-blue" />
+                      Iniciar Sesión Institucional
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      Ingresa con tus credenciales institucionales o asignadas por Administración.
+                    </p>
+                  </div>
+                  {selectedRole && (
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-200 uppercase">
+                      Rol: {selectedRole}
+                    </span>
+                  )}
+                </div>
 
-                {showManualLogin && (
-                  <form onSubmit={handleManualSubmit} className="mt-3 space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    {error && (
-                      <div className="p-2.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg">
-                        {error}
-                      </div>
-                    )}
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Correo Institucional USM</label>
-                      <div className="relative">
-                        <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                        <input
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="nombre.apellido@usm.cl"
-                          required
-                          className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-usm-blue"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Contraseña</label>
-                      <div className="relative">
-                        <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                        <input
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="••••••••"
-                          required
-                          className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-usm-blue"
-                        />
-                      </div>
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full py-2 bg-usm-navy hover:bg-usm-blue text-white text-xs font-semibold rounded-lg shadow transition-colors"
-                    >
-                      {loading ? 'Validando...' : 'Entrar con credenciales'}
-                    </button>
-                  </form>
+                {error && (
+                  <div className="p-3 mb-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                    <span>{error}</span>
+                  </div>
                 )}
+
+                <form onSubmit={handleLoginSubmit} className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">
+                      Correo Electrónico (Institucional o Asignado)
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={
+                          selectedRole === 'docente'
+                            ? 'ej: josecarrasco@pracnet.usm.cl'
+                            : (selectedRole === 'secretaria' ? 'ej: secretaria@pracnet.usm.cl' : 'nombre.apellido@usm.cl o admin@pracnetadmin.cl')
+                        }
+                        className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-usm-blue font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Contraseña</label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-usm-blue font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-2.5 bg-usm-navy hover:bg-usm-blue text-white font-bold rounded-xl text-xs shadow-md transition-all active:scale-95"
+                  >
+                    {loading ? 'Verificando credenciales...' : 'Ingresar a la Plataforma'}
+                  </button>
+                </form>
+
+                <div className="mt-4 pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
+                  <span className="text-slate-500">¿Eres el Administrador General?</span>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/admin')}
+                    className="font-bold text-amber-800 hover:text-amber-950 bg-amber-100/80 hover:bg-amber-200 px-3 py-1.5 rounded-xl border border-amber-300 transition-colors flex items-center gap-1"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-amber-700" />
+                    Panel de Control Super Admin (/admin)
+                  </button>
+                </div>
               </div>
             </div>
 

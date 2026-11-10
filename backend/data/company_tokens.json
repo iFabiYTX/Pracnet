@@ -1,0 +1,58 @@
+[
+  {
+    "id": "TOK-9912",
+    "empresa": "Tech Solutions SpA",
+    "rut_empresa": "76.892.110-4",
+    "supervisor": "Ignacio Morales",
+    "correo_supervisor": "ignacio.morales@techsolutions.cl",
+    "token": "PRAC-TK-9912-TECH-SOLUTIONS",
+    "proposito": "Supervisión Práctica Backend & Firma Digital Formulario 6000 B",
+    "estudiante": "Alumno Asignado",
+    "estado": "Activo",
+    "fecha_emision": "2026-11-01T10:00:00.000Z",
+    "fecha_expiracion": "2027-01-30T23:59:59.000Z",
+    "usos_registrados": 3
+  },
+  {
+    "id": "TOK-4402",
+    "empresa": "Banco Estado",
+    "rut_empresa": "97.036.000-K",
+    "supervisor": "Camila Sepúlveda",
+    "correo_supervisor": "camila.sepulveda@bancoestado.cl",
+    "token": "PRAC-TK-4402-BANCO-ESTADO",
+    "proposito": "Convenio Marco Prácticas ETL & Validación Seguro Escolar Ley 16.744",
+    "estudiante": "Alumno Asignado",
+    "estado": "Activo",
+    "fecha_emision": "2026-10-28T09:30:00.000Z",
+    "fecha_expiracion": "2026-12-31T23:59:59.000Z",
+    "usos_registrados": 8
+  },
+  {
+    "id": "TOK-7719",
+    "empresa": "MercadoLibre Chile",
+    "rut_empresa": "77.234.990-1",
+    "supervisor": "Rodrigo Araya",
+    "correo_supervisor": "rodrigo.araya@mercadolibre.com",
+    "token": "PRAC-TK-7719-MELI-CHILE",
+    "proposito": "Práctica Arquitectura Microservicios & Evaluación Docente",
+    "estudiante": "Alumno Asignado",
+    "estado": "Activo",
+    "fecha_emision": "2026-11-05T14:15:00.000Z",
+    "fecha_expiracion": "2027-02-15T23:59:59.000Z",
+    "usos_registrados": 1
+  },
+  {
+    "id": "TOK-2021",
+    "empresa": "CMPC Automotriz",
+    "rut_empresa": "90.221.000-8",
+    "supervisor": "Marcos Villegas",
+    "correo_supervisor": "mvillegas@cmpc.cl",
+    "token": "PRAC-TK-2021-CMPC-VENCIDO",
+    "proposito": "Práctica Mantenimiento de Sistemas",
+    "estudiante": "Alumno Egresado",
+    "estado": "Expirado",
+    "fecha_emision": "2026-09-01T08:00:00.000Z",
+    "fecha_expiracion": "2026-10-15T23:59:59.000Z",
+    "usos_registrados": 5
+  }
+]
