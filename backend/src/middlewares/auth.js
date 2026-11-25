@@ -16,7 +16,7 @@ export async function authenticateToken(req, res, next) {
 
   const decoded = verifyJwt(token);
   if (!decoded) {
-    return res.status(403).json({
+    return res.status(401).json({
       success: false,
       message: 'Token inválido o expirado. Por favor inicia sesión nuevamente.'
     });

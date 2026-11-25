@@ -127,9 +127,9 @@ export default function AdminPanel() {
     setLoadingData(true);
     try {
       const [usersRes, tokensRes, healthRes] = await Promise.all([
-        api.get('/admin/users').catch(() => ({ data: { users: [] } })),
-        api.get('/admin/company-tokens').catch(() => ({ data: { tokens: [] } })),
-        api.get('/admin/system-status').catch(() => ({ data: null }))
+        api.get('/admin/users'),
+        api.get('/admin/company-tokens'),
+        api.get('/admin/system-status')
       ]);
 
       if (usersRes.data?.users) {
@@ -149,6 +149,9 @@ export default function AdminPanel() {
       }
     } catch (err) {
       console.error('Error al cargar datos administrativos:', err);
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        logout();
+      }
     } finally {
       setLoadingData(false);
     }
