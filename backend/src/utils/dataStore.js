@@ -357,8 +357,32 @@ export function getDashboardStore() {
   const activasOfertas = ofertas.filter(o => o.estado === 'Activa').length;
   const enPracticaActiva = estudiantes.filter(e => e.estado_practica === 'En Práctica Activa').length;
   const finalizadas = estudiantes.filter(e => e.estado_practica === 'Práctica Finalizada').length;
+  const enValidacion = estudiantes.filter(e => e.estado_practica === 'En Validación').length;
+  const postuladoOSeleccion = estudiantes.filter(e => e.estado_practica === 'Postulado' || e.estado_practica === 'En Selección').length;
+  const rechazadas = estudiantes.filter(e => e.estado_practica === 'Postulación Rechazada').length;
   const sinPractica = estudiantes.filter(e => e.estado_practica === 'Sin Práctica').length;
   const habilitados = estudiantes.filter(e => (e.avance_malla || 0) >= 70).length;
+
+  // Datos para gráficos de trazabilidad en el Dashboard
+  const areaBuckets = {};
+  for (const est of estudiantes) {
+    const area = est.area || 'Otras Áreas';
+    if (!areaBuckets[area]) {
+      areaBuckets[area] = { area, finalizadas: 0, activas: 0, proceso: 0, sinPractica: 0, total: 0 };
+    }
+    areaBuckets[area].total += 1;
+    if (est.estado_practica === 'Práctica Finalizada') areaBuckets[area].finalizadas += 1;
+    else if (est.estado_practica === 'En Práctica Activa') areaBuckets[area].activas += 1;
+    else if (est.estado_practica === 'Sin Práctica') areaBuckets[area].sinPractica += 1;
+    else areaBuckets[area].proceso += 1;
+  }
+  const alumnosPorArea = Object.values(areaBuckets).sort((a, b) => b.total - a.total);
+
+  const segurosVisados = estudiantes.filter(e => e.estado_seguro === 'Visado & Timbrado').length;
+  const segurosPendientes = estudiantes.filter(e => e.estado_seguro === 'En Revisión' || e.estado_seguro === 'Pendiente Visado').length;
+  const sigaConvalidado = estudiantes.filter(e => e.convalidacion_siga === 'Convalidado SIGA').length;
+  const sigaEnTramite = estudiantes.filter(e => e.convalidacion_siga === 'En Trámite').length;
+  const sigaPendiente = estudiantes.filter(e => e.convalidacion_siga === 'Pendiente' || e.convalidacion_siga === 'Sin Trámite').length;
 
   return {
     success: true,
@@ -372,6 +396,24 @@ export function getDashboardStore() {
       alumnosSinPractica: sinPractica,
       postulacionesHoy: postulaciones.length,
       conveniosEmpresas: empresasUnicas.size
+    },
+    graficos: {
+      estadosPractica: [
+        { label: 'Práctica Finalizada', cantidad: finalizadas },
+        { label: 'En Práctica Activa', cantidad: enPracticaActiva },
+        { label: 'En Validación / Seguro', cantidad: enValidacion },
+        { label: 'Postulado / Selección', cantidad: postuladoOSeleccion },
+        { label: 'Rechazada', cantidad: rechazadas },
+        { label: 'Sin Práctica', cantidad: sinPractica }
+      ],
+      alumnosPorArea,
+      trazabilidadLegal: [
+        { label: 'Seguro Ley 16.744 Visado', cantidad: segurosVisados },
+        { label: 'Seguro en Revisión/Pendiente', cantidad: segurosPendientes },
+        { label: 'Convalidado SIGA (6000 B)', cantidad: sigaConvalidado },
+        { label: 'SIGA En Trámite', cantidad: sigaEnTramite },
+        { label: 'Sin Trámite SIGA aún', cantidad: sigaPendiente }
+      ]
     },
     actividadReciente: [
       { id: 1, tiempo: 'Hace 5 min', detalle: `Plan Básico USM Concepción al ${planStatus.porcentajeAlumnos}% de capacidad (${planStatus.alumnosActuales}/${planStatus.maxAlumnos} alumnos, ${planStatus.jefesActuales}/${planStatus.maxJefesCarrera} Jefes de Carrera)` },
