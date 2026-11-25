@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
+import PlanLimitBanner from '../components/PlanLimitBanner';
 import {
   ShieldCheck,
   Users,
@@ -44,14 +45,17 @@ export default function AdminPanel() {
   // Estados de datos del Panel de Control
   const [activeTab, setActiveTab] = useState('profesores'); // 'profesores' | 'alumnos' | 'secretaria' | 'tokens' | 'estado' | 'usuarios'
   const [usersList, setUsersList] = useState([]);
+  const [planStatus, setPlanStatus] = useState(null);
   const [tokensList, setTokensList] = useState([]);
   const [systemHealth, setSystemHealth] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [limitErrorModal, setLimitErrorModal] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Modales
   const [showCreateProfModal, setShowCreateProfModal] = useState(false);
+  const [showCreateAlumnoModal, setShowCreateAlumnoModal] = useState(false);
   const [showCreateSecrModal, setShowCreateSecrModal] = useState(false);
   const [showCreateTokenModal, setShowCreateTokenModal] = useState(false);
   const [showResetPassModal, setShowResetPassModal] = useState(false);
@@ -59,13 +63,24 @@ export default function AdminPanel() {
   const [createdCredentialsModal, setCreatedCredentialsModal] = useState(null);
   const [copiedText, setCopiedText] = useState('');
 
-  // Formulario Nuevo Profesor
+  // Formulario Nuevo Jefe de Carrera / Profesor
   const [newProfData, setNewProfData] = useState({
     nombre: '',
-    departamento: 'Departamento de Informática',
+    rol: 'jefe_carrera',
+    departamento: 'Depto. de Informática y Telecomunicaciones',
     emailTipo: 'auto', // 'auto' | 'manual'
     emailManual: '',
-    password: 'Prof_USM_2026',
+    password: 'Jefe_USM_2026',
+    rut: ''
+  });
+
+  // Formulario Nuevo Alumno
+  const [newAlumnoData, setNewAlumnoData] = useState({
+    nombre: '',
+    carrera: 'Ingeniería en Informática',
+    emailTipo: 'auto',
+    emailManual: '',
+    password: 'PracNet_2026',
     rut: ''
   });
 
@@ -120,11 +135,17 @@ export default function AdminPanel() {
       if (usersRes.data?.users) {
         setUsersList(usersRes.data.users);
       }
+      if (usersRes.data?.planStatus) {
+        setPlanStatus(usersRes.data.planStatus);
+      }
       if (tokensRes.data?.tokens) {
         setTokensList(tokensRes.data.tokens);
       }
       if (healthRes.data) {
         setSystemHealth(healthRes.data);
+        if (healthRes.data.planStatus) {
+          setPlanStatus(healthRes.data.planStatus);
+        }
       }
     } catch (err) {
       console.error('Error al cargar datos administrativos:', err);
@@ -162,13 +183,13 @@ export default function AdminPanel() {
     }
   };
 
-  // 1. Crear Nuevo Profesor
+  // 1. Crear Nuevo Jefe de Carrera / Profesor
   const handleCreateProfesor = async (e) => {
     e.preventDefault();
     try {
       const payload = {
         nombre: newProfData.nombre,
-        rol: 'docente',
+        rol: newProfData.rol || 'jefe_carrera',
         departamento: newProfData.departamento,
         rut: newProfData.rut,
         password: newProfData.password,
@@ -181,23 +202,75 @@ export default function AdminPanel() {
         setShowCreateProfModal(false);
         setCreatedCredentialsModal({
           nombre: res.data.user.nombre,
-          rol: 'Docente / Profesor Guía',
+          rol: res.data.user.rol === 'jefe_carrera' ? 'Jefe de Carrera USM' : 'Docente / Profesor Guía',
           email: res.data.credenciales.email,
           password: res.data.credenciales.password
         });
         setNewProfData({
           nombre: '',
-          departamento: 'Departamento de Informática',
+          rol: 'jefe_carrera',
+          departamento: 'Depto. de Informática y Telecomunicaciones',
           emailTipo: 'auto',
           emailManual: '',
-          password: 'Prof_USM_2026',
+          password: 'Jefe_USM_2026',
           rut: ''
         });
         fetchAdminData();
-        showToast('Profesor registrado exitosamente.');
+        showToast('Jefe de Carrera / Profesor registrado exitosamente.');
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al registrar profesor.');
+      const msg = err.response?.data?.message || 'Error al registrar profesor.';
+      if (err.response?.status === 403 || err.response?.data?.code === 'PLAN_LIMIT_REACHED') {
+        setShowCreateProfModal(false);
+        setLimitErrorModal(msg);
+      } else {
+        alert(msg);
+      }
+    }
+  };
+
+  // 1b. Crear Nuevo Alumno
+  const handleCreateAlumno = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        nombre: newAlumnoData.nombre,
+        rol: 'estudiante',
+        carrera: newAlumnoData.carrera,
+        rut: newAlumnoData.rut,
+        password: newAlumnoData.password,
+        generarCorreoAutomatico: newAlumnoData.emailTipo === 'auto',
+        email: newAlumnoData.emailTipo === 'manual' ? newAlumnoData.emailManual : ''
+      };
+
+      const res = await api.post('/admin/users/create', payload);
+      if (res.data.success) {
+        setShowCreateAlumnoModal(false);
+        setCreatedCredentialsModal({
+          nombre: res.data.user.nombre,
+          rol: 'Estudiante USM',
+          email: res.data.credenciales.email,
+          password: res.data.credenciales.password
+        });
+        setNewAlumnoData({
+          nombre: '',
+          carrera: 'Ingeniería en Informática',
+          emailTipo: 'auto',
+          emailManual: '',
+          password: 'PracNet_2026',
+          rut: ''
+        });
+        fetchAdminData();
+        showToast('Alumno registrado exitosamente.');
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Error al registrar alumno.';
+      if (err.response?.status === 403 || err.response?.data?.code === 'PLAN_LIMIT_REACHED') {
+        setShowCreateAlumnoModal(false);
+        setLimitErrorModal(msg);
+      } else {
+        alert(msg);
+      }
     }
   };
 
@@ -320,14 +393,18 @@ export default function AdminPanel() {
   // Filtrado de usuarios por búsqueda y rol
   const filteredUsers = usersList.filter(u => {
     const q = searchTerm.toLowerCase();
-    const matchSearch = u.nombre.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || (u.rut && u.rut.toLowerCase().includes(q));
-    if (activeTab === 'profesores') return matchSearch && u.rol === 'docente';
+    const matchSearch =
+      u.nombre.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      (u.rut && u.rut.toLowerCase().includes(q)) ||
+      (u.carrera && u.carrera.toLowerCase().includes(q));
+    if (activeTab === 'profesores') return matchSearch && (u.rol === 'jefe_carrera' || u.rol === 'docente');
     if (activeTab === 'alumnos') return matchSearch && u.rol === 'estudiante';
     if (activeTab === 'secretaria') return matchSearch && u.rol === 'secretaria';
     return matchSearch;
   });
 
-  const profesoresCount = usersList.filter(u => u.rol === 'docente').length;
+  const profesoresCount = usersList.filter(u => u.rol === 'jefe_carrera' || u.rol === 'docente').length;
   const alumnosCount = usersList.filter(u => u.rol === 'estudiante').length;
   const secretariaCount = usersList.filter(u => u.rol === 'secretaria').length;
   const activeTokensCount = tokensList.filter(t => t.estado === 'Activo').length;
@@ -482,7 +559,14 @@ export default function AdminPanel() {
             <span className="hidden sm:inline">Ver Portada Web</span>
           </button>
           <button
-            onClick={logout}
+            type="button"
+            onClick={() => {
+              setUsersList([]);
+              setTokensList([]);
+              setPlanStatus(null);
+              setLimitErrorModal('');
+              logout();
+            }}
             className="px-3 py-1.5 rounded-xl bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-800/60 text-xs font-semibold flex items-center gap-1.5 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -499,8 +583,10 @@ export default function AdminPanel() {
               <GraduationCap className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-white">{profesoresCount}</p>
-              <p className="text-[10px] text-slate-400 font-semibold uppercase">Profesores</p>
+              <p className="text-xl font-black text-white">
+                {profesoresCount} / {planStatus?.maxJefesCarrera || 5}
+              </p>
+              <p className="text-[10px] text-slate-400 font-semibold uppercase">Jefes / Profesores</p>
             </div>
           </div>
 
@@ -509,8 +595,10 @@ export default function AdminPanel() {
               <Users className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-white">{alumnosCount}</p>
-              <p className="text-[10px] text-slate-400 font-semibold uppercase">Alumnos Registrados</p>
+              <p className="text-xl font-black text-white">
+                {alumnosCount} / {planStatus?.maxAlumnos || 250}
+              </p>
+              <p className="text-[10px] text-slate-400 font-semibold uppercase">Alumnos Plan Básico</p>
             </div>
           </div>
 
@@ -627,6 +715,8 @@ export default function AdminPanel() {
 
       {/* 4. Contenido Principal */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+        {/* Aviso oficial de límite de usuarios del Plan Básico para el Administrador */}
+        <PlanLimitBanner planStatus={planStatus} dark />
 
         {/* ============================================================== */}
         {/* PESTAÑA 1: PROFESORES (REGISTRO & ASIGNACIÓN DE CORREO)        */}
@@ -738,14 +828,23 @@ export default function AdminPanel() {
         {/* ============================================================== */}
         {activeTab === 'alumnos' && (
           <div className="space-y-4">
-            <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-              <h2 className="text-lg font-black text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-blue-400" />
-                Directorio de Estudiantes & Recuperación de Claves de Emergencia
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Aquí puedes visualizar a todos los alumnos que se han registrado (desde la App Móvil o Portal Web), revisar sus correos institucionales y <strong>restablecer su clave en caso de emergencia</strong> para darles acceso inmediato.
-              </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900 p-5 rounded-2xl border border-slate-800">
+              <div>
+                <h2 className="text-lg font-black text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-400" />
+                  Directorio de Estudiantes & Recuperación de Claves ({alumnosCount}/{planStatus?.maxAlumnos || 250})
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Aquí puedes visualizar a todos los alumnos registrados (Plan Básico: máximo {planStatus?.maxAlumnos || 250} alumnos), revisar sus correos institucionales y restablecer claves de emergencia.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowCreateAlumnoModal(true)}
+                className="px-4 py-2.5 bg-blue-500 hover:bg-blue-400 text-white font-black rounded-xl text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95 shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                Registrar Nuevo Alumno
+              </button>
             </div>
 
             {/* Buscador */}
@@ -1185,7 +1284,19 @@ export default function AdminPanel() {
 
             <form onSubmit={handleCreateProfesor} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-300 font-bold mb-1">Nombre Completo del Profesor</label>
+                <label className="block text-slate-300 font-bold mb-1">Rol Académico</label>
+                <select
+                  value={newProfData.rol}
+                  onChange={(e) => setNewProfData({ ...newProfData, rol: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white"
+                >
+                  <option value="jefe_carrera">Jefe de Carrera (Límite Plan Básico: 5)</option>
+                  <option value="docente">Profesor Guía / Docente Evaluador</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Nombre Completo del Jefe de Carrera / Profesor</label>
                 <input
                   type="text"
                   required
@@ -1294,6 +1405,119 @@ export default function AdminPanel() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL 1B: REGISTRAR NUEVO ALUMNO                               */}
+      {/* ============================================================== */}
+      {showCreateAlumnoModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-blue-400" />
+                <h3 className="text-base font-black text-white">Registrar Nuevo Alumno USM</h3>
+              </div>
+              <button onClick={() => setShowCreateAlumnoModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+            </div>
+
+            <form onSubmit={handleCreateAlumno} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Nombre Completo del Alumno</label>
+                <input
+                  type="text"
+                  required
+                  value={newAlumnoData.nombre}
+                  onChange={(e) => setNewAlumnoData({ ...newAlumnoData, nombre: e.target.value })}
+                  placeholder="Ej: Usuario 251 Prueba"
+                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Carrera (USM Sede Concepción)</label>
+                <select
+                  value={newAlumnoData.carrera}
+                  onChange={(e) => setNewAlumnoData({ ...newAlumnoData, carrera: e.target.value })}
+                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white"
+                >
+                  <option value="Ingeniería en Informática">Ingeniería en Informática</option>
+                  <option value="Técnico Universitario en Informática">Técnico Universitario en Informática</option>
+                  <option value="Ingeniería en Electricidad">Ingeniería en Electricidad</option>
+                  <option value="Ingeniería en Mantenimiento Industrial">Ingeniería en Mantenimiento Industrial</option>
+                  <option value="Ingeniería en Prevención de Riesgos Laborales y Ambientales">Ingeniería en Prevención de Riesgos</option>
+                  <option value="Técnico Universitario en Mecánica Automotriz">Técnico Universitario en Mecánica Automotriz</option>
+                  <option value="Técnico Universitario en Construcción">Técnico Universitario en Construcción</option>
+                  <option value="Técnico Universitario en Química (Mención Química Industrial)">Técnico Universitario en Química Industrial</option>
+                  <option value="Técnico Universitario en Minería y Metalurgia">Técnico Universitario en Minería y Metalurgia</option>
+                  <option value="Técnico Universitario en Administración de Empresas">Técnico Universitario en Administración de Empresas</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Correo (@pracnet.usm.cl)</label>
+                <input
+                  type="email"
+                  value={newAlumnoData.emailManual}
+                  onChange={(e) => setNewAlumnoData({ ...newAlumnoData, emailTipo: 'manual', emailManual: e.target.value })}
+                  placeholder="usuario251@pracnet.usm.cl (opcional, si queda vacío se genera automático)"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono placeholder-slate-600"
+                />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateAlumnoModal(false)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-blue-500 hover:bg-blue-400 text-white font-black rounded-xl shadow-lg"
+                >
+                  Crear Cuenta de Alumno
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* MODAL DE ERROR: LÍMITE DE USUARIOS DEL PLAN BÁSICO ALCANZADO   */}
+      {/* ============================================================== */}
+      {limitErrorModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border-2 border-red-500 rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-4 shadow-2xl text-center">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/20 text-red-400 border border-red-500/40 mx-auto flex items-center justify-center">
+              <AlertCircle className="w-8 h-8" />
+            </div>
+            <div>
+              <span className="inline-block text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-red-600 text-white mb-2">
+                Límite del Plan Básico Alcanzado
+              </span>
+              <h3 className="text-lg font-black text-white">No es posible registrar un nuevo usuario</h3>
+              <p className="text-xs text-red-100/90 mt-2 leading-relaxed">{limitErrorModal}</p>
+            </div>
+            <div className="flex flex-col gap-2 pt-2">
+              <a
+                href="mailto:soporte@pracnet.usm.cl?subject=Solicitud%20de%20Cambio%20de%20Plan%20PRACNET"
+                className="w-full py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs shadow-lg"
+              >
+                Contactar a Soporte (soporte@pracnet.usm.cl)
+              </a>
+              <button
+                type="button"
+                onClick={() => setLimitErrorModal('')}
+                className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs"
+              >
+                Entendido
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,54 +1,32 @@
 import { pool } from '../config/db.js';
 import { logAuditEvent } from '../middlewares/auth.js';
+import { getOfertasStore } from '../utils/dataStore.js';
 
 export async function getMuro(req, res) {
   try {
-    const estudianteId = req.user?.estudianteId || 1;
     const { area, modalidad, ubicacion } = req.query;
-
-    let query = `
-      SELECT o.*, e.nombre AS empresa_nombre, e.area AS empresa_area,
-             (SELECT p.id FROM postulaciones p WHERE p.estudiante_id = ? AND p.oferta_practica_id = o.id LIMIT 1) AS mi_postulacion_id,
-             (SELECT p.estado FROM postulaciones p WHERE p.estudiante_id = ? AND p.oferta_practica_id = o.id LIMIT 1) AS mi_postulacion_estado
-      FROM ofertas_practica o
-      JOIN empresas e ON o.empresa_id = e.id
-      WHERE o.estado = 'Activa'
-    `;
-    const params = [estudianteId, estudianteId];
+    let ofertas = getOfertasStore().filter(o => o.estado === 'Activa');
 
     if (area) {
-      query += ' AND o.area = ?';
-      params.push(area);
+      ofertas = ofertas.filter(o => o.area === area);
     }
     if (modalidad) {
-      query += ' AND o.modalidad = ?';
-      params.push(modalidad);
+      ofertas = ofertas.filter(o => o.modalidad === modalidad);
     }
     if (ubicacion) {
-      query += ' AND o.ubicacion LIKE ?';
-      params.push(`%${ubicacion}%`);
+      const q = ubicacion.toLowerCase();
+      ofertas = ofertas.filter(o => (o.ubicacion || '').toLowerCase().includes(q));
     }
 
-    query += ' ORDER BY o.id DESC';
-    const [ofertas] = await pool.execute(query, params);
-    const [areas] = await pool.execute("SELECT DISTINCT area FROM ofertas_practica WHERE estado = 'Activa'");
+    const areasDisponibles = [...new Set(getOfertasStore().filter(o => o.estado === 'Activa').map(o => o.area))];
 
     return res.json({
       success: true,
       ofertas,
-      areasDisponibles: areas.map(a => a.area)
+      areasDisponibles
     });
   } catch (error) {
-    // Fallback Mockup 9.1
-    return res.json({
-      success: true,
-      ofertas: [
-        { id: 1, titulo: 'Práctica Profesional A', empresa_nombre: 'Tech Solutions', monto_remuneracion: '$300.000', modalidad: 'Híbrido', area: 'Software', duracion_meses: 3, min_avance_malla: 70 },
-        { id: 2, titulo: 'Práctica Profesional B', empresa_nombre: 'Banco Estado', monto_remuneracion: '$260.000', modalidad: 'Remoto', area: 'Datos', duracion_meses: 2, min_avance_malla: 70 },
-        { id: 3, titulo: 'Práctica Profesional C', empresa_nombre: 'Latam Airlines', monto_remuneracion: 'Por definir', modalidad: 'Presencial', area: 'Diseño', duracion_meses: 2, min_avance_malla: 60 }
-      ],
-      areasDisponibles: ['Software', 'Datos', 'Diseño', 'Industria', 'Redes']
-    });
+    return res.status(500).json({ success: false, message: 'Error al cargar muro de prácticas.' });
   }
 }
 

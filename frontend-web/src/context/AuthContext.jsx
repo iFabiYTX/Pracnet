@@ -36,17 +36,21 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Cierre de sesión formal
-  const logout = useCallback(async (reason = '') => {
-    try {
-      await api.post('/auth/logout');
-    } catch (e) {}
+  // Cierre de sesión formal (instantáneo en cliente + notificación en segundo plano)
+  const logout = useCallback((reason = '') => {
+    const token = localStorage.getItem('pracnet_token');
     localStorage.removeItem('pracnet_token');
     localStorage.removeItem('pracnet_user');
     localStorage.removeItem('pracnet_last_activity');
     setUser(null);
-    if (reason) {
+    if (reason && typeof reason === 'string') {
       setSessionExpiredMessage(reason);
+    }
+    if (token) {
+      api.post('/auth/logout', {}, {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 2000
+      }).catch(() => {});
     }
   }, []);
 

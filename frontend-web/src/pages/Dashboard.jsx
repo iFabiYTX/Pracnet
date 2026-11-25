@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
+import PlanLimitBanner from '../components/PlanLimitBanner';
 import api from '../api/client';
 import { Clock, Briefcase, Users, FileCheck2, Building2 } from 'lucide-react';
 
 export default function Dashboard() {
   const [data, setData] = useState({
+    planStatus: null,
     kpis: {
-      practicasActivas: 145,
-      alumnosHabilitados: 312,
-      postulacionesHoy: 24,
-      conveniosEmpresas: 89
+      practicasActivas: 24,
+      alumnosHabilitados: 215,
+      alumnosTotales: 250,
+      alumnosEnPractica: 60,
+      practicasFinalizadas: 65,
+      alumnosSinPractica: 50,
+      postulacionesHoy: 200,
+      conveniosEmpresas: 22
     },
-    actividadReciente: [
-      { id: 1, tiempo: 'Hace 10 min', detalle: 'Carlos Mendoza postuló a Tech Solutions - Dev Backend' },
-      { id: 2, tiempo: 'Hace 45 min', detalle: 'Firma digital aplicada al Seguro Escolar de Valentina Ríos' },
-      { id: 3, tiempo: 'Hace 2 horas', detalle: 'Nueva vacante "Analista de Datos Jr." publicada por Banco Estado' },
-      { id: 4, tiempo: 'Ayer', detalle: '4 alumnos completaron la validación formal en SIGA' }
-    ]
+    actividadReciente: []
   });
 
   useEffect(() => {
@@ -26,39 +27,37 @@ export default function Dashboard() {
         if (res.data.success) {
           setData(res.data);
         }
-      } catch (e) {
-        // Mantiene valores del Mockup 9.2 por defecto
-      }
+      } catch (e) {}
     }
     fetchDashboard();
   }, []);
 
   const kpiCards = [
     {
-      title: 'PRÁCTICAS ACTIVAS',
-      value: data.kpis.practicasActivas,
-      note: 'Convocatorias en proceso',
-      icon: Briefcase,
-      color: 'text-usm-navy'
-    },
-    {
-      title: 'ALUMNOS HABILITADOS',
-      value: data.kpis.alumnosHabilitados,
-      note: '+70% de avance malla',
+      title: 'ALUMNOS PLAN BÁSICO',
+      value: `${data.kpis.alumnosTotales ?? 250} / ${data.planStatus?.maxAlumnos ?? 250}`,
+      note: `${data.kpis.alumnosHabilitados ?? 0} habilitados (+70% malla) • ${data.kpis.alumnosSinPractica ?? 0} sin práctica`,
       icon: Users,
       color: 'text-usm-blue'
     },
     {
-      title: 'POSTULACIONES HOY',
+      title: 'PRÁCTICAS ACTIVAS',
+      value: data.kpis.practicasActivas,
+      note: `${data.kpis.alumnosEnPractica ?? 0} en curso • ${data.kpis.practicasFinalizadas ?? 0} finalizadas`,
+      icon: Briefcase,
+      color: 'text-usm-navy'
+    },
+    {
+      title: 'POSTULACIONES ACTIVAS',
       value: data.kpis.postulacionesHoy,
-      note: 'Últimas 24 horas',
+      note: 'Trazabilidad USM Sede Concepción',
       icon: FileCheck2,
       color: 'text-amber-600'
     },
     {
       title: 'CONVENIOS EMPRESAS',
       value: data.kpis.conveniosEmpresas,
-      note: 'Empresas activas con CAE',
+      note: 'Empresas Biobío & nacionales',
       icon: Building2,
       color: 'text-emerald-600'
     }
@@ -68,11 +67,14 @@ export default function Dashboard() {
     <div className="flex-1 flex flex-col bg-slate-50 min-h-screen">
       <Header
         title="Panel de administración"
-        subtitle="Monitor de prácticas profesionales en curso."
+        subtitle="Monitor de prácticas profesionales • Plan Básico USM Sede Concepción."
       />
 
-      <main className="p-8 space-y-8 max-w-7xl">
-        {/* 4 Tarjetas KPI - Disposición Exacta del Mockup Web 9.2 */}
+      <main className="p-8 space-y-6 max-w-7xl w-full mx-auto">
+        {/* Aviso oficial de límite de usuarios del Plan Básico para Jefe de Carrera / Admin */}
+        <PlanLimitBanner planStatus={data.planStatus} />
+
+        {/* 4 Tarjetas KPI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {kpiCards.map((kpi, index) => {
             const Icon = kpi.icon;
@@ -87,7 +89,7 @@ export default function Dashboard() {
                   </span>
                   <Icon className="w-5 h-5 text-slate-300" />
                 </div>
-                <div className="text-4xl font-extrabold text-usm-navy tracking-tight my-2">
+                <div className="text-3xl font-extrabold text-usm-navy tracking-tight my-2">
                   {kpi.value}
                 </div>
                 {kpi.note && (
@@ -100,11 +102,11 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Sección Actividad Reciente - Mockup Web 9.2 */}
+        {/* Sección Actividad Reciente */}
         <div className="bg-white rounded-xl border border-slate-200/80 p-7 shadow-sm">
           <h3 className="text-base font-bold text-usm-navy mb-5 flex items-center gap-2">
             <Clock className="w-4 h-4 text-usm-blue" />
-            Actividad Reciente
+            Actividad Reciente — USM Sede Concepción
           </h3>
           <ul className="divide-y divide-slate-100">
             {data.actividadReciente.map((item, idx) => (

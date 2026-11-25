@@ -37,12 +37,13 @@ export default function AppMovilEstudiante() {
   const [loginPassword, setLoginPassword] = useState('');
 
   // Campos de Registro
+  const [regError, setRegError] = useState('');
   const [regData, setRegData] = useState({
     nombre: '',
     apellido: '',
     email: '',
     rut: '',
-    carrera: 'Ingeniería Civil Informática',
+    carrera: 'Ingeniería en Informática',
     anoIngreso: '2022',
     password: '',
     terminos: false
@@ -130,7 +131,9 @@ export default function AppMovilEstudiante() {
   // Registro de Estudiante Real
   const handleRegister = async (e) => {
     e.preventDefault();
+    setRegError('');
     if (!regData.terminos) {
+      setRegError('Debes aceptar la Política de Privacidad (Ley N° 19.628)');
       showToast('Debes aceptar la Política de Privacidad (Ley N° 19.628)');
       return;
     }
@@ -158,10 +161,14 @@ export default function AppMovilEstudiante() {
         localStorage.setItem('pracnet_movil_estudiante', JSON.stringify(studentObj));
         showToast('¡Cuenta creada con éxito! Bienvenido a PRACNET.');
       } else {
-        showToast(res.data.message || 'Error al crear la cuenta.');
+        const msg = res.data.message || 'Error al crear la cuenta.';
+        setRegError(msg);
+        showToast(msg);
       }
     } catch (err) {
-      showToast(err.response?.data?.message || 'Error al registrar la cuenta.');
+      const msg = err.response?.data?.message || 'Error al registrar la cuenta.';
+      setRegError(msg);
+      showToast(msg);
     }
   };
 
@@ -303,6 +310,12 @@ export default function AppMovilEstudiante() {
             ) : (
               /* FORMULARIO DE REGISTRO ESTUDIANTE */
               <form onSubmit={handleRegister} className="space-y-3 bg-white/10 backdrop-blur-md p-5 rounded-3xl border border-white/15 text-xs overflow-y-auto max-h-[380px]">
+                {regError && (
+                  <div className="p-3 rounded-xl bg-red-950/90 border border-red-400/70 text-red-100 text-[11px] leading-relaxed flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-300 shrink-0 mt-0.5" />
+                    <span>{regError}</span>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-[10px] font-bold text-white/90 mb-1">Nombre</label>
@@ -359,9 +372,26 @@ export default function AppMovilEstudiante() {
                     onChange={(e) => setRegData({ ...regData, carrera: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-white/30 text-white text-xs"
                   >
-                    <option value="Ingeniería Civil Informática">Ingeniería Civil Informática</option>
-                    <option value="Ingeniería Civil Industrial">Ingeniería Civil Industrial</option>
+                    <option value="Ingeniería en Informática">Ingeniería en Informática</option>
                     <option value="Técnico Universitario en Informática">Técnico Universitario en Informática</option>
+                    <option value="Técnico Universitario en Telecomunicaciones y Redes">T.U. en Telecomunicaciones y Redes</option>
+                    <option value="Ingeniería en Electricidad">Ingeniería en Electricidad</option>
+                    <option value="Técnico Universitario en Electricidad">T.U. en Electricidad</option>
+                    <option value="Técnico Universitario en Electrónica">T.U. en Electrónica</option>
+                    <option value="Ingeniería en Automatización y Control Industrial">Ingeniería en Automatización y Control</option>
+                    <option value="Técnico Universitario en Robótica y Mecatrónica">T.U. en Robótica y Mecatrónica</option>
+                    <option value="Ingeniería en Mantenimiento Industrial">Ingeniería en Mantenimiento Industrial</option>
+                    <option value="Técnico Universitario en Mecánica Industrial">T.U. en Mecánica Industrial</option>
+                    <option value="Ingeniería en Mecánica Automotriz y Autotrónica">Ing. Mecánica Automotriz y Autotrónica</option>
+                    <option value="Técnico Universitario en Mecánica Automotriz">T.U. en Mecánica Automotriz</option>
+                    <option value="Ingeniería en Fabricación y Diseño Industrial">Ing. en Fabricación y Diseño Industrial</option>
+                    <option value="Técnico Universitario en Dibujo Técnico Industrial">T.U. en Dibujo Técnico Industrial</option>
+                    <option value="Técnico Universitario en Química (Mención Química Industrial)">T.U. en Química Industrial</option>
+                    <option value="Técnico Universitario en Control del Medio Ambiente">T.U. en Control del Medio Ambiente</option>
+                    <option value="Técnico Universitario en Minería y Metalurgia">T.U. en Minería y Metalurgia</option>
+                    <option value="Ingeniería en Prevención de Riesgos Laborales y Ambientales">Ing. en Prevención de Riesgos</option>
+                    <option value="Técnico Universitario en Construcción">T.U. en Construcción</option>
+                    <option value="Técnico Universitario en Administración de Empresas">T.U. en Administración de Empresas</option>
                   </select>
                 </div>
 

@@ -18,7 +18,8 @@ import {
   getSystemHealthStatus,
   getCompanyTokensList,
   createCompanyTokenAction,
-  revokeCompanyTokenAction
+  revokeCompanyTokenAction,
+  getPlanStatusAction
 } from '../controllers/adminController.js';
 import { authenticateToken, requireRole } from '../middlewares/auth.js';
 
@@ -46,6 +47,7 @@ router.post('/users/:id/reset-password', resetUserPassword);
 router.delete('/users/:id', deleteUserByAdmin);
 
 router.get('/system-status', getSystemHealthStatus);
+router.get('/plan-status', getPlanStatusAction);
 
 router.get('/company-tokens', getCompanyTokensList);
 router.post('/company-tokens/create', createCompanyTokenAction);

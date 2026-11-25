@@ -23,14 +23,14 @@ export async function authenticateToken(req, res, next) {
   }
 
   // Opcional: verificar sesión en Redis si el servidor Redis está activo
-  try {
-    const sessionKey = `pracnet:session:${decoded.id}:${token}`;
-    const sessionData = await redis.get(sessionKey);
-    if (sessionData) {
-      req.sessionData = JSON.parse(sessionData);
-    }
-  } catch (err) {
-    // Si Redis está en fallback, continuamos con la verificación criptográfica del JWT
+  if (redis.status === 'ready') {
+    try {
+      const sessionKey = `pracnet:session:${decoded.id}:${token}`;
+      const sessionData = await redis.get(sessionKey);
+      if (sessionData) {
+        req.sessionData = JSON.parse(sessionData);
+      }
+    } catch (err) {}
   }
 
   req.user = decoded;

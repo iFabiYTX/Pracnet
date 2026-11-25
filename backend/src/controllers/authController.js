@@ -8,7 +8,7 @@ import {
   generateToken 
 } from '../utils/security.js';
 import { logAuditEvent } from '../middlewares/auth.js';
-import { findUserByEmail, createUser } from '../utils/dataStore.js';
+import { findUserByEmail, createUser, getPlanStatus } from '../utils/dataStore.js';
 
 export async function login(req, res) {
   const { email, password } = req.body;
@@ -73,11 +73,13 @@ export async function login(req, res) {
 
     const token = generateToken(tokenPayload);
 
-    // Guardar sesión en Redis con expiración de 8 horas si está disponible
-    try {
-      const sessionKey = `pracnet:session:${user.id}:${token}`;
-      await redis.set(sessionKey, JSON.stringify(tokenPayload), 'EX', 28800);
-    } catch {}
+    // Guardar sesión en Redis con expiración de 8 horas si está conectado
+    if (redis.status === 'ready') {
+      try {
+        const sessionKey = `pracnet:session:${user.id}:${token}`;
+        await redis.set(sessionKey, JSON.stringify(tokenPayload), 'EX', 28800);
+      } catch {}
+    }
 
     // Auditoría oficial Ley N° 19.628
     try {
@@ -88,6 +90,7 @@ export async function login(req, res) {
       success: true,
       message: `Bienvenido/a ${user.nombre}`,
       token,
+      planStatus: (user.rol === 'admin' || user.rol === 'jefe_carrera') ? getPlanStatus() : undefined,
       user: {
         id: user.id,
         nombre: user.nombre,
@@ -96,7 +99,9 @@ export async function login(req, res) {
         rut: user.rut,
         carrera: user.carrera || '',
         departamento: user.departamento || user.cargo || '',
-        estudianteId: user.estudianteId || null
+        cargo: user.cargo || user.departamento || '',
+        sede: user.sede || 'Sede Concepción',
+        estudianteId: user.estudianteId || user.id
       }
     });
   } catch (error) {
@@ -168,7 +173,13 @@ export async function register(req, res) {
     });
   } catch (error) {
     console.error('>> Error en registro:', error);
-    return res.status(500).json({ success: false, message: error.message || 'Error interno al registrar la cuenta.' });
+    const status = error.statusCode || 500;
+    return res.status(status).json({
+      success: false,
+      code: error.code || undefined,
+      message: error.message || 'Error interno al registrar la cuenta.',
+      planStatus: error.code === 'PLAN_LIMIT_REACHED' ? getPlanStatus() : undefined
+    });
   }
 }
 
@@ -213,7 +224,7 @@ export async function logout(req, res) {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.slice(7);
-    if (token && req.user) {
+    if (token && req.user && redis.status === 'ready') {
       try {
         const sessionKey = `pracnet:session:${req.user.id}:${token}`;
         await redis.del(sessionKey);
