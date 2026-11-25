@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/client';
 import {
   User,
   Sparkles,
@@ -23,28 +25,88 @@ import {
   Palette,
   Edit3,
   Save,
-  FileText
+  FileText,
+  Search,
+  Filter
 } from 'lucide-react';
 
 export default function PortalEstudiante() {
-  const { user, quickLogin } = useAuth();
-  const [activeTab, setActiveTab] = useState('perfil');
+  const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab') || 'perfil';
+  const [activeTab, setActiveTabState] = useState(tabFromUrl);
   const [toastMessage, setToastMessage] = useState('');
+
+  // Ofertas reales del muro (USM Sede Concepción)
+  const [ofertas, setOfertas] = useState([]);
+  const [areasDisponibles, setAreasDisponibles] = useState([]);
+  const [searchOferta, setSearchOferta] = useState('');
+  const [areaFilter, setAreaFilter] = useState('todas');
+  const [postuladasIds, setPostuladasIds] = useState([]);
+
+  useEffect(() => {
+    setActiveTabState(tabFromUrl);
+  }, [tabFromUrl]);
+
+  const setActiveTab = (tab) => {
+    setActiveTabState(tab);
+    setSearchParams({ tab });
+  };
+
+  useEffect(() => {
+    async function loadMuro() {
+      try {
+        const res = await api.get('/estudiante/muro');
+        if (res.data?.success && Array.isArray(res.data.ofertas)) {
+          setOfertas(res.data.ofertas);
+          setAreasDisponibles(res.data.areasDisponibles || []);
+        }
+      } catch (e) {}
+    }
+    loadMuro();
+  }, []);
+
+  const filteredOfertas = useMemo(() => {
+    const q = searchOferta.trim().toLowerCase();
+    return ofertas.filter((o) => {
+      const matchArea = areaFilter === 'todas' || o.area === areaFilter;
+      const matchQ =
+        !q ||
+        (o.titulo || '').toLowerCase().includes(q) ||
+        (o.empresa_nombre || '').toLowerCase().includes(q) ||
+        (o.area || '').toLowerCase().includes(q) ||
+        (o.ubicacion || '').toLowerCase().includes(q);
+      return matchArea && matchQ;
+    });
+  }, [ofertas, areaFilter, searchOferta]);
+
+  const handlePostularOferta = async (of) => {
+    try {
+      await api.post(`/estudiante/postular/${of.id}`);
+    } catch (e) {}
+    setPostuladasIds((prev) => (prev.includes(of.id) ? prev : [...prev, of.id]));
+    setToastMessage(`¡Postulación enviada con éxito a ${of.empresa_nombre} (${of.titulo})!`);
+    setTimeout(() => setToastMessage(''), 4500);
+  };
+
+  const defaultAlias = user?.email
+    ? `@${user.email.split('@')[0]}`
+    : '@estudiante_usm';
 
   // Estado del Perfil Discord-Style
   const [perfil, setPerfil] = useState({
-    nombreCompleto: user?.nombre || 'Valentina Ríos Pérez',
-    alias: '@valen_dev',
-    email: user?.email || 'valentina.rios@alumnos.usm.cl',
-    rut: '20.456.789-3',
-    carrera: 'Ingeniería Civil Informática',
-    semestre: '9° Semestre (85% Malla)',
+    nombreCompleto: user?.nombre || 'Estudiante USM',
+    alias: defaultAlias,
+    email: user?.email || 'usuario1@pracnet.usm.cl',
+    rut: user?.rut || '20.123.456-7',
+    carrera: user?.carrera || 'Ingeniería en Informática',
+    semestre: '8° Semestre (USM Sede Concepción)',
     estadoActividad: '🟢 Buscando Práctica Profesional (360 hrs)',
     bannerTheme: 'from-indigo-600 via-purple-600 to-pink-500',
     avatarDecor: 'gold', // 'none', 'gold', 'cyber', 'matrix'
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    bio: 'Estudiante apasionada por arquitecturas backend en Node.js, pipelines ETL en Python y bases de datos distribuidas. Busco práctica profesional para aplicar ingeniería de software en proyectos de impacto real.',
-    skills: ['Node.js', 'Python', 'MySQL', 'Redis', 'React', 'AWS EC2', 'Docker']
+    bio: `Estudiante de ${user?.carrera || 'USM Sede Concepción'} buscando práctica profesional para aplicar conocimientos técnicos en empresas de la Región del Biobío.`,
+    skills: ['Trabajo en Equipo', 'Normativa Técnica', 'Excel Avanzado', 'Gestión de Proyectos']
   });
 
   const [nuevoSkill, setNuevoSkill] = useState('');
@@ -441,109 +503,95 @@ export default function PortalEstudiante() {
         {/* ============================================================== */}
         {activeTab === 'muro' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div>
-                <h3 className="text-xl font-black text-slate-900">Catálogo de Ofertas Disponibles</h3>
-                <p className="text-xs text-slate-500">Filtrado automáticamente para tu carrera: {perfil.carrera}</p>
+                <h3 className="text-xl font-black text-slate-900">
+                  Muro de Prácticas Disponibles ({filteredOfertas.length})
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Ofertas activas en convenio con USM Sede Concepción • Tu carrera: <strong>{perfil.carrera}</strong>
+                </p>
               </div>
-              <span className="text-xs font-bold px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
-                145 Plazas Activas en Convenio
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    value={searchOferta}
+                    onChange={(e) => setSearchOferta(e.target.value)}
+                    placeholder="Buscar empresa, cargo o comuna..."
+                    className="pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300 w-56 focus:outline-none focus:ring-2 focus:ring-usm-blue"
+                  />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Filter className="w-3.5 h-3.5 text-slate-400" />
+                  <select
+                    value={areaFilter}
+                    onChange={(e) => setAreaFilter(e.target.value)}
+                    className="py-2 px-3 text-xs rounded-xl border border-slate-300 bg-white"
+                  >
+                    <option value="todas">Todas las áreas ({areasDisponibles.length})</option>
+                    {areasDisponibles.map((area) => (
+                      <option key={area} value={area}>{area}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Tarjeta 1 */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                      Convenio Oficial USM
-                    </span>
-                    <span className="text-[11px] text-slate-400">Publicado hoy</span>
-                  </div>
-                  <h4 className="text-base font-extrabold text-slate-900">
-                    Práctica Desarrollo Backend Node.js & Cloud
-                  </h4>
-                  <p className="text-xs font-semibold text-usm-blue">Tech Solutions SpA</p>
-                  <p className="text-xs text-slate-600 line-clamp-2">
-                    Participa en la modernización de microservicios, optimización de base de datos MySQL y caché en Redis.
-                  </p>
-                  <div className="pt-2 flex flex-wrap gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Remoto / Santiago</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> 360 horas</span>
-                    <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" /> $320.000 asignación</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setToastMessage('¡Postulación enviada con éxito a Tech Solutions! Puedes revisarla en la pestaña Mis Trámites.');
-                    setTimeout(() => setToastMessage(''), 4500);
-                  }}
-                  className="w-full py-2 bg-usm-navy hover:bg-usm-blue text-white rounded-xl font-bold text-xs shadow transition-colors"
-                >
-                  Postular con mi Perfil
-                </button>
-              </div>
+              {filteredOfertas.map((of) => {
+                const yaPostulado = postuladasIds.includes(of.id);
+                return (
+                  <div
+                    key={of.id}
+                    className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-bold">
+                          {of.area}
+                        </span>
+                        <span className="text-[11px] font-semibold text-slate-400">
+                          {of.requisito_academico}
+                        </span>
+                      </div>
+                      <h4 className="text-base font-extrabold text-slate-900 leading-snug">
+                        {of.titulo}
+                      </h4>
+                      <p className="text-xs font-bold text-usm-blue">{of.empresa_nombre}</p>
+                      <p className="text-xs text-slate-600 line-clamp-3">
+                        {of.descripcion}
+                      </p>
+                      <div className="pt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5" /> {of.modalidad} • {of.ubicacion}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" /> {of.duracion_horas} hrs
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="w-3.5 h-3.5" /> {of.monto_remuneracion}
+                        </span>
+                      </div>
+                    </div>
 
-              {/* Tarjeta 2 */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">
-                      95% Compatibilidad IA
-                    </span>
-                    <span className="text-[11px] text-slate-400">Ayer</span>
+                    {yaPostulado ? (
+                      <div className="p-2.5 bg-emerald-50 rounded-xl text-center text-xs font-bold text-emerald-800 border border-emerald-200">
+                        ✓ Postulación Enviada
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handlePostularOferta(of)}
+                        className="w-full py-2.5 bg-usm-navy hover:bg-usm-blue text-white rounded-xl font-bold text-xs shadow transition-colors"
+                      >
+                        Postular con mi Perfil
+                      </button>
+                    )}
                   </div>
-                  <h4 className="text-base font-extrabold text-slate-900">
-                    Analista de Datos Jr. (ETL & ML)
-                  </h4>
-                  <p className="text-xs font-semibold text-usm-blue">Banco Estado</p>
-                  <p className="text-xs text-slate-600 line-clamp-2">
-                    Modelamiento de datos y desarrollo de dashboards analíticos para la división de riesgo crediticio.
-                  </p>
-                  <div className="pt-2 flex flex-wrap gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Híbrido / Santiago</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> 360 horas</span>
-                    <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" /> $350.000 asignación</span>
-                  </div>
-                </div>
-                <div className="p-2 bg-emerald-50 rounded-xl text-center text-xs font-bold text-emerald-800 border border-emerald-200">
-                  ✓ Postulación Aprobada por Jefatura
-                </div>
-              </div>
-
-              {/* Tarjeta 3 */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[10px] font-bold">
-                      Convenio Estratégico
-                    </span>
-                    <span className="text-[11px] text-slate-400">Hace 3 días</span>
-                  </div>
-                  <h4 className="text-base font-extrabold text-slate-900">
-                    Práctica Arquitectura de Software & APIs
-                  </h4>
-                  <p className="text-xs font-semibold text-usm-blue">MercadoLibre Chile</p>
-                  <p className="text-xs text-slate-600 line-clamp-2">
-                    Construcción de componentes distribuidos de alta concurrencia en Golang y Node.js.
-                  </p>
-                  <div className="pt-2 flex flex-wrap gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> Remoto</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> 360 horas</span>
-                    <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" /> $380.000 asignación</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setToastMessage('¡Postulación enviada a MercadoLibre Chile!');
-                    setTimeout(() => setToastMessage(''), 4500);
-                  }}
-                  className="w-full py-2 bg-usm-navy hover:bg-usm-blue text-white rounded-xl font-bold text-xs shadow transition-colors"
-                >
-                  Postular con mi Perfil
-                </button>
-              </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -632,13 +680,6 @@ export default function PortalEstudiante() {
                     <Download className="w-4 h-4" />
                     Descargar APK Directo (11.9 MB)
                   </a>
-                  <button
-                    onClick={() => window.open('/simulador-estudiante', '_blank')}
-                    className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs flex items-center gap-2 border border-white/20 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Abrir Simulador Web
-                  </button>
                 </div>
               </div>
 

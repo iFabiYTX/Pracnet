@@ -17,28 +17,30 @@ import AppMovilEstudiante from './pages/AppMovilEstudiante';
 import AdminPanel from './pages/AdminPanel';
 
 function ProtectedLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
+
+  const isEstudiante = user?.rol === 'estudiante';
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/ofertas" element={<Ofertas />} />
-          <Route path="/recomendacion" element={<Recomendacion />} />
-          <Route path="/postulaciones" element={<Postulaciones />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="/documentos-secretaria" element={<div className="p-6 sm:p-8"><DocumentosSecretaria /></div>} />
-          <Route path="/evaluacion-docente" element={<div className="p-6 sm:p-8"><DocenteEvaluacion /></div>} />
-          <Route path="/supervision-jefatura" element={<div className="p-6 sm:p-8"><SupervisionJefatura /></div>} />
+          <Route path="/dashboard" element={isEstudiante ? <Navigate to="/portal-estudiante" replace /> : <Dashboard />} />
+          <Route path="/ofertas" element={isEstudiante ? <Navigate to="/portal-estudiante?tab=muro" replace /> : <Ofertas />} />
+          <Route path="/recomendacion" element={isEstudiante ? <Navigate to="/portal-estudiante" replace /> : <Recomendacion />} />
+          <Route path="/postulaciones" element={isEstudiante ? <Navigate to="/portal-estudiante?tab=documentos" replace /> : <Postulaciones />} />
+          <Route path="/reportes" element={isEstudiante ? <Navigate to="/portal-estudiante" replace /> : <Reportes />} />
+          <Route path="/documentos-secretaria" element={isEstudiante ? <Navigate to="/portal-estudiante?tab=documentos" replace /> : <div className="p-6 sm:p-8"><DocumentosSecretaria /></div>} />
+          <Route path="/evaluacion-docente" element={isEstudiante ? <Navigate to="/portal-estudiante" replace /> : <div className="p-6 sm:p-8"><DocenteEvaluacion /></div>} />
+          <Route path="/supervision-jefatura" element={isEstudiante ? <Navigate to="/portal-estudiante" replace /> : <div className="p-6 sm:p-8"><SupervisionJefatura /></div>} />
           <Route path="/portal-estudiante" element={<PortalEstudiante />} />
           <Route path="/simulador-estudiante" element={<div className="p-6 sm:p-8"><SimuladorEstudiante /></div>} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to={isEstudiante ? '/portal-estudiante' : '/dashboard'} replace />} />
         </Routes>
       </div>
     </div>

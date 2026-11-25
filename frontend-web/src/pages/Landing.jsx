@@ -277,14 +277,6 @@ export default function Landing() {
                         <Download className="w-3.5 h-3.5" />
                         Descargar APK (11.9 MB)
                       </a>
-                      <button
-                        type="button"
-                        onClick={() => navigate('/app')}
-                        className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs border border-white/20 transition-all flex items-center gap-1.5 active:scale-95"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        Abrir App Móvil
-                      </button>
                     </div>
                   </div>
                 </div>

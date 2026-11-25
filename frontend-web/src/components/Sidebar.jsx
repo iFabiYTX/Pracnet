@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -20,6 +20,7 @@ import { useAuth } from '../context/AuthContext';
 export default function Sidebar() {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Elementos de navegación adaptados por rol
   let navItems = [];
@@ -28,21 +29,19 @@ export default function Sidebar() {
     navItems = [
       { to: '/documentos-secretaria', label: 'Gestión Documental & Seguros', icon: FileCheck2 },
       { to: '/postulaciones', label: 'Seguimiento y Firmas', icon: FileText },
-      { to: '/dashboard', label: 'Panel Resumen', icon: LayoutDashboard },
-      { to: '/app', label: 'Ver App Móvil Estudiantes', icon: Smartphone }
+      { to: '/dashboard', label: 'Panel Resumen', icon: LayoutDashboard }
     ];
   } else if (user?.rol === 'docente') {
     navItems = [
       { to: '/evaluacion-docente', label: 'Evaluación de Informes', icon: GraduationCap },
       { to: '/supervision-jefatura', label: 'Consultas Académicas', icon: MessageSquare },
-      { to: '/dashboard', label: 'Resumen de Prácticas', icon: LayoutDashboard },
-      { to: '/app', label: 'Ver App Móvil Estudiantes', icon: Smartphone }
+      { to: '/dashboard', label: 'Resumen de Prácticas', icon: LayoutDashboard }
     ];
   } else if (user?.rol === 'estudiante') {
     navItems = [
-      { to: '/portal-estudiante', label: 'Mi Perfil & Portal Web', icon: User },
-      { to: '/app', label: 'App Móvil Estudiante', icon: Smartphone },
-      { to: '/ofertas', label: 'Muro de Prácticas', icon: Briefcase }
+      { to: '/portal-estudiante?tab=perfil', label: 'Mi Perfil Estudiantil', icon: User },
+      { to: '/portal-estudiante?tab=muro', label: 'Muro de Ofertas', icon: Briefcase },
+      { to: '/portal-estudiante?tab=documentos', label: 'Seguro Escolar & Trámites', icon: FileCheck2 }
     ];
   } else {
     // Jefatura de Carrera y Administrador Institucional
@@ -54,9 +53,7 @@ export default function Sidebar() {
       { to: '/postulaciones', label: 'Seguimiento Postulaciones', icon: FileText },
       { to: '/documentos-secretaria', label: 'Trámites de Secretaría', icon: FileCheck2 },
       { to: '/evaluacion-docente', label: 'Evaluación Docente', icon: GraduationCap },
-      { to: '/reportes', label: 'Generación de Reportes', icon: BarChart3 },
-      { to: '/portal-estudiante', label: 'Portal del Estudiante', icon: User },
-      { to: '/app', label: 'Ver App Móvil Estudiantes', icon: Smartphone }
+      { to: '/reportes', label: 'Generación de Reportes', icon: BarChart3 }
     ];
   }
 
@@ -106,17 +103,20 @@ export default function Sidebar() {
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
+          const isTabLink = item.to.includes('?tab=');
+          const currentFull = `${location.pathname}${location.search || (location.pathname === '/portal-estudiante' ? '?tab=perfil' : '')}`;
           return (
             <NavLink
               key={item.to}
               to={item.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
-                  isActive
+              className={({ isActive }) => {
+                const active = isTabLink ? currentFull === item.to : isActive;
+                return `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
+                  active
                     ? 'bg-usm-blue text-white shadow-md font-bold border-l-4 border-amber-400'
                     : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-                }`
-              }
+                }`;
+              }}
             >
               <Icon className="w-4 h-4 shrink-0" />
               <span className="truncate">{item.label}</span>
